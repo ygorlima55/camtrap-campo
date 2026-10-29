@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<h1>Roteiros de configuração às cegas</h1>
+<p class="ajuda">Para câmeras com a tela apagada: cadastre, por modelo, a sequência de botões de cada ajuste <strong>partindo do
+  reset de fábrica</strong>. Descubra a sequência numa câmera do mesmo modelo com tela funcionando e marque "confirmado em campo"
+  quando testar. O programa não inventa sequências.</p>
+
+<form method="get" action="/roteiros" class="formulario linha nao-imprimir">
+  <label>Modelo <input name="modelo" list="lista-modelos" value="{{ modelo }}" required></label>
+  <datalist id="lista-modelos">{% for m in sugestoes %}<option value="{{ m }}">{% endfor %}</datalist>
+  <button class="botao">Abrir</button>
+</form>
+{% if modelos %}<p>Modelos com roteiro: {% for m in modelos %}<a href="/roteiros?modelo={{ m|urlencode }}">{{ m }}</a>{{ ', ' if not loop.last }}{% endfor %}</p>{% endif %}
+
+{% if modelo %}
+<h2>{{ modelo }}</h2>
+{% if passos %}
+<table>
+  <tr><th>#</th><th>Ajuste</th><th>Botões</th><th>Observação</th><th>Confirmado</th><th></th></tr>
+  {% for p in passos %}
+  <tr><td>{{ p.ordem }}</td><td>{{ p.ajuste }}</td><td class="botoes">{{ p.botoes }}</td><td>{{ p.observacao or '' }}</td>
+    <td>{{ 'sim' if p.confirmado_em_campo else 'não' }}</td>
+    <td><form method="post" action="/roteiros/{{ p.id }}/remover"><button>remover</button></form></td></tr>
+  {% endfor %}
+</table>
+<p><a class="botao" href="/roteiros/imprimir?modelo={{ modelo|urlencode }}" target="_blank">Versão para imprimir</a></p>
+{% else %}<p>Nenhum passo ainda.</p>{% endif %}
+
+<h3>Adicionar passo</h3>
+<form method="post" action="/roteiros" class="formulario linha">
+  <input type="hidden" name="modelo" value="{{ modelo }}">
+  <label>Ordem <input type="number" name="ordem" value="{{ (passos|length) + 1 }}" min="1" required style="width:5rem"></label>
+  <label>Ajuste <input name="ajuste" placeholder="Modo: foto + vídeo" required></label>
+  <label>Botões <input name="botoes" placeholder="MENU, ↓, ↓, OK, →, OK" required size="30"></label>
+  <label>Observação <input name="observacao" placeholder="aguardar 2 s após MENU"></label>
+  <label><span><input type="checkbox" name="confirmado" value="1"> confirmado em campo</span></label>
+  <button class="botao">Adicionar</button>
+</form>
+<p class="ajuda">Use: MENU, OK, ↑, ↓, ←, →, ou o nome impresso no botão. Separe por vírgulas.</p>
+{% endif %}
+{% endblock %}

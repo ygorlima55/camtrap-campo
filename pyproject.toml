@@ -40,7 +40,7 @@ target-version = "py312"
 select = ["E", "F", "W", "I", "B", "UP"]
 
 [tool.ruff.lint.per-file-ignores]
-"src/camtrap_campo/web/app.py" = ["B008"]  # Form(...) como padrão é o idioma do FastAPI
+"src/camtrap_campo/web/*.py" = ["B008"]  # Form(...)/File(...) como padrão é o idioma do FastAPI
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

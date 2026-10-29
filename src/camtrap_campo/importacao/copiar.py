@@ -212,6 +212,12 @@ def importar(fabrica_sessao, origem: Path, camera: str, ponto: str, campanha: st
         pastas = sorted({Path(a.caminho_cartao).parts[1] for a in imp.arquivos
                          if a.caminho_cartao.upper().startswith("DCIM/") and len(Path(a.caminho_cartao).parts) > 2})
         imp.modelo_detectado = sugerir_modelo(pastas, primeira_foto.exif if primeira_foto else None)
+        if primeira_foto:  # completa o cadastro da câmera só com o que o EXIF declara, sem sobrescrever
+            exif = primeira_foto.exif
+            if not cam.modelo and (exif.get("Make") or exif.get("Model")):
+                cam.modelo = " ".join(str(exif[k]) for k in ("Make", "Model") if exif.get(k))
+            if not cam.firmware and exif.get("Software"):
+                cam.firmware = str(exif["Software"])
         for alerta in alertas.gerar(imp, cmp):
             s.add(Alerta(importacao_id=imp_id, **alerta))
         imp.estado = "concluida" if imp.erros == 0 else "com_erros"

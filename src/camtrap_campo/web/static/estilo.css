@@ -28,3 +28,16 @@ progress { width: 100%; height: 1.2rem; }
 .previa { max-width: 360px; margin-top: .6rem; border: 1px solid var(--borda); }
 .vazio { padding: 1rem; background: #fff; border: 1px dashed var(--borda); }
 code { font-size: .85em; }
+.botao.secundario { background: #fff; color: var(--verde); border: 1px solid var(--verde); }
+.conclusao { padding: .8rem 1rem; border-radius: 8px; font-size: 1.05rem; }
+.conclusao.gravacao_ok { background: #e3f3e6; } .conclusao.sem_novos, .conclusao.nao_montou { background: #fbe9e7; }
+.passos li { margin: .35rem 0; }
+.botoes { font-family: Consolas, monospace; font-weight: 700; font-size: 1.1rem; letter-spacing: .05em; }
+.grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }
+.painel { background: #fff; border: 1px solid var(--borda); border-radius: 8px; padding: .8rem 1rem; }
+@media print {
+  header, .nao-imprimir, form { display: none !important; }
+  body { background: #fff; } main { padding: 0; max-width: none; }
+  table { font-size: 11pt; } .quadrado { width: 14px; height: 14px; border: 1.5px solid #000; display: inline-block; }
+}
+.quadrado { width: 14px; height: 14px; border: 1.5px solid #333; display: inline-block; vertical-align: middle; margin-right: .4rem; }

@@ -20,6 +20,7 @@ from camtrap_campo.db import Arquivo, Camera, Campanha, Importacao, Ponto, conec
 from camtrap_campo.importacao import horario
 from camtrap_campo.importacao.copiar import importar, obter_ou_criar
 from camtrap_campo.importacao.detectar import detectar_cartoes, resumir
+from camtrap_campo.web import rotas_gestao
 
 AQUI = Path(__file__).parent
 
@@ -173,4 +174,5 @@ def criar_app(fabrica=None, sincrono: bool = False, extras_cartoes: list[str] | 
             s.commit()
         return RedirectResponse("/cadastros", status_code=303)
 
+    rotas_gestao.registrar(app, fabrica, pagina, extras_cartoes)
     return app

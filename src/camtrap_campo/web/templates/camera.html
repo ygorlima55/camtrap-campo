@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<h1>Câmera {{ cam.etiqueta }}</h1>
+<p>{{ cam.modelo or 'modelo não informado' }} · firmware {{ cam.firmware or '—' }} · nº de série {{ cam.numero_serie or '—' }}</p>
+
+<h2>Dias ativos (pelas fotos e vídeos importados)</h2>
+{% if ativ.dias_com_registro %}
+<p><strong>{{ ativ.dias_com_registro }}</strong> dia(s) com registro entre {{ ativ.primeiro.strftime('%d/%m/%Y') }} e
+  {{ ativ.ultimo.strftime('%d/%m/%Y') }} ({{ ativ.dias_no_periodo }} dias no período).
+  {% if ativ.midias_ignoradas %}<small>{{ ativ.midias_ignoradas }} mídia(s) ignoradas por não terem data interna válida.</small>{% endif %}</p>
+{% if ativ.lacunas %}<p>Períodos sem nenhum registro (2 dias ou mais):</p>
+<ul>{% for de, ate, n in ativ.lacunas %}<li>{{ de.strftime('%d/%m/%Y') }} a {{ ate.strftime('%d/%m/%Y') }} ({{ n }} dias)</li>{% endfor %}</ul>
+<p class="ajuda">Sem registro pode ser ausência de animais ou câmera parada — use o time-lapse e o histórico abaixo para separar.</p>{% endif %}
+{% else %}<p>Sem mídias com data válida importadas.</p>{% endif %}
+
+<h2>Registrar evento</h2>
+<form method="post" action="/cameras/{{ cam.id }}/eventos" enctype="multipart/form-data" class="formulario linha">
+  <label>Tipo <select name="tipo">{% for k, v in tipos.items() %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select></label>
+  <label>Data e hora <input type="datetime-local" name="data" value="{{ agora }}" required></label>
+  <label>Ponto <input name="ponto" list="lista-pontos"></label>
+  <datalist id="lista-pontos">{% for p in pontos %}<option value="{{ p.nome }}">{% endfor %}</datalist>
+  <label>Campanha <input name="campanha" list="lista-campanhas"></label>
+  <datalist id="lista-campanhas">{% for c in campanhas %}<option value="{{ c.nome }}">{% endfor %}</datalist>
+  <label>Pilhas: marca <input name="pilhas_marca" placeholder="Duracell"></label>
+  <label>Pilhas: tipo <input name="pilhas_tipo" placeholder="alcalina AA / lítio AA"></label>
+  <label>Observação <input name="descricao" size="40"></label>
+  <label>Fotos de campo <input type="file" name="fotos" accept="image/*" multiple></label>
+  <button class="botao">Salvar</button>
+</form>
+
+<h2>Histórico</h2>
+{% if eventos %}
+<table>
+  <tr><th>Data</th><th>Evento</th><th>Ponto</th><th>Campanha</th><th>Pilhas</th><th>Observação</th><th>Fotos</th></tr>
+  {% for e in eventos %}
+  <tr><td>{{ e.data|dh }}</td><td>{{ tipos.get(e.tipo, e.tipo) }}</td><td>{{ e.ponto.nome if e.ponto else '' }}</td>
+    <td>{{ e.campanha.nome if e.campanha else '' }}</td>
+    <td>{{ e.pilhas_marca or '' }} {{ e.pilhas_tipo or '' }}</td><td>{{ e.descricao or '' }}</td>
+    <td>{% for f in e.fotos or [] %}<a href="/dados/{{ f }}" target="_blank">foto {{ loop.index }}</a> {% endfor %}</td></tr>
+  {% endfor %}
+</table>
+{% else %}<p>Nenhum evento registrado.</p>{% endif %}
+
+<h2>Importações</h2>
+<ul>{% for i in importacoes %}<li><a href="/importacoes/{{ i.id }}">#{{ i.id }}</a> {{ i.iniciada_em|dh }} — {{ i.campanha.nome }} / {{ i.ponto.nome }}
+  — {{ i.copiados }} novos</li>{% else %}<li>Nenhuma.</li>{% endfor %}</ul>
+{% endblock %}

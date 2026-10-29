@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<h1>Teste de câmera sem tela #{{ teste.id }}{% if teste.camera %} — {{ teste.camera.etiqueta }}{% endif %}</h1>
+<p>Local: <code>{{ teste.raiz }}</code> · estado registrado em {{ teste.criado_em|dh }} com {{ teste.antes|length }} mídia(s).</p>
+{% if not teste.resultado %}
+<ol class="passos">
+  <li>Desconecte a câmera (ou retire o cartão) <strong>agora</strong>.</li>
+  <li>Ligue a câmera em ON, aguarde 1 minuto e passe a mão na frente do sensor por ~1 minuto.</li>
+  <li>Reconecte no mesmo lugar e clique em Verificar.</li>
+</ol>
+{% endif %}
+<form method="post" action="/sem-tela/{{ teste.id }}/verificar"><button class="botao">Verificar</button></form>
+{% if teste.resultado %}
+  <p class="conclusao {{ teste.resultado }}">{{ conclusoes[teste.resultado] }}</p>
+  <p>Verificado em {{ teste.verificado_em|dh }} · mídias novas: {{ teste.novos|length }}</p>
+  {% if teste.novos %}<ul>{% for n in teste.novos[:20] %}<li><code>{{ n[0] }}</code> ({{ n[1] }} bytes)</li>{% endfor %}</ul>{% endif %}
+  {% if teste.camera %}<p><a href="/cameras/{{ teste.camera_id }}">Ver histórico da câmera {{ teste.camera.etiqueta }}</a> (o resultado foi registrado lá).</p>{% endif %}
+{% endif %}
+{% endblock %}

@@ -116,6 +116,55 @@ class Alerta(Base):
     importacao: Mapped[Importacao] = relationship(back_populates="alertas")
 
 
+class EventoCamera(Base):
+    """Histórico de campo: instalação, retirada, troca de pilhas, falha, manutenção, observação."""
+
+    __tablename__ = "evento_camera"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    camera_id: Mapped[int] = mapped_column(ForeignKey("camera.id"), index=True)
+    tipo: Mapped[str] = mapped_column(String(20))
+    data: Mapped[dt.datetime] = mapped_column(DateTime)
+    ponto_id: Mapped[int | None] = mapped_column(ForeignKey("ponto.id"))
+    campanha_id: Mapped[int | None] = mapped_column(ForeignKey("campanha.id"))
+    pilhas_marca: Mapped[str | None] = mapped_column(String(60))
+    pilhas_tipo: Mapped[str | None] = mapped_column(String(60))  # alcalina, lítio, recarregável NiMH...
+    descricao: Mapped[str | None] = mapped_column(Text)
+    fotos: Mapped[list | None] = mapped_column(JSON)  # caminhos relativos à pasta Dados
+    registrado_em: Mapped[dt.datetime] = mapped_column(DateTime, default=agora)
+
+    camera: Mapped[Camera] = relationship()
+    ponto: Mapped[Ponto | None] = relationship()
+    campanha: Mapped[Campanha | None] = relationship()
+
+
+class PassoRoteiro(Base):
+    """Sequência de botões para um ajuste, por modelo, partindo do reset de fábrica (configuração às cegas)."""
+
+    __tablename__ = "passo_roteiro"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    modelo: Mapped[str] = mapped_column(String(120), index=True)
+    ordem: Mapped[int] = mapped_column(Integer)
+    ajuste: Mapped[str] = mapped_column(String(120))  # ex.: "Modo: foto + vídeo"
+    botoes: Mapped[str] = mapped_column(String(300))  # ex.: "MENU, ↓, ↓, OK, →, OK"
+    observacao: Mapped[str | None] = mapped_column(Text)
+    confirmado_em_campo: Mapped[bool] = mapped_column(Boolean, default=False)
+
+
+class TesteSemTela(Base):
+    """Teste de câmera com tela apagada: foto do estado do cartão antes, disparos, e comparação depois."""
+
+    __tablename__ = "teste_sem_tela"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    camera_id: Mapped[int | None] = mapped_column(ForeignKey("camera.id"))
+    raiz: Mapped[str] = mapped_column(String(260))
+    criado_em: Mapped[dt.datetime] = mapped_column(DateTime, default=agora)
+    antes: Mapped[list] = mapped_column(JSON)  # [[caminho, tamanho], ...] das mídias antes do teste
+    verificado_em: Mapped[dt.datetime | None] = mapped_column(DateTime)
+    novos: Mapped[list | None] = mapped_column(JSON)
+    resultado: Mapped[str | None] = mapped_column(String(30))  # gravacao_ok | sem_novos | nao_montou
+    camera: Mapped[Camera | None] = relationship()
+
+
 def conectar(caminho: Path):
     """Cria o banco (se preciso) e devolve uma fábrica de sessões."""
     caminho = Path(caminho)

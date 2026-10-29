@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<h1>Diagnóstico de {{ ident.raiz }}</h1>
+<div class="grade">
+  <div class="painel">
+    <h3>Identificação</h3>
+    <p><strong>Modelo:</strong> {{ ident.modelo or 'não identificado pelos arquivos' }}</p>
+    <p><strong>Padrão de nomes:</strong> {{ ident.padrao or '—' }}</p>
+    <p><strong>Câmera provável:</strong>
+      {% if ident.camera_provavel %}{{ ident.camera_provavel }}
+        <small>(pelos arquivos já importados: {{ ident.votos_camera }})</small>
+      {% else %}desconhecida (nada deste cartão foi importado antes){% endif %}</p>
+  </div>
+  <div class="painel">
+    <h3>Mídias</h3>
+    <p>{{ ident.total_midias }} no cartão · <strong>{{ ident.novas }} novas</strong> · {{ ident.ja_importadas }} já importadas</p>
+    {% if ident.appledouble_orfaos %}<p class="alerta erro">{{ ident.appledouble_orfaos }} arquivo(s) "._" de Mac sem a foto —
+      o cartão foi lido num Mac e as fotos não estão mais nele.</p>{% endif %}
+    {% if ident.ultima_midia %}
+      <p><strong>Última:</strong> <code>{{ ident.ultima_midia }}</code><br>
+        {{ ident.ultima_data.replace('T', ' ') }} <small>({{ 'EXIF' if ident.fonte_ultima_data == 'exif' else 'data do arquivo' }})</small>
+        {% if ident.dias_desde_ultima is not none %}— há {{ ident.dias_desde_ultima }} dia(s){% endif %}</p>
+    {% else %}<p>Nenhuma foto ou vídeo no cartão.</p>{% endif %}
+  </div>
+</div>
+{% if ident.ultima_midia and ident.ultima_midia.lower().endswith(('.jpg', '.jpeg')) %}
+  <img class="previa" src="/cartao/miniatura?caminho={{ (ident.raiz ~ '/' ~ ident.ultima_midia)|urlencode }}" alt="última foto do cartão">
+{% endif %}
+
+<h2>Câmera com a tela apagada?</h2>
+<p>O processador pode estar funcionando mesmo sem imagem na tela. Faça o teste em 3 passos:</p>
+<ol class="passos">
+  <li>Com a câmera conectada pelo cabo (ou o cartão no leitor), clique em <strong>Começar teste</strong>.</li>
+  <li>Desconecte, ligue a câmera na posição ON, espere 1 minuto e passe a mão na frente do sensor por ~1 minuto.</li>
+  <li>Reconecte e clique em <strong>Verificar</strong> na página do teste.</li>
+</ol>
+<form method="post" action="/sem-tela/iniciar" class="formulario linha">
+  <input type="hidden" name="origem" value="{{ ident.raiz }}">
+  <label>Câmera (etiqueta) <input name="camera" list="lista-cameras" value="{{ ident.camera_provavel or '' }}"></label>
+  <datalist id="lista-cameras">{% for c in cameras %}<option value="{{ c.etiqueta }}">{% endfor %}</datalist>
+  <button class="botao">Começar teste</button>
+</form>
+{% if testes %}<p>Testes anteriores neste local:
+  {% for t in testes %}<a href="/sem-tela/{{ t.id }}">#{{ t.id }} ({{ t.resultado or 'aguardando' }})</a> {% endfor %}</p>{% endif %}
+<p><a class="botao" href="/importar?origem={{ ident.raiz|urlencode }}">Importar este cartão</a></p>
+{% endblock %}

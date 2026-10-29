@@ -10,8 +10,9 @@
   <label>Fim <input type="date" name="fim"></label>
   <button class="botao">Salvar</button>
 </form>
-<table><tr><th>Nome</th><th>Início</th><th>Fim</th></tr>
-  {% for c in campanhas %}<tr><td>{{ c.nome }}</td><td>{{ c.inicio or '—' }}</td><td>{{ c.fim or '—' }}</td></tr>{% endfor %}
+<table><tr><th>Nome</th><th>Início</th><th>Fim</th><th></th></tr>
+  {% for c in campanhas %}<tr><td>{{ c.nome }}</td><td>{{ c.inicio or '—' }}</td><td>{{ c.fim or '—' }}</td>
+    <td><a href="/campanhas/{{ c.id }}/checklist">Checklist de campo</a></td></tr>{% endfor %}
 </table>
 
 <h2>Pontos</h2>

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<h1>Configuração às cegas — {{ modelo }}</h1>
+<p class="nao-imprimir"><button class="botao" onclick="window.print()">Imprimir</button></p>
+<ol class="passos">
+  <li><span class="quadrado"></span>Pilhas novas e iguais; cartão formatado na câmera.</li>
+  <li><span class="quadrado"></span><strong>Reset de fábrica</strong> (ponto de partida de todas as sequências abaixo).</li>
+  {% for p in passos %}
+  <li><span class="quadrado"></span><strong>{{ p.ajuste }}</strong>: <span class="botoes">{{ p.botoes }}</span>
+    {% if p.observacao %}<br><small>{{ p.observacao }}</small>{% endif %}
+    {% if not p.confirmado_em_campo %}<br><small>(ainda não confirmado em campo)</small>{% endif %}</li>
+  {% endfor %}
+  <li><span class="quadrado"></span>Tirar uma foto do relógio do celular (referência de horário) e conferir o LED de disparo.</li>
+  <li><span class="quadrado"></span>Chave em ON e tampa fechada.</li>
+</ol>
+{% if not passos %}<p class="alerta aviso">Nenhum passo cadastrado para este modelo.</p>{% endif %}
+<p><small>Impresso em {{ versao }} — conferir com uma câmera de tela funcionando quando possível.</small></p>
+{% endblock %}

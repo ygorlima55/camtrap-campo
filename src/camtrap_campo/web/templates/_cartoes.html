@@ -8,6 +8,7 @@
     {% if c.ultima_midia %}<p>Última: <code>{{ c.ultima_midia }}</code> ({{ c.ultima_data.replace('T', ' ') }})</p>{% endif %}
     {% if c.appledouble %}<p class="alerta erro">{{ c.appledouble }} arquivo(s) "._" de Mac — confira se as fotos estão no cartão</p>{% endif %}
     <a class="botao" href="/importar?origem={{ c.raiz|urlencode }}">Importar este cartão</a>
+    <a class="botao secundario" href="/diagnostico?origem={{ c.raiz|urlencode }}">Diagnóstico</a>
   </div>
   {% endfor %}
 </div>

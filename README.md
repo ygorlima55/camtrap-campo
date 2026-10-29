@@ -3,7 +3,7 @@
 Programa para tratar os dados das armadilhas fotográficas **do cartão SD até a análise**, no Windows, **sem internet**.
 As câmeras continuam com o firmware de fábrica; tudo acontece no computador.
 
-> Estado: **Etapa 1 (importação e organização) pronta.** Próximas: 4 (diagnóstico das câmeras), 2 (IA), 3 (análises).
+> Estado: **Etapas 1 (importação) e 4 (diagnóstico e gestão das câmeras) prontas.** Próximas: 2 (IA) e 3 (análises).
 
 ## Instalação (uma vez só)
 1. Baixe a pasta do programa (botão verde **Code → Download ZIP** no GitHub) e descompacte, por exemplo, em
@@ -45,6 +45,19 @@ As câmeras continuam com o firmware de fábrica; tudo acontece no computador.
 Na página da importação, escolha uma foto cuja hora real você sabe (ex.: a foto do relógio do celular tirada na
 instalação) e informe essa hora. A diferença é aplicada a todas as fotos e vídeos daquele cartão; a hora original
 fica guardada no banco.
+
+## Diagnóstico e gestão das câmeras
+- **Ao conectar** (botão **Diagnóstico** no cartão): modelo provável (pelo EXIF, pasta e nomes), câmera provável
+  (pelos arquivos já importados), última foto com a data e quantas mídias são **novas**.
+- **Câmera com a tela apagada**: clique em *Começar teste*, desconecte, ligue a câmera e provoque disparos, reconecte e
+  clique em *Verificar*. Se surgirem mídias novas: "processador e gravação OK — defeito provável na tela (cabo flat ou
+  luz de fundo)". Se não: o programa mostra os próximos passos. O resultado entra no histórico da câmera.
+- **Câmeras** (menu): dias com registro, período e lacunas de cada câmera; histórico de instalação, retirada, troca de
+  pilhas (marca e tipo), falhas e observações, com fotos de campo.
+- **Roteiros às cegas** (menu): cadastre, por modelo, a sequência de botões de cada ajuste partindo do reset de fábrica e
+  imprima o passo a passo. O programa não inventa sequências: confirme numa câmera com tela funcionando.
+- **Checklist de campo** (Cadastros → campanha → *Checklist de campo*): versão para imprimir com os cuidados
+  (pilhas iguais e novas, cartão formatado na câmera, foto do relógio…) e uma tabela por ponto.
 
 ## Privacidade
 O programa só funciona neste computador (`127.0.0.1`) e não envia nada para a internet.

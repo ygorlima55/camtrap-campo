@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<h1>Checklist de campo — {{ campanha.nome }}</h1>
+<p>{% if campanha.inicio %}Período: {{ campanha.inicio.strftime('%d/%m/%Y') }}{% if campanha.fim %} a {{ campanha.fim.strftime('%d/%m/%Y') }}{% endif %} · {% endif %}
+  Equipe: ______________________ · Data: ___/___/______</p>
+<p class="nao-imprimir"><button class="botao" onclick="window.print()">Imprimir</button></p>
+
+<h2>Em cada câmera</h2>
+<ul class="passos" style="list-style:none;padding-left:0">
+  {% for item in itens %}<li><span class="quadrado"></span>{{ item }}</li>{% endfor %}
+</ul>
+
+<h2>Registro por ponto</h2>
+<table>
+  <tr><th>Ponto</th><th>Câmera</th><th>Coordenadas</th><th>Pilhas (marca/tipo)</th><th>Cartão formatado na câmera</th>
+    <th>Hora da foto do relógio</th><th>Teste de disparo</th><th>Observações</th></tr>
+  {% for etiqueta, ponto, lat, lon in linhas %}
+  <tr><td>{{ ponto }}</td><td>{{ etiqueta }}</td><td>{% if lat is not none %}{{ lat }}, {{ lon }}{% endif %}</td>
+    <td></td><td><span class="quadrado"></span></td><td>__:__</td><td><span class="quadrado"></span></td><td></td></tr>
+  {% endfor %}
+  {% for _ in range(10 if not linhas else 3) %}
+  <tr><td>&nbsp;</td><td></td><td></td><td></td><td><span class="quadrado"></span></td><td>__:__</td><td><span class="quadrado"></span></td><td></td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

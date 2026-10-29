@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<h1>Câmeras</h1>
+{% if cameras %}
+<table>
+  <tr><th>Etiqueta</th><th>Modelo</th><th>Firmware</th><th>Importações</th><th>Dias com registro</th><th>Período</th><th>Lacunas</th></tr>
+  {% for c in cameras %}{% set a = resumo[c.id] %}
+  <tr>
+    <td><a href="/cameras/{{ c.id }}">{{ c.etiqueta }}</a></td><td>{{ c.modelo or '—' }}</td><td>{{ c.firmware or '—' }}</td>
+    <td>{{ n_imp.get(c.id, 0) }}</td><td>{{ a.dias_com_registro }}</td>
+    <td>{% if a.primeiro %}{{ a.primeiro.strftime('%d/%m/%Y') }} → {{ a.ultimo.strftime('%d/%m/%Y') }}{% else %}—{% endif %}</td>
+    <td>{{ a.lacunas|length }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}<p>Nenhuma câmera ainda. Elas são criadas na importação ou em Cadastros.</p>{% endif %}
+{% endblock %}
