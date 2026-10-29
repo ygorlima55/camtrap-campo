@@ -118,7 +118,7 @@ def registrar(app: FastAPI, fabrica, pagina, extras_cartoes: list[str]) -> None:
     @app.post("/cameras/{cam_id}/eventos")
     async def novo_evento(cam_id: int, tipo: str = Form(...), data: str = Form(...), ponto: str = Form(""),
                           campanha: str = Form(""), pilhas_marca: str = Form(""), pilhas_tipo: str = Form(""),
-                          descricao: str = Form(""), fotos: list[UploadFile] = File(default=[])):
+                          descricao: str = Form(""), fim: str = Form(""), fotos: list[UploadFile] = File(default=[])):
         if tipo not in historico.TIPOS_EVENTO:
             raise HTTPException(400, "tipo de evento inválido")
         with fabrica() as s:
@@ -137,7 +137,10 @@ def registrar(app: FastAPI, fabrica, pagina, extras_cartoes: list[str]) -> None:
                 destino = pasta / f"{quando:%Y%m%d_%H%M%S}_{tipo}_{i + 1}{Path(up.filename).suffix.lower() or '.jpg'}"
                 destino.write_bytes(await up.read())
                 salvas.append(destino.relative_to(config.pasta_dados()).as_posix())
-            s.add(EventoCamera(camera_id=cam_id, tipo=tipo, data=quando, ponto_id=pto.id if pto else None,
+            ate = dt.datetime.fromisoformat(fim) if fim else None
+            if ate and ate < quando:
+                raise HTTPException(400, "o fim da falha não pode ser antes do início")
+            s.add(EventoCamera(camera_id=cam_id, tipo=tipo, data=quando, fim=ate, ponto_id=pto.id if pto else None,
                                campanha_id=cmp.id if cmp else None, pilhas_marca=pilhas_marca or None,
                                pilhas_tipo=pilhas_tipo or None, descricao=descricao or None, fotos=salvas or None))
             s.commit()

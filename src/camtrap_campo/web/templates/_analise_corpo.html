@@ -1,0 +1,50 @@
+{% for a in an.avisos %}<p class="alerta aviso">{{ a }}</p>{% endfor %}
+<div class="grade">
+  <div class="painel"><h3>Esforço</h3><p><strong>{{ an.taxas.camaras_dia }}</strong> câmeras-dia em {{ an.esforco|length }} estação(ões)</p></div>
+  <div class="painel"><h3>Registros</h3><p><strong>{{ an.independentes|length }}</strong> independentes (intervalo {{ an.intervalo_min }} min)
+    de {{ an.conjunto.registros|length }} identificações</p></div>
+  <div class="painel"><h3>Riqueza</h3><p><strong>{{ an.taxas.especies|length }}</strong> espécie(s)</p></div>
+  <div class="painel"><h3>Outras sequências revisadas</h3><p>{% for k, v in an.conjunto.outros_resultados.items() %}{{ k }}: {{ v }}{{ ' · ' if not loop.last }}{% else %}nenhuma{% endfor %}</p></div>
+</div>
+
+<h2>Esforço amostral por estação</h2>
+<table><tr><th>Ponto</th><th>Câmera</th><th>Início</th><th>Fim</th><th>Dias</th><th>Dias em falha</th><th>Câmeras-dia</th><th>Período por</th></tr>
+  {% for e in an.esforco %}<tr><td>{{ e.ponto }}</td><td>{{ e.camera }}</td><td>{{ e.inicio or '—' }}</td><td>{{ e.fim or '—' }}</td>
+    <td>{{ e.dias_totais }}</td><td>{{ e.dias_falha }}</td><td><strong>{{ e.camaras_dia }}</strong></td><td>{{ e.fonte_periodo }}</td></tr>{% endfor %}
+</table>
+
+<h2>Taxa de captura (registros independentes / 100 câmeras-dia)</h2>
+{% if an.taxas.especies %}
+<table><tr><th>Espécie</th><th>Nome popular</th><th>Registros</th><th>Taxa</th><th>Pontos</th><th>Atividade</th></tr>
+  {% for t in an.taxas.especies %}<tr><td><em>{{ t.especie }}</em></td><td>{{ t.nome_popular }}</td><td>{{ t.registros }}</td>
+    <td>{{ t.taxa if t.taxa is not none else '—' }}</td><td>{{ t.pontos_com_registro }}</td><td>{{ an.periodos.get(t.especie, '') }}</td></tr>{% endfor %}
+</table>
+<p class="ajuda">"Atividade" é um rótulo descritivo pela proporção de registros no dia/noite solares (não é teste estatístico).</p>
+{% else %}<p>Nenhum registro de espécie confirmado na revisão.</p>{% endif %}
+
+<h2>Padrão de atividade diária</h2>
+{% if grafico_atividade %}<img src="{{ grafico_atividade }}" alt="curvas de atividade" style="max-width:100%">
+<p class="ajuda">Densidade de kernel circular (von Mises) em hora solar. Só espécies com 10 registros independentes ou mais.</p>
+{% else %}<p>Nenhuma espécie com 10 registros independentes ou mais.</p>{% endif %}
+
+<h2>Sobreposição de atividade entre espécies (Δ)</h2>
+{% if an.sobreposicoes %}
+<table><tr><th>Espécie A</th><th>Espécie B</th><th>n A</th><th>n B</th><th>Δ</th><th>Estimador</th></tr>
+  {% for s in an.sobreposicoes %}<tr><td><em>{{ s.a }}</em></td><td><em>{{ s.b }}</em></td><td>{{ s.na }}</td><td>{{ s.nb }}</td>
+    <td>{{ s.delta if s.delta is not none else '—' }}</td><td>{{ s.estimador or s.motivo }}</td></tr>{% endfor %}
+</table>
+<p class="ajuda">Δ vai de 0 (sem sobreposição) a 1 (padrões idênticos). Δ̂1 para amostras pequenas, Δ̂4 quando ambas têm ≥ 75 registros
+  (Ridout & Linkie 2009). Intervalos de confiança ainda não calculados.</p>
+{% else %}<p>São necessárias ao menos duas espécies com 10 registros independentes ou mais.</p>{% endif %}
+
+<h2>Curva de acumulação de espécies</h2>
+{% if grafico_acumulacao %}<img src="{{ grafico_acumulacao }}" alt="curva de acumulação" style="max-width:640px;width:100%">
+<p class="ajuda">{{ an.acumulacao.observada }} espécie(s) em {{ an.acumulacao.dias|length }} dia(s); média de {{ an.acumulacao.permutacoes }} ordens aleatórias dos dias.</p>
+{% else %}<p>Sem dias de amostragem.</p>{% endif %}
+
+<h2>Mapa dos pontos</h2>
+{% if mapa %}{{ mapa|safe }}{% else %}<p>Nenhum ponto com coordenadas (cadastre em Cadastros → Pontos).</p>{% endif %}
+<table><tr><th>Ponto</th><th>Registros</th><th>Riqueza</th><th>Câmeras-dia</th><th>Espécies</th></tr>
+  {% for p in an.pontos %}<tr><td>{{ p.ponto }}</td><td>{{ p.registros }}</td><td>{{ p.riqueza }}</td><td>{{ p.camaras_dia }}</td>
+    <td>{% for e in p.especies %}<em>{{ e }}</em>{{ ', ' if not loop.last }}{% endfor %}</td></tr>{% endfor %}
+</table>

@@ -17,6 +17,7 @@
 <form method="post" action="/cameras/{{ cam.id }}/eventos" enctype="multipart/form-data" class="formulario linha">
   <label>Tipo <select name="tipo">{% for k, v in tipos.items() %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select></label>
   <label>Data e hora <input type="datetime-local" name="data" value="{{ agora }}" required></label>
+  <label>Até (falhas: quando voltou a funcionar) <input type="datetime-local" name="fim"></label>
   <label>Ponto <input name="ponto" list="lista-pontos"></label>
   <datalist id="lista-pontos">{% for p in pontos %}<option value="{{ p.nome }}">{% endfor %}</datalist>
   <label>Campanha <input name="campanha" list="lista-campanhas"></label>
@@ -33,7 +34,7 @@
 <table>
   <tr><th>Data</th><th>Evento</th><th>Ponto</th><th>Campanha</th><th>Pilhas</th><th>Observação</th><th>Fotos</th></tr>
   {% for e in eventos %}
-  <tr><td>{{ e.data|dh }}</td><td>{{ tipos.get(e.tipo, e.tipo) }}</td><td>{{ e.ponto.nome if e.ponto else '' }}</td>
+  <tr><td>{{ e.data|dh }}{% if e.fim %} → {{ e.fim|dh }}{% endif %}</td><td>{{ tipos.get(e.tipo, e.tipo) }}</td><td>{{ e.ponto.nome if e.ponto else '' }}</td>
     <td>{{ e.campanha.nome if e.campanha else '' }}</td>
     <td>{{ e.pilhas_marca or '' }} {{ e.pilhas_tipo or '' }}</td><td>{{ e.descricao or '' }}</td>
     <td>{% for f in e.fotos or [] %}<a href="/dados/{{ f }}" target="_blank">foto {{ loop.index }}</a> {% endfor %}</td></tr>

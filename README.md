@@ -3,7 +3,7 @@
 Programa para tratar os dados das armadilhas fotográficas **do cartão SD até a análise**, no Windows, **sem internet**.
 As câmeras continuam com o firmware de fábrica; tudo acontece no computador.
 
-> Estado: **Etapas 1 (importação), 4 (diagnóstico e gestão) e 2 (IA) prontas.** Próxima: 3 (análises).
+> Estado: **todas as etapas prontas** — 1 (importação), 4 (diagnóstico e gestão), 2 (IA) e 3 (análises e exportações).
 > IA validada com o SpeciesNet real (modelo 4.0.3a) em fotos de uma MINI400: ~7 s por foto num i5 sem placa de vídeo.
 
 ## Instalação (uma vez só)
@@ -83,6 +83,25 @@ fica guardada no banco.
   imprima o passo a passo. O programa não inventa sequências: confirme numa câmera com tela funcionando.
 - **Checklist de campo** (Cadastros → campanha → *Checklist de campo*): versão para imprimir com os cuidados
   (pilhas iguais e novas, cartão formatado na câmera, foto do relógio…) e uma tabela por ponto.
+
+## Análises e exportações
+Menu **Análises** → escolha a campanha e o intervalo de independência (padrão 30 min). Só entram as identificações
+**confirmadas na Revisão** (sugestões da IA não revisadas ficam de fora).
+- **Registros independentes**: por espécie e ponto, um novo registro só conta se vier mais de N minutos depois do último
+  registro independente.
+- **Esforço** em câmeras-dia: da instalação à retirada (eventos da página de cada câmera), descontando os dias de
+  **falha** (registre a falha com a data de *Até*). Sem eventos, usa a primeira e a última mídia e avisa.
+- **Taxa de captura** (registros / 100 câmeras-dia), riqueza por ponto e **mapa** simples dos pontos (sem mapa de fundo,
+  não usa internet).
+- **Padrão de atividade** em hora solar (6 h = nascer, 18 h = pôr do sol, calculados pelas coordenadas do ponto),
+  densidade circular de kernel e **sobreposição Δ** entre pares de espécies (Δ̂1 com menos de 75 registros, Δ̂4 a partir
+  disso; mínimo de 10 registros por espécie).
+- **Curva de acumulação** de espécies (média de 200 ordens aleatórias dos dias).
+- **Relatório para imprimir/PDF**: página única, sem dependências (no navegador: Ctrl+P → Salvar como PDF).
+- **Exportar tudo** (ZIP, também salvo em `Dados\_exportacoes\`): pacote **Camtrap DP 1.0** (GBIF/Wildlife Insights),
+  Excel com todas as tabelas, CSVs, tabelas no formato do **camtrapR** (`CTtable` e `recordTable`) e o relatório.
+
+Ainda não há intervalos de confiança (bootstrap) para Δ; para publicação, confira os números no pacote `overlap` do R.
 
 ## Privacidade
 O programa só funciona neste computador (`127.0.0.1`) e não envia nada para a internet.

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<h1>Análises</h1>
+<form method="get" action="/analises" class="formulario linha">
+  <label>Campanha <select name="campanha" required>{% for c in campanhas %}
+    <option value="{{ c.id }}" {{ 'selected' if c.id == campanha_id }}>{{ c.nome }}</option>{% endfor %}</select></label>
+  <label>Intervalo de independência (min) <input type="number" name="intervalo" min="1" value="{{ intervalo }}" style="width:6rem"></label>
+  <button class="botao">Analisar</button>
+</form>
+<p class="ajuda">Usa só as identificações confirmadas na Revisão. Para um esforço correto, registre instalação, retirada e falhas
+  (com data final) na página de cada câmera.</p>
+{% if an %}
+<p class="nao-imprimir">
+  <a class="botao" href="/analises/{{ campanha.id }}/relatorio?intervalo={{ intervalo }}" target="_blank">Relatório para imprimir/PDF</a>
+  <a class="botao secundario" href="/analises/{{ campanha.id }}/exportar?intervalo={{ intervalo }}">Exportar tudo (ZIP: Camtrap DP, Excel, CSV, camtrapR)</a>
+</p>
+{% include "_analise_corpo.html" %}
+{% endif %}
+{% endblock %}

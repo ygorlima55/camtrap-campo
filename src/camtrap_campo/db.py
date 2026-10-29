@@ -124,6 +124,7 @@ class EventoCamera(Base):
     camera_id: Mapped[int] = mapped_column(ForeignKey("camera.id"), index=True)
     tipo: Mapped[str] = mapped_column(String(20))
     data: Mapped[dt.datetime] = mapped_column(DateTime)
+    fim: Mapped[dt.datetime | None] = mapped_column(DateTime)  # falhas: até quando a câmera ficou parada
     ponto_id: Mapped[int | None] = mapped_column(ForeignKey("ponto.id"))
     campanha_id: Mapped[int | None] = mapped_column(ForeignKey("campanha.id"))
     pilhas_marca: Mapped[str | None] = mapped_column(String(60))
