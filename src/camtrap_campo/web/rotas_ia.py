@@ -112,7 +112,10 @@ def registrar(app: FastAPI, fabrica, pagina, sincrono: bool) -> None:
                     "comportamento": rev.comportamento, "divulgacao": rev.divulgacao, "observacao": rev.observacao}}
 
     def _caixa(d: Deteccao) -> dict:
-        return {"bbox": d.bbox, "categoria": d.categoria, "confianca": round(d.confianca, 2), "simulado": d.simulado}
+        c = d.classificacao or {}
+        nome = c.get("nome_cientifico") or c.get("nome_popular_en")
+        return {"bbox": d.bbox, "categoria": d.categoria, "confianca": round(d.confianca, 2), "simulado": d.simulado,
+                "especie": f"{nome} {round(c.get('confianca', 0) * 100)}%" if nome and d.categoria == "animal" else ""}
 
     @app.get("/deteccoes/{det_id}/imagem")
     def imagem_deteccao(det_id: int, tamanho: int = 1280):

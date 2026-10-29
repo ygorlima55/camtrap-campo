@@ -47,7 +47,8 @@ def _salvar_ia(sessao, arq: Arquivo, resultados: list[tuple[float | None, str | 
     for segundo, quadro, r in resultados:
         for d in r.deteccoes:
             sessao.add(Deteccao(arquivo_id=arq.id, quadro_s=segundo, quadro_caminho=quadro, categoria=d["categoria"],
-                                confianca=d["confianca"], bbox=d["bbox"], modelo=r.modelo, simulado=r.simulado))
+                                confianca=d["confianca"], bbox=d["bbox"], classificacao=d.get("classificacao"),
+                                modelo=r.modelo, simulado=r.simulado))
         if r.classificacao and (melhor is None or r.classificacao.get("confianca", 0) > melhor.get("confianca", 0)):
             melhor = r.classificacao
     erros = [r.erro for _, _, r in resultados if r.erro]

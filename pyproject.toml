@@ -25,6 +25,11 @@ camtrap-campo = "camtrap_campo:main"
 requires = ["uv_build>=0.13.5,<0.14.0"]
 build-backend = "uv_build"
 
+[tool.uv]
+# O programa é para Windows: resolver só para Windows evita conflitos de combinações que nunca usamos
+# (ex.: speciesnet exige numpy<2 no Mac Intel, e ml-dtypes 0.5 exige numpy>=2.1 no Python 3.13).
+environments = ["sys_platform == 'win32'"]
+
 [dependency-groups]
 dev = [
     "httpx>=0.28.1",
@@ -32,7 +37,10 @@ dev = [
     "ruff>=0.17.3",
 ]
 # IA (opcional, ~1 GB): SpeciesNet do Google, que inclui o MegaDetector v5a. Instalar com instalar_ia.bat.
-ia = ["speciesnet>=5.0.6"]
+# torch e torchvision precisam ser o par compilado junto: torchvision 0.29.0 exige torch==2.14.0
+# (com torch 2.15 ou torchvision 0.29.2 aparece "operator torchvision::nms does not exist" no Windows).
+# onnx 1.19 usa ml_dtypes.float4_e2m1fn (existe a partir do ml-dtypes 0.5).
+ia = ["speciesnet>=5.0.6", "torch==2.14.0", "torchvision==0.29.0", "ml-dtypes>=0.5.1"]
 
 [tool.ruff]
 line-length = 130

@@ -38,6 +38,55 @@ def test_interpretar_rotulo_speciesnet():
     assert motor.interpretar_rotulo("blank")["rotulo"] == "blank"
 
 
+CAO = "aaaa;mammalia;carnivora;canidae;cerdocyon;thous;crab-eating fox"
+HUMANO = "bbbb;mammalia;primates;hominidae;homo;sapiens;human"
+VAZIO = "cccc;;;;;;blank"
+
+
+def test_converter_formato_real_speciesnet_4():
+    # mesmo formato observado no modelo 4.0.3a (valores sintéticos): classificação por detecção, sem previsão da foto
+    p = {"filepath": "x.jpg", "country": "BRA", "model_version": "4.0.3a", "detections": [
+        {"category": "1", "label": "animal", "conf": 0.91, "bbox": [0.1, 0.2, 0.3, 0.4],
+         "processed_classification": {"class": CAO, "score": 0.83, "source": "classifier"}},
+        {"category": "1", "label": "animal", "conf": 0.40, "bbox": [0.5, 0.5, 0.1, 0.1],
+         "processed_classification": {"class": VAZIO, "score": 0.9, "source": "classifier"}},
+        {"category": "2", "label": "human", "conf": 0.97, "bbox": [0, 0, 0.3, 0.9],
+         "processed_classification": {"class": HUMANO, "score": 0.97, "source": "detector"}}]}
+    r = motor.converter_predicao(p, "x.jpg", "SpeciesNet teste")
+    assert [d["categoria"] for d in r.deteccoes] == ["animal", "animal", "pessoa"]
+    assert r.deteccoes[0]["classificacao"]["nome_cientifico"] == "Cerdocyon thous"
+    assert r.classificacao["nome_cientifico"] == "Cerdocyon thous" and r.classificacao["confianca"] == 0.83
+    so_pessoa = motor.converter_predicao({"detections": p["detections"][2:]}, "y.jpg", "m")
+    assert so_pessoa.classificacao is None  # pessoa não vira sugestão de espécie
+    assert motor.converter_predicao({"detections": []}, "z.jpg", "m").deteccoes == []
+
+
+def test_converter_formato_antigo_com_previsao_da_foto():
+    p = {"detections": [{"category": "1", "conf": 0.7, "bbox": [0, 0, 1, 1]}], "prediction": CAO,
+         "prediction_score": 0.66, "prediction_source": "classifier"}
+    r = motor.converter_predicao(p, "x.jpg", "m")
+    assert r.classificacao["nome_cientifico"] == "Cerdocyon thous" and r.deteccoes[0]["classificacao"] is None
+    assert motor.converter_predicao({**p, "prediction": VAZIO}, "x.jpg", "m").classificacao is None
+
+
+def test_migracao_acrescenta_coluna_em_banco_antigo(tmp_path):
+    import sqlite3
+
+    from camtrap_campo.db import conectar
+
+    banco = tmp_path / "antigo.sqlite3"
+    con = sqlite3.connect(banco)
+    con.execute("CREATE TABLE deteccao (id INTEGER PRIMARY KEY, arquivo_id INTEGER, quadro_s FLOAT, quadro_caminho VARCHAR,"
+                " categoria VARCHAR, confianca FLOAT, bbox JSON, modelo VARCHAR, simulado BOOLEAN)")
+    con.execute("INSERT INTO deteccao (arquivo_id, categoria, confianca, bbox) VALUES (1, 'animal', 0.9, '[0,0,1,1]')")
+    con.commit()
+    con.close()
+    conectar(banco)
+    con = sqlite3.connect(banco)
+    colunas = [c[1] for c in con.execute("PRAGMA table_info(deteccao)")]
+    assert "classificacao" in colunas and con.execute("SELECT count(*) FROM deteccao").fetchone()[0] == 1  # dado preservado
+
+
 def test_lista_de_especies_sem_duplicatas(ambiente):
     nomes = [c for c, *_ in especies.INICIAIS]
     assert len(nomes) == len(set(nomes)) and all(len(n.split()) == 2 for n in nomes)

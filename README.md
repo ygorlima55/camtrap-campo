@@ -3,8 +3,8 @@
 Programa para tratar os dados das armadilhas fotográficas **do cartão SD até a análise**, no Windows, **sem internet**.
 As câmeras continuam com o firmware de fábrica; tudo acontece no computador.
 
-> Estado: **Etapas 1 (importação), 4 (diagnóstico e gestão) e 2 (IA — estrutura e revisão) prontas.**
-> A IA real (SpeciesNet) ainda precisa ser validada com os modelos instalados. Próxima: 3 (análises).
+> Estado: **Etapas 1 (importação), 4 (diagnóstico e gestão) e 2 (IA) prontas.** Próxima: 3 (análises).
+> IA validada com o SpeciesNet real (modelo 4.0.3a) em fotos de uma MINI400: ~7 s por foto num i5 sem placa de vídeo.
 
 ## Instalação (uma vez só)
 1. Baixe a pasta do programa (botão verde **Code → Download ZIP** no GitHub) e descompacte, por exemplo, em

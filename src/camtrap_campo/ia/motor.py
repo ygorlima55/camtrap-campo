@@ -63,22 +63,42 @@ class MotorSpeciesNet:
         saida = self._sn.predict(filepaths=[str(c) for c in caminhos], country=self.pais, batch_size=1,
                                  progress_bars=False)
         por_caminho = {p["filepath"]: p for p in (saida or {}).get("predictions", [])}
-        resultados = []
-        for c in caminhos:
-            p = por_caminho.get(str(c), {})
-            r = Resultado(str(c), modelo=self.nome)
-            if p.get("failures"):
-                r.erro = "falha do modelo: " + ", ".join(p["failures"])
-            for d in p.get("detections", []):
-                categoria = CATEGORIAS_MD.get(str(d.get("category")), CATEGORIAS_MD.get(str(d.get("label")), "animal"))
-                r.deteccoes.append({"categoria": categoria, "confianca": float(d.get("conf", 0)),
-                                    "bbox": [float(v) for v in d.get("bbox", [0, 0, 0, 0])]})
-            if p.get("prediction"):
-                r.classificacao = {**interpretar_rotulo(p["prediction"]),
-                                   "confianca": float(p.get("prediction_score", 0) or 0),
-                                   "fonte": p.get("prediction_source")}
-            resultados.append(r)
-        return resultados
+        return [converter_predicao(por_caminho.get(str(c), {}), str(c), self.nome) for c in caminhos]
+
+
+ROTULOS_NAO_ESPECIE = {"blank", "human", "vehicle", "animal", "no cv result"}
+
+
+def converter_predicao(p: dict, caminho: str, modelo: str) -> Resultado:
+    """Saída do SpeciesNet → Resultado.
+
+    Formato observado no modelo 4.0.3a: cada detecção traz ``processed_classification`` {class, score, source};
+    não há previsão única por foto. Versões que trazem ``prediction`` no nível da foto também são aceitas.
+    """
+    r = Resultado(caminho, modelo=modelo)
+    if p.get("failures"):
+        r.erro = "falha do modelo: " + ", ".join(p["failures"])
+    candidatas = []
+    for d in p.get("detections", []):
+        categoria = CATEGORIAS_MD.get(str(d.get("category")), CATEGORIAS_MD.get(str(d.get("label")), "animal"))
+        pc = d.get("processed_classification") or {}
+        classificacao = None
+        if pc.get("class"):
+            classificacao = {**interpretar_rotulo(pc["class"]), "confianca": float(pc.get("score", 0) or 0),
+                             "fonte": pc.get("source")}
+            comum = (classificacao.get("nome_popular_en") or "").lower()
+            if categoria == "animal" and comum not in ROTULOS_NAO_ESPECIE:
+                candidatas.append(classificacao)
+        r.deteccoes.append({"categoria": categoria, "confianca": float(d.get("conf", 0)),
+                            "bbox": [float(v) for v in d.get("bbox", [0, 0, 0, 0])], "classificacao": classificacao})
+    if candidatas:
+        r.classificacao = max(candidatas, key=lambda c: c["confianca"])
+    elif p.get("prediction"):
+        geral = interpretar_rotulo(p["prediction"])
+        if (geral.get("nome_popular_en") or "").lower() not in ROTULOS_NAO_ESPECIE:
+            r.classificacao = {**geral, "confianca": float(p.get("prediction_score", 0) or 0),
+                               "fonte": p.get("prediction_source")}
+    return r
 
 
 class MotorSimulado:

@@ -62,7 +62,7 @@ function mostrarFoto() {
   $("caixas").innerHTML = img.caixas.map(c => {
     const [x, y, w, h] = c.bbox;
     return `<div class="caixa ${c.categoria}" style="left:${x*100}%;top:${y*100}%;width:${w*100}%;height:${h*100}%">
-      <span>${c.categoria} ${c.confianca}${c.simulado ? " SIMULADO" : ""}</span></div>`;
+      <span>${c.categoria} ${c.confianca}${c.especie ? " · " + c.especie : ""}${c.simulado ? " SIMULADO" : ""}</span></div>`;
   }).join("");
   $("miniaturas").innerHTML = s.imagens.map((m, k) =>
     `<img src="${m.url}" class="${k === foto ? 'ativa' : ''}" onclick="foto=${k};mostrarFoto()" title="${m.nome}">`).join("");

@@ -216,6 +216,7 @@ class Deteccao(Base):
     categoria: Mapped[str] = mapped_column(String(10))  # animal | pessoa | veiculo
     confianca: Mapped[float] = mapped_column(Float)
     bbox: Mapped[list] = mapped_column(JSON)  # [x, y, largura, altura] normalizados 0–1
+    classificacao: Mapped[dict | None] = mapped_column(JSON)  # classificação desta detecção (SpeciesNet)
     modelo: Mapped[str | None] = mapped_column(String(120))
     simulado: Mapped[bool] = mapped_column(Boolean, default=False)
 
@@ -263,4 +264,19 @@ def conectar(caminho: Path):
         cur.close()
 
     Base.metadata.create_all(motor)
+    _migrar_colunas(motor)
     return sessionmaker(motor, expire_on_commit=False)
+
+
+def _migrar_colunas(motor) -> None:
+    """Acrescenta colunas novas (anuláveis) em bancos criados por versões anteriores. Nunca remove nada."""
+    from sqlalchemy import inspect, text
+
+    insp = inspect(motor)
+    with motor.begin() as con:
+        for tabela in Base.metadata.sorted_tables:
+            existentes = {c["name"] for c in insp.get_columns(tabela.name)}
+            for coluna in tabela.columns:
+                if coluna.name not in existentes and coluna.nullable:
+                    tipo = coluna.type.compile(motor.dialect)
+                    con.execute(text(f'ALTER TABLE "{tabela.name}" ADD COLUMN "{coluna.name}" {tipo}'))
