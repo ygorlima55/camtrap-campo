@@ -39,7 +39,7 @@ def ler_video(caminho: Path) -> dict:
             tags = {**fmt.get("tags", {}), **v.get("tags", {})}
             num, _, den = (v.get("r_frame_rate") or "0/1").partition("/")
             data = interpretar_data((tags.get("creation_time") or "").replace("T", " ").split(".")[0])
-            return {
+            dados = {
                 "fonte": "ffprobe", "duracao_s": float(fmt["duration"]) if fmt.get("duration") else None,
                 "quadros": int(v["nb_frames"]) if v.get("nb_frames") else None,
                 "fps": round(int(num) / int(den or 1), 3) if num.isdigit() else None,
@@ -47,6 +47,13 @@ def ler_video(caminho: Path) -> dict:
                 "tem_audio": any(s.get("codec_type") == "audio" for s in info.get("streams", [])),
                 "data": data.isoformat() if data else None,
             }
+            if caminho.suffix.lower() == ".avi" and None in (dados["duracao_s"], dados["quadros"]):
+                avi = _avi(caminho)  # AVI truncado (cartão com falha): o cabeçalho ainda diz quadros e duração
+                for chave in ("duracao_s", "quadros", "fps", "largura", "altura"):
+                    if dados.get(chave) is None and avi.get(chave) is not None:
+                        dados[chave] = avi[chave]
+                        dados["aviso"] = "parte dos dados veio do cabeçalho AVI (vídeo possivelmente truncado)"
+            return dados
         except (OSError, subprocess.TimeoutExpired, ValueError, KeyError) as exc:
             reserva = _avi(caminho) if caminho.suffix.lower() == ".avi" else {"fonte": None}
             reserva["aviso"] = f"ffprobe falhou: {exc}"

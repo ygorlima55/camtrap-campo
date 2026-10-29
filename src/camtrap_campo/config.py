@@ -47,4 +47,8 @@ def localizar_ferramenta(nome: str) -> str | None:
                 candidato = Path(pasta) / sub / f"{nome}.exe"
                 if candidato.is_file():
                     return str(candidato)
+    winget = Path(os.environ.get("LOCALAPPDATA", "")) / "Microsoft" / "WinGet" / "Packages"
+    if winget.is_dir():  # winget põe no PATH, mas janelas abertas antes da instalação ainda não enxergam
+        for candidato in sorted(winget.glob(f"*/*/bin/{nome}.exe")) + sorted(winget.glob(f"*/{nome}.exe")):
+            return str(candidato)
     return None
