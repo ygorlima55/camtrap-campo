@@ -3,7 +3,8 @@
 Programa para tratar os dados das armadilhas fotográficas **do cartão SD até a análise**, no Windows, **sem internet**.
 As câmeras continuam com o firmware de fábrica; tudo acontece no computador.
 
-> Estado: **Etapas 1 (importação) e 4 (diagnóstico e gestão das câmeras) prontas.** Próximas: 2 (IA) e 3 (análises).
+> Estado: **Etapas 1 (importação), 4 (diagnóstico e gestão) e 2 (IA — estrutura e revisão) prontas.**
+> A IA real (SpeciesNet) ainda precisa ser validada com os modelos instalados. Próxima: 3 (análises).
 
 ## Instalação (uma vez só)
 1. Baixe a pasta do programa (botão verde **Code → Download ZIP** no GitHub) e descompacte, por exemplo, em
@@ -45,6 +46,30 @@ As câmeras continuam com o firmware de fábrica; tudo acontece no computador.
 Na página da importação, escolha uma foto cuja hora real você sabe (ex.: a foto do relógio do celular tirada na
 instalação) e informe essa hora. A diferença é aplicada a todas as fotos e vídeos daquele cartão; a hora original
 fica guardada no banco.
+
+## IA: filtro e identificação (opcional)
+1. **Instalar uma vez:** dois cliques em **`instalar_ia.bat`** (baixa ~1 GB: PyTorch, SpeciesNet e modelos).
+   Depois a IA funciona sem internet. Usa a placa de vídeo NVIDIA se houver; senão, o processador (mais lento).
+2. Na página da importação, clique em **Rodar IA**. O **SpeciesNet** (Google) roda o **MegaDetector v5a**
+   (animal, pessoa, veículo) em todas as fotos e em 1 quadro por segundo dos vídeos, e sugere a espécie com
+   **filtro geográfico para o Brasil**. Acompanhe em **Tarefas** (pode pausar e retomar; fechar o programa não perde
+   o progresso).
+3. Clique em **Revisar identificações**: aparecem só as sequências com detecção acima do limiar (padrão 0,2;
+   ajuste em **Espécies**), com a caixa da detecção.
+
+| Tecla | Ação |
+|---|---|
+| Enter | confirmar espécie e ir para a próxima |
+| 1–9 | escolher espécie da lista de atalhos (sugestão da IA + últimas usadas) |
+| / | buscar espécie pelo nome |
+| V / P / X / I | vazio (falso disparo) / pessoa / veículo / indeterminado |
+| + / − | número de indivíduos |
+| C / D | comportamento / "boa para divulgação" |
+| ← → / ↑ ↓ | sequência anterior/próxima / foto da sequência |
+
+- **Espécies** (menu): lista editável (nome científico + popular), começando com fauna da Mata Atlântica e Cerrado.
+- **Extrair áudio dos vídeos**: salva um WAV por vídeo em `_audio\` (para futura identificação de cantos de aves e
+  anuros). Precisa do FFmpeg.
 
 ## Diagnóstico e gestão das câmeras
 - **Ao conectar** (botão **Diagnóstico** no cartão): modelo provável (pelo EXIF, pasta e nomes), câmera provável

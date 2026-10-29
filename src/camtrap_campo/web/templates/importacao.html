@@ -8,6 +8,13 @@
 {% if imp.mensagem %}<p class="alerta erro">{{ imp.mensagem }}</p>{% endif %}
 
 {% if imp.estado != 'em_andamento' %}
+<div class="formulario linha nao-imprimir">
+  <form method="post" action="/importacoes/{{ imp.id }}/tarefa"><input type="hidden" name="tipo" value="ia">
+    <button class="botao">Rodar IA (detecção + espécie)</button></form>
+  <form method="post" action="/importacoes/{{ imp.id }}/tarefa"><input type="hidden" name="tipo" value="audio">
+    <button class="botao secundario">Extrair áudio dos vídeos</button></form>
+  <a class="botao secundario" href="/revisao/{{ imp.id }}">Revisar identificações</a>
+</div>
 <h2>Alertas</h2>
 {% for a in imp.alertas %}<p class="alerta {{ a.nivel }}">{{ a.mensagem }}</p>
 {% else %}<p>Nenhum alerta.</p>{% endfor %}

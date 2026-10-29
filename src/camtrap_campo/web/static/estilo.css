@@ -41,3 +41,17 @@ code { font-size: .85em; }
   table { font-size: 11pt; } .quadrado { width: 14px; height: 14px; border: 1.5px solid #000; display: inline-block; }
 }
 .quadrado { width: 14px; height: 14px; border: 1.5px solid #333; display: inline-block; vertical-align: middle; margin-right: .4rem; }
+.revisao { display: grid; grid-template-columns: minmax(0, 3fr) minmax(280px, 1fr); gap: 1rem; align-items: start; }
+.moldura { position: relative; display: inline-block; max-width: 100%; }
+.moldura img { display: block; max-width: 100%; max-height: 70vh; }
+.caixa { position: absolute; border: 2px solid #ffcc00; box-sizing: border-box; pointer-events: none; }
+.caixa.pessoa { border-color: #3fa7ff; } .caixa.veiculo { border-color: #ff5b5b; }
+.caixa span { position: absolute; top: -1.3rem; left: -2px; background: #ffcc00; color: #000; font-size: .75rem; padding: 0 .3rem; white-space: nowrap; }
+.miniaturas { display: flex; gap: .3rem; flex-wrap: wrap; margin-top: .4rem; }
+.miniaturas img { height: 60px; cursor: pointer; border: 2px solid transparent; }
+.miniaturas img.ativa { border-color: var(--verde); }
+.lateral label { display: flex; flex-direction: column; font-weight: 600; font-size: .9rem; margin: .4rem 0; }
+.atalhos { font-size: .85rem; margin: .2rem 0 .4rem; padding-left: 1.4rem; }
+.botoes-revisao button { margin: .15rem 0; }
+@media (max-width: 800px) { .revisao { grid-template-columns: 1fr; } }
+.estado.executando { color: #23456b; } .estado.pausada { color: var(--aviso); } .estado.erro { color: var(--erro); }

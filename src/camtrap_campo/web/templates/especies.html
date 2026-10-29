@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<h1>Espécies e ajustes da IA</h1>
+<form method="post" action="/configuracao/limiar" class="formulario linha">
+  <label>Limiar de detecção (0–1) <input name="limiar" value="{{ limiar }}" size="5"></label>
+  <button class="botao">Salvar</button>
+  <span class="ajuda">Detecções abaixo do limiar não aparecem na revisão. Padrão 0,2 (recomendado para o MegaDetector v5).
+    Mais baixo = menos animais perdidos e mais falsos positivos.</span>
+</form>
+
+<h2>Adicionar ou editar espécie</h2>
+<form method="post" action="/especies" class="formulario linha">
+  <label>Nome científico <input name="nome_cientifico" required placeholder="Leopardus pardalis"></label>
+  <label>Nome popular <input name="nome_popular" required placeholder="jaguatirica"></label>
+  <label>Grupo <input name="grupo" list="grupos" placeholder="mamífero"></label>
+  <datalist id="grupos"><option value="mamífero"><option value="ave"><option value="réptil"><option value="doméstico"><option value="exótico"></datalist>
+  <label>Biomas <input name="biomas" placeholder="MA, CE"></label>
+  <button class="botao">Salvar</button>
+</form>
+<p class="ajuda">Lista inicial com fauna da Mata Atlântica (MA) e do Cerrado (CE) — confira e complete conforme a sua área.</p>
+<table>
+  <tr><th>Nome popular</th><th>Nome científico</th><th>Grupo</th><th>Biomas</th><th>Na lista da revisão</th></tr>
+  {% for e in especies %}
+  <tr class="{{ '' if e.ativa else 'duplicado' }}"><td>{{ e.nome_popular }}</td><td><em>{{ e.nome_cientifico }}</em></td><td>{{ e.grupo or '' }}</td>
+    <td>{{ e.biomas or '' }}</td>
+    <td><form method="post" action="/especies/{{ e.id }}/alternar"><button>{{ 'sim — ocultar' if e.ativa else 'não — mostrar' }}</button></form></td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

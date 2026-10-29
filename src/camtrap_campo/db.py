@@ -165,6 +165,90 @@ class TesteSemTela(Base):
     camera: Mapped[Camera | None] = relationship()
 
 
+class Configuracao(Base):
+    """Preferências editáveis na interface (chave → valor JSON)."""
+
+    __tablename__ = "configuracao"
+    chave: Mapped[str] = mapped_column(String(60), primary_key=True)
+    valor: Mapped[dict | list | str | float | int | None] = mapped_column(JSON)
+
+
+class Tarefa(Base):
+    """Trabalho longo em segundo plano (IA, quadros de vídeo, áudio). Pode ser pausado e retomado."""
+
+    __tablename__ = "tarefa"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    tipo: Mapped[str] = mapped_column(String(20))  # ia | audio
+    importacao_id: Mapped[int | None] = mapped_column(ForeignKey("importacao.id"))
+    estado: Mapped[str] = mapped_column(String(12), default="pendente")  # pendente|executando|pausada|concluida|erro
+    total: Mapped[int] = mapped_column(Integer, default=0)
+    feitos: Mapped[int] = mapped_column(Integer, default=0)
+    falhas: Mapped[int] = mapped_column(Integer, default=0)
+    criada_em: Mapped[dt.datetime] = mapped_column(DateTime, default=agora)
+    iniciada_em: Mapped[dt.datetime | None] = mapped_column(DateTime)
+    concluida_em: Mapped[dt.datetime | None] = mapped_column(DateTime)
+    mensagem: Mapped[str | None] = mapped_column(Text)
+    importacao: Mapped[Importacao | None] = relationship()
+
+
+class Inferencia(Base):
+    """Registro de que um arquivo já passou por uma etapa (permite retomar sem refazer)."""
+
+    __tablename__ = "inferencia"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    arquivo_id: Mapped[int] = mapped_column(ForeignKey("arquivo.id"), index=True)
+    etapa: Mapped[str] = mapped_column(String(12))  # ia | audio
+    modelo: Mapped[str | None] = mapped_column(String(120))
+    simulado: Mapped[bool] = mapped_column(Boolean, default=False)
+    executada_em: Mapped[dt.datetime] = mapped_column(DateTime, default=agora)
+    quadros: Mapped[int | None] = mapped_column(Integer)  # vídeos: quantos quadros analisados
+    classificacao: Mapped[dict | None] = mapped_column(JSON)  # melhor sugestão de espécie (SpeciesNet)
+    resultado: Mapped[dict | None] = mapped_column(JSON)  # saída resumida/caminhos gerados
+    erro: Mapped[str | None] = mapped_column(Text)
+
+
+class Deteccao(Base):
+    __tablename__ = "deteccao"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    arquivo_id: Mapped[int] = mapped_column(ForeignKey("arquivo.id"), index=True)
+    quadro_s: Mapped[float | None] = mapped_column(Float)  # vídeos: segundo do quadro; fotos: None
+    quadro_caminho: Mapped[str | None] = mapped_column(String(400))  # relativo a Dados
+    categoria: Mapped[str] = mapped_column(String(10))  # animal | pessoa | veiculo
+    confianca: Mapped[float] = mapped_column(Float)
+    bbox: Mapped[list] = mapped_column(JSON)  # [x, y, largura, altura] normalizados 0–1
+    modelo: Mapped[str | None] = mapped_column(String(120))
+    simulado: Mapped[bool] = mapped_column(Boolean, default=False)
+
+
+class Especie(Base):
+    __tablename__ = "especie"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    nome_cientifico: Mapped[str] = mapped_column(String(120), unique=True)
+    nome_popular: Mapped[str] = mapped_column(String(120))
+    grupo: Mapped[str | None] = mapped_column(String(40))  # mamífero, ave, réptil, doméstico...
+    biomas: Mapped[str | None] = mapped_column(String(80))
+    ativa: Mapped[bool] = mapped_column(Boolean, default=True)
+
+
+class Revisao(Base):
+    """Identificação confirmada por uma pessoa para uma sequência (evento) de fotos/vídeos."""
+
+    __tablename__ = "revisao"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    importacao_id: Mapped[int] = mapped_column(ForeignKey("importacao.id"), index=True)
+    chave_sequencia: Mapped[int] = mapped_column(Integer, index=True)  # id do primeiro arquivo da sequência
+    arquivos: Mapped[list] = mapped_column(JSON)
+    resultado: Mapped[str] = mapped_column(String(12))  # especie | vazio | pessoa | veiculo | indeterminado
+    especie_id: Mapped[int | None] = mapped_column(ForeignKey("especie.id"))
+    quantidade: Mapped[int | None] = mapped_column(Integer)
+    comportamento: Mapped[str | None] = mapped_column(String(40))
+    divulgacao: Mapped[bool] = mapped_column(Boolean, default=False)
+    sugestao_ia: Mapped[dict | None] = mapped_column(JSON)
+    observacao: Mapped[str | None] = mapped_column(Text)
+    revisado_em: Mapped[dt.datetime] = mapped_column(DateTime, default=agora)
+    especie: Mapped[Especie | None] = relationship()
+
+
 def conectar(caminho: Path):
     """Cria o banco (se preciso) e devolve uma fábrica de sessões."""
     caminho = Path(caminho)

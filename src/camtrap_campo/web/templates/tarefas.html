@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<h1>Processamento em segundo plano</h1>
+<div class="grade">
+  <div class="painel"><h3>IA</h3>
+    <p class="{{ 'alerta info' if motor_ok else 'alerta aviso' }}">{{ motor_situacao }}</p>
+    <p>Processador: <strong>{{ dispositivo }}</strong> (usa a GPU automaticamente se houver uma NVIDIA).</p></div>
+  <div class="painel"><h3>Vídeos e áudio</h3>
+    <p class="{{ 'alerta info' if ffmpeg else 'alerta aviso' }}">{{ 'FFmpeg instalado' if ffmpeg else 'FFmpeg não instalado: vídeos não são analisados nem têm o áudio extraído (install.bat)' }}</p></div>
+</div>
+<p class="ajuda">As tarefas continuam rodando enquanto o programa estiver aberto. Se você fechar o programa, elas recomeçam de onde
+  pararam ao abrir de novo. Para iniciar, abra uma importação e use os botões "Rodar IA" ou "Extrair áudio".</p>
+<div hx-get="/tarefas/lista" hx-trigger="every 2s" hx-swap="innerHTML">{% include "_tarefas.html" %}</div>
+{% endblock %}

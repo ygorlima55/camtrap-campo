@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<h1>Revisão — {{ imp.campanha.nome }} / {{ imp.ponto.nome }} / {{ imp.camera.etiqueta }}</h1>
+{% if dados.simulado %}<p class="alerta erro"><strong>SIMULADO:</strong> estes resultados vêm do motor de teste, não de IA real.</p>{% endif %}
+<p>{{ dados.sequencias|length }} sequência(s) com detecção (limiar {{ dados.limiar }}) · {{ dados.revisadas }} revisada(s) ·
+  {{ dados.vazias }} sem detecção (ocultas) {% if dados.nao_analisadas %}· <strong>{{ dados.nao_analisadas }} ainda não analisada(s)</strong>{% endif %}
+  · <a href="?pendentes=1">mostrar só pendentes</a></p>
+
+{% if not seqs %}
+  <p class="vazio">Nada para revisar. {% if dados.nao_analisadas %}Rode a IA nesta importação primeiro.{% endif %}</p>
+{% else %}
+<div id="revisao" class="revisao">
+  <div class="visor">
+    <div class="moldura"><img id="foto" alt="foto da sequência"><div id="caixas"></div></div>
+    <div id="miniaturas" class="miniaturas"></div>
+  </div>
+  <div class="painel lateral">
+    <p><strong id="titulo"></strong><br><span id="info"></span></p>
+    <p id="sugestao" class="alerta info"></p>
+    <label>Espécie <small>( / para buscar · 1–9 atalhos)</small>
+      <input id="busca" list="lista-especies" autocomplete="off" placeholder="nome popular ou científico"></label>
+    <datalist id="lista-especies"></datalist>
+    <ol id="atalhos" class="atalhos"></ol>
+    <label>Indivíduos (+ / −) <input id="quantidade" type="number" min="0" value="1"></label>
+    <label>Comportamento (C) <select id="comportamento"><option value="">—</option></select></label>
+    <label><span><input id="divulgacao" type="checkbox"> Boa para divulgação (D)</span></label>
+    <label>Observação <input id="observacao"></label>
+    <p class="botoes-revisao">
+      <button class="botao" id="confirmar">Confirmar espécie (Enter)</button>
+      <button id="vazio">Vazio (V)</button> <button id="pessoa">Pessoa (P)</button>
+      <button id="veiculo">Veículo (X)</button> <button id="indet">Indeterminado (I)</button>
+    </p>
+    <p><button id="anterior">← anterior</button> <span id="contador"></span> <button id="proxima">próxima →</button></p>
+    <p id="status" class="ajuda"></p>
+    <details><summary>Atalhos</summary>
+      <p>Enter confirma · 1–9 escolhe espécie da lista · / busca · V vazio · P pessoa · X veículo · I indeterminado ·
+        + / − indivíduos · C comportamento · D divulgação · ← → sequência · ↑ ↓ foto da sequência</p></details>
+  </div>
+</div>
+<script>
+const IMP = {{ imp.id }};
+const SEQS = {{ seqs|tojson }};
+const ESPECIES = {{ especies|tojson }};
+const COMPORT = {{ comportamentos|tojson }};
+const porId = Object.fromEntries(ESPECIES.map(e => [e.id, e]));
+const rotulo = e => `${e.p} — ${e.c}`;
+const porRotulo = Object.fromEntries(ESPECIES.map(e => [rotulo(e), e]));
+const $ = id => document.getElementById(id);
+$("lista-especies").innerHTML = ESPECIES.map(e => `<option value="${rotulo(e)}">`).join("");
+$("comportamento").innerHTML += COMPORT.map(c => `<option>${c}</option>`).join("");
+let i = 0, foto = 0, recentes = [];
+
+function atalhos(s) {
+  const lista = [];
+  if (s.especie_sugerida) lista.push(s.especie_sugerida);
+  for (const r of recentes) if (!lista.includes(r)) lista.push(r);
+  return lista.slice(0, 9).map(id => porId[id]).filter(Boolean);
+}
+function mostrarFoto() {
+  const s = SEQS[i], img = s.imagens[foto];
+  $("foto").src = img.url;
+  $("caixas").innerHTML = img.caixas.map(c => {
+    const [x, y, w, h] = c.bbox;
+    return `<div class="caixa ${c.categoria}" style="left:${x*100}%;top:${y*100}%;width:${w*100}%;height:${h*100}%">
+      <span>${c.categoria} ${c.confianca}${c.simulado ? " SIMULADO" : ""}</span></div>`;
+  }).join("");
+  $("miniaturas").innerHTML = s.imagens.map((m, k) =>
+    `<img src="${m.url}" class="${k === foto ? 'ativa' : ''}" onclick="foto=${k};mostrarFoto()" title="${m.nome}">`).join("");
+  $("info").textContent = `${img.nome} · ${img.data}`;
+}
+function mostrar() {
+  const s = SEQS[i];
+  foto = 0;
+  $("titulo").textContent = `Sequência ${i + 1} de ${SEQS.length} — ${s.inicio}`;
+  $("contador").textContent = `${i + 1}/${SEQS.length}`;
+  const sug = s.sugestao || {};
+  $("sugestao").textContent = sug.rotulo
+    ? `IA sugere: ${sug.nome_cientifico || sug.nome_popular_en || "?"} (${sug.nome_popular_en || ""}, ${Math.round((sug.confianca||0)*100)}%, nível ${sug.nivel || "?"})`
+    : "IA sem sugestão de espécie. Detecções: " + JSON.stringify(s.categorias);
+  const r = s.revisao;
+  const esp = r && r.especie_id ? porId[r.especie_id] : (s.especie_sugerida ? porId[s.especie_sugerida] : null);
+  $("busca").value = esp ? rotulo(esp) : "";
+  $("quantidade").value = r && r.quantidade != null ? r.quantidade : Math.max(1, s.max_individuos);
+  $("comportamento").value = (r && r.comportamento) || "";
+  $("divulgacao").checked = !!(r && r.divulgacao);
+  $("observacao").value = (r && r.observacao) || "";
+  $("status").textContent = r ? `Já revisada: ${r.resultado}` : "Pendente";
+  $("atalhos").innerHTML = atalhos(s).map(e => `<li>${rotulo(e)}</li>`).join("");
+  mostrarFoto();
+}
+async function salvar(resultado) {
+  const s = SEQS[i];
+  const esp = porRotulo[$("busca").value];
+  if (resultado === "especie" && !esp) { $("status").textContent = "Escolha uma espécie da lista (ou use V/P/X/I)."; $("busca").focus(); return; }
+  const corpo = {chave: s.chave, arquivos: s.arquivos, resultado, especie_id: esp ? esp.id : null,
+    quantidade: resultado === "especie" ? parseInt($("quantidade").value || "1") : null,
+    comportamento: $("comportamento").value, divulgacao: $("divulgacao").checked, observacao: $("observacao").value};
+  const r = await fetch(`/revisao/${IMP}`, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(corpo)});
+  if (!r.ok) { $("status").textContent = "Erro ao salvar: " + (await r.text()); return; }
+  s.revisao = corpo;
+  if (esp) recentes = [esp.id, ...recentes.filter(x => x !== esp.id)];
+  if (i < SEQS.length - 1) { i++; mostrar(); } else { mostrar(); $("status").textContent = "Última sequência salva. Revisão concluída!"; }
+}
+$("confirmar").onclick = () => salvar("especie");
+$("vazio").onclick = () => salvar("vazio"); $("pessoa").onclick = () => salvar("pessoa");
+$("veiculo").onclick = () => salvar("veiculo"); $("indet").onclick = () => salvar("indeterminado");
+$("anterior").onclick = () => { if (i > 0) { i--; mostrar(); } };
+$("proxima").onclick = () => { if (i < SEQS.length - 1) { i++; mostrar(); } };
+document.addEventListener("keydown", ev => {
+  const emCampo = ["INPUT", "SELECT", "TEXTAREA"].includes(document.activeElement.tagName);
+  if (ev.key === "Enter") { ev.preventDefault(); document.activeElement.blur(); salvar("especie"); return; }
+  if (emCampo) { if (ev.key === "Escape") document.activeElement.blur(); return; }
+  const s = SEQS[i], k = ev.key.toLowerCase();
+  if (/^[1-9]$/.test(ev.key)) { const e = atalhos(s)[parseInt(ev.key) - 1]; if (e) $("busca").value = rotulo(e); }
+  else if (k === "/") { ev.preventDefault(); $("busca").focus(); $("busca").select(); }
+  else if (k === "v") salvar("vazio"); else if (k === "p") salvar("pessoa");
+  else if (k === "x") salvar("veiculo"); else if (k === "i") salvar("indeterminado");
+  else if (ev.key === "+" || ev.key === "=") $("quantidade").value = parseInt($("quantidade").value || "0") + 1;
+  else if (ev.key === "-") $("quantidade").value = Math.max(0, parseInt($("quantidade").value || "0") - 1);
+  else if (k === "c") { const o = $("comportamento"); o.selectedIndex = (o.selectedIndex + 1) % o.options.length; }
+  else if (k === "d") $("divulgacao").checked = !$("divulgacao").checked;
+  else if (ev.key === "ArrowRight") $("proxima").click(); else if (ev.key === "ArrowLeft") $("anterior").click();
+  else if (ev.key === "ArrowDown") { foto = Math.min(s.imagens.length - 1, foto + 1); mostrarFoto(); }
+  else if (ev.key === "ArrowUp") { foto = Math.max(0, foto - 1); mostrarFoto(); }
+  else return;
+  ev.preventDefault();
+});
+mostrar();
+</script>
+{% endif %}
+{% endblock %}

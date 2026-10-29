@@ -1,0 +1,20 @@
+{% if tarefas %}
+<table>
+  <tr><th>#</th><th>Tipo</th><th>Importação</th><th>Progresso</th><th>Situação</th><th></th></tr>
+  {% for t in tarefas %}
+  <tr>
+    <td>{{ t.id }}</td><td>{{ 'IA (detecção + espécie)' if t.tipo == 'ia' else 'Extrair áudio (WAV)' }}</td>
+    <td>{% if t.importacao %}<a href="/importacoes/{{ t.importacao_id }}">#{{ t.importacao_id }}</a>
+      {{ t.importacao.campanha.nome }} / {{ t.importacao.ponto.nome }} / {{ t.importacao.camera.etiqueta }}{% endif %}</td>
+    <td style="min-width:220px">{% set pct = (100 * t.feitos / t.total) if t.total else 0 %}
+      <progress max="100" value="{{ pct|round }}"></progress> {{ t.feitos }}/{{ t.total }}{% if t.falhas %} · {{ t.falhas }} falha(s){% endif %}</td>
+    <td><span class="estado {{ t.estado }}">{{ t.estado }}</span>{% if t.mensagem %}<br><small>{{ t.mensagem.split('\n')[0] }}</small>{% endif %}</td>
+    <td>
+      {% if t.estado in ('pendente', 'executando') %}<form method="post" action="/tarefas/{{ t.id }}/pausar"><button>Pausar</button></form>
+      {% elif t.estado in ('pausada', 'erro') %}<form method="post" action="/tarefas/{{ t.id }}/retomar"><button>Retomar</button></form>{% endif %}
+      {% if t.tipo == 'ia' and t.feitos %}<a href="/revisao/{{ t.importacao_id }}">Revisar</a>{% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}<p>Nenhuma tarefa ainda.</p>{% endif %}
