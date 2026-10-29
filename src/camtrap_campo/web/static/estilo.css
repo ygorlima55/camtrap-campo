@@ -1,0 +1,30 @@
+:root { --fundo: #f6f5f0; --texto: #1f2a1f; --verde: #2f6b3a; --borda: #d4d2c8; --erro: #a12a1f; --aviso: #8a5a00; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: var(--fundo); color: var(--texto); }
+header { display: flex; gap: 1.5rem; align-items: center; padding: .7rem 1.2rem; background: var(--verde); color: #fff; }
+header nav a { color: #fff; margin-right: 1rem; text-decoration: none; font-weight: 600; }
+header .versao { margin-left: auto; opacity: .8; font-size: .85rem; }
+main { padding: 1rem 1.2rem 3rem; max-width: 1200px; margin: auto; }
+h1 { font-size: 1.4rem; } h2 { font-size: 1.15rem; margin-top: 2rem; }
+.ajuda { color: #555; }
+table { border-collapse: collapse; width: 100%; background: #fff; font-size: .9rem; }
+th, td { border: 1px solid var(--borda); padding: .35rem .5rem; text-align: left; vertical-align: top; }
+th { background: #ecebe3; }
+tr.erro td { background: #fbe9e7; } tr.duplicado td { color: #777; }
+.cartoes { display: flex; flex-wrap: wrap; gap: 1rem; }
+.cartao { background: #fff; border: 1px solid var(--borda); border-radius: 8px; padding: .8rem 1rem; min-width: 280px; }
+.cartao h3 { margin: 0 0 .4rem; }
+.botao { display: inline-block; background: var(--verde); color: #fff; border: 0; border-radius: 6px; padding: .5rem 1rem;
+         text-decoration: none; font-weight: 600; cursor: pointer; font-size: 1rem; }
+.formulario { display: grid; gap: .7rem; max-width: 520px; background: #fff; padding: 1rem; border: 1px solid var(--borda); border-radius: 8px; }
+.formulario.linha { display: flex; flex-wrap: wrap; align-items: end; max-width: none; }
+.formulario label { display: flex; flex-direction: column; font-weight: 600; font-size: .9rem; gap: .2rem; }
+input, select { font-size: 1rem; padding: .35rem; border: 1px solid var(--borda); border-radius: 4px; }
+.alerta { padding: .45rem .7rem; border-radius: 6px; margin: .3rem 0; }
+.alerta.erro { background: #fbe9e7; color: var(--erro); } .alerta.aviso { background: #fff4d6; color: var(--aviso); }
+.alerta.info { background: #e8f0fb; color: #23456b; }
+.estado { font-weight: 600; } .estado.concluida { color: var(--verde); } .estado.com_erros, .estado.falhou { color: var(--erro); }
+progress { width: 100%; height: 1.2rem; }
+.previa { max-width: 360px; margin-top: .6rem; border: 1px solid var(--borda); }
+.vazio { padding: 1rem; background: #fff; border: 1px dashed var(--borda); }
+code { font-size: .85em; }

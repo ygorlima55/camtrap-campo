@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}CamTrap Campo{% endblock %}</title>
+  <link rel="stylesheet" href="/static/estilo.css">
+  <script src="/static/htmx.min.js"></script>
+</head>
+<body>
+  <header>
+    <strong>CamTrap Campo</strong>
+    <nav><a href="/">Início</a><a href="/cadastros">Cadastros</a></nav>
+    <span class="versao">v{{ versao }} · funciona sem internet</span>
+  </header>
+  <main>{% block conteudo %}{% endblock %}</main>
+</body>
+</html>

@@ -1,0 +1,14 @@
+# Ambiente
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Dados reais, banco e ferramentas baixadas — nunca versionar
+/Dados/
+*.sqlite3
+*.sqlite3-*
+/ferramentas/
+/modelos/
+.claude/launch.json

@@ -1,0 +1,6 @@
+<div id="progresso" {% if imp.estado == 'em_andamento' %}hx-get="/importacoes/{{ imp.id }}/progresso" hx-trigger="every 1s" hx-swap="outerHTML"{% endif %}>
+  {% set pct = (100 * imp.processados / imp.total) if imp.total else 0 %}
+  <progress max="100" value="{{ pct|round }}"></progress>
+  <span>{{ imp.processados }} de {{ imp.total }} arquivos · {{ imp.copiados }} copiados · {{ imp.duplicados }} já importados
+    · {{ imp.erros }} erro(s) — <span class="estado {{ imp.estado }}">{{ imp.estado.replace('_', ' ') }}</span></span>
+</div>

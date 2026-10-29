@@ -1,0 +1,16 @@
+{% if cartoes %}
+<div class="cartoes">
+  {% for c in cartoes %}
+  <div class="cartao">
+    <h3>{{ c.raiz }} {% if c.rotulo %}<small>({{ c.rotulo }})</small>{% endif %}</h3>
+    <p>{{ c.fotos }} fotos · {{ c.videos }} vídeos · pastas {{ c.pastas_dcim|join(', ') or '—' }}</p>
+    {% if c.total_bytes %}<p>{{ '%.1f'|format(c.livre_bytes / 1e9) }} GB livres de {{ '%.1f'|format(c.total_bytes / 1e9) }} GB</p>{% endif %}
+    {% if c.ultima_midia %}<p>Última: <code>{{ c.ultima_midia }}</code> ({{ c.ultima_data.replace('T', ' ') }})</p>{% endif %}
+    {% if c.appledouble %}<p class="alerta erro">{{ c.appledouble }} arquivo(s) "._" de Mac — confira se as fotos estão no cartão</p>{% endif %}
+    <a class="botao" href="/importar?origem={{ c.raiz|urlencode }}">Importar este cartão</a>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p class="vazio">Nenhum cartão com pasta DCIM encontrado.</p>
+{% endif %}

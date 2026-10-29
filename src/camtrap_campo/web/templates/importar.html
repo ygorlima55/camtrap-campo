@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<h1>Importar {{ cartao.raiz }}</h1>
+<p>{{ cartao.fotos }} fotos · {{ cartao.videos }} vídeos · pastas {{ cartao.pastas_dcim|join(', ') }}
+  {% if cartao.ultima_midia %}· última <code>{{ cartao.ultima_midia }}</code>{% endif %}</p>
+<p class="ajuda">Tudo é copiado (inclusive arquivos ocultos) e conferido por SHA-256. <strong>Nada é apagado do cartão.</strong></p>
+
+<form method="post" action="/importar" class="formulario">
+  <input type="hidden" name="origem" value="{{ cartao.raiz }}">
+  <label>Câmera (etiqueta, ex.: P4, P7)
+    <input name="camera" list="lista-cameras" required autofocus id="campo-camera">
+  </label>
+  <datalist id="lista-cameras">{% for c in cameras %}<option value="{{ c.etiqueta }}">{% endfor %}</datalist>
+  <label>Ponto
+    <input name="ponto" list="lista-pontos" required id="campo-ponto">
+  </label>
+  <datalist id="lista-pontos">{% for p in pontos %}<option value="{{ p.nome }}">{% endfor %}</datalist>
+  <label>Campanha
+    <input name="campanha" list="lista-campanhas" required id="campo-campanha">
+  </label>
+  <datalist id="lista-campanhas">{% for c in campanhas %}<option value="{{ c.nome }}">{% endfor %}</datalist>
+  <button class="botao" type="submit">Copiar e organizar</button>
+</form>
+<script>
+  // Lembra a última escolha de ponto e campanha de cada câmera.
+  const ultimas = {{ ultimas|tojson }};
+  document.getElementById("campo-camera").addEventListener("change", (e) => {
+    const u = ultimas[e.target.value.trim()];
+    if (!u) return;
+    for (const campo of ["ponto", "campanha"]) {
+      const el = document.getElementById("campo-" + campo);
+      if (!el.value) el.value = u[campo];
+    }
+  });
+</script>
+{% endblock %}

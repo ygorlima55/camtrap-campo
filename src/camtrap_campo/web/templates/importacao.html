@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block conteudo %}
+<h1>Importação #{{ imp.id }} — {{ imp.campanha.nome }} / {{ imp.ponto.nome }} / {{ imp.camera.etiqueta }}</h1>
+<p>Origem <code>{{ imp.origem }}</code> · iniciada {{ imp.iniciada_em|dh }}
+  {% if imp.padrao_nomes %}· nomes {{ imp.padrao_nomes }}{% endif %}
+  {% if imp.modelo_detectado %}· modelo: {{ imp.modelo_detectado }}{% endif %}</p>
+{% include "_progresso.html" %}
+{% if imp.mensagem %}<p class="alerta erro">{{ imp.mensagem }}</p>{% endif %}
+
+{% if imp.estado != 'em_andamento' %}
+<h2>Alertas</h2>
+{% for a in imp.alertas %}<p class="alerta {{ a.nivel }}">{{ a.mensagem }}</p>
+{% else %}<p>Nenhum alerta.</p>{% endfor %}
+
+<h2>Correção de horário</h2>
+<p>Correção atual: <strong>{{ descrever_deslocamento(imp.deslocamento_s) }}</strong>.
+  Escolha uma foto cuja hora real você conhece (ex.: a foto do relógio do celular na instalação) e informe a hora real.
+  A diferença é aplicada a todas as fotos e vídeos deste cartão; a hora original fica guardada.</p>
+{% if fotos %}
+<form method="post" action="/importacoes/{{ imp.id }}/horario" class="formulario linha">
+  <label>Foto de referência
+    <select name="arquivo_id" onchange="document.getElementById('previa').src='/arquivos/'+this.value+'/miniatura'">
+      {% for f in fotos %}<option value="{{ f.id }}">{{ f.nome_original }} — câmera: {{ f.data_original|dh }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Hora real <input type="datetime-local" name="hora_real" step="1" required></label>
+  <button class="botao" type="submit">Aplicar</button>
+</form>
+<img id="previa" class="previa" src="/arquivos/{{ fotos[0].id }}/miniatura" alt="prévia da foto de referência">
+{% else %}<p>Sem fotos com data para usar como referência.</p>{% endif %}
+
+<h2>Arquivos ({{ imp.arquivos|length }}{% if imp.arquivos|length > arquivos|length %}, mostrando {{ arquivos|length }}{% endif %})</h2>
+<table class="arquivos">
+  <tr><th>Original no cartão</th><th>Tipo</th><th>Situação</th><th>Data da câmera</th><th>Data corrigida</th><th>Fonte</th><th>Novo nome</th><th>Rodapé</th></tr>
+  {% for a in arquivos %}
+  <tr class="{{ a.estado }}">
+    <td><code>{{ a.caminho_cartao }}</code>{% if a.oculto %} <small>(oculto)</small>{% endif %}</td>
+    <td>{{ a.tipo }}</td><td>{{ a.estado }}</td>
+    <td>{{ a.data_original|dh }}</td><td>{{ a.data_corrigida|dh }}</td><td>{{ a.fonte_data or '—' }}</td>
+    <td><code>{{ (a.caminho_final or '').split('/')[-1] }}</code>{% if a.detalhe %}<br><small>{{ a.detalhe }}</small>{% endif %}</td>
+    <td>{% if a.rodape and a.rodape.disponivel %}{{ a.rodape.get('temperatura_c', '?') }} °C {{ a.rodape.get('nome_camera', '') }}
+        {% if a.rodape_diverge %}<span class="alerta aviso">difere do EXIF</span>{% endif %}
+        {% elif a.rodape %}<small>{{ a.rodape.get('motivo', '') }}</small>{% endif %}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+{% endblock %}
