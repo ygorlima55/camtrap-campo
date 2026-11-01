@@ -7,7 +7,7 @@
   <style>{{ css|safe }}
     body { background: #fff; } main { max-width: 1000px; }</style>
 </head>
-<body>
+<body class="simples">
 <main>
   <h1>Relatório da campanha {{ campanha.nome }}</h1>
   <p>{% if campanha.inicio %}Período planejado: {{ campanha.inicio.strftime('%d/%m/%Y') }}{% if campanha.fim %} a {{ campanha.fim.strftime('%d/%m/%Y') }}{% endif %} · {% endif %}

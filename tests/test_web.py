@@ -30,6 +30,9 @@ def test_painel_inicial(cliente):
     r = c.get("/")
     assert "Próximo passo" in r.text and "Cartão conectado" in r.text and "Mídias no acervo" in r.text
     assert 'class="item ativo" href="/"' in r.text  # menu marca a página atual
+    assert 'rel="icon" type="image/svg+xml" href="/static/logo.svg"' in r.text and 'class="logo" src="/static/logo.svg"' in r.text
+    logo = c.get("/static/logo.svg")
+    assert logo.status_code == 200 and logo.text.lstrip().startswith("<svg") and 'id="onca"' in logo.text
     c.post("/importar", data={"origem": str(cartao), "camera": "P7", "ponto": "Ponto 1", "campanha": "Seca2026"})
     r = c.get("/painel")
     assert r.status_code == 200 and "<html" not in r.text  # fragmento para atualização automática

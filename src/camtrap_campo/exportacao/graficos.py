@@ -14,7 +14,8 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 from camtrap_campo.analises.resultado import Analise  # noqa: E402
 
-VERDE = "#2f6b3a"
+LARANJA = "#C9761F"  # paleta da onça-pintada (mesma do estilo.css)
+CAFE = "#2B1A10"
 
 
 def _png(fig) -> str:
@@ -33,8 +34,8 @@ def atividade(an: Analise, nomes: dict[str, str]) -> str | None:
     fig, eixos = plt.subplots(linhas, colunas, figsize=(4.2 * colunas, 2.8 * linhas), squeeze=False, layout="constrained")
     for ax, esp in zip(eixos.flat, sorted(especies), strict=False):
         c = an.curvas[esp]
-        ax.fill_between(c["horas"], c["densidade"], color=VERDE, alpha=0.25)
-        ax.plot(c["horas"], c["densidade"], color=VERDE)
+        ax.fill_between(c["horas"], c["densidade"], color=LARANJA, alpha=0.25)
+        ax.plot(c["horas"], c["densidade"], color=LARANJA)
         h = an.horas_solares[esp]
         ax.plot(h, [0] * len(h), "|", color="k", markersize=8, alpha=0.6)  # registros (tapete)
         ax.axvspan(0, 6, color="0.85", zorder=0)
@@ -56,8 +57,8 @@ def acumulacao(an: Analise) -> str | None:
     fig, ax = plt.subplots(figsize=(6, 3.2))
     sup = [m + d for m, d in zip(a["media"], a["desvio"], strict=True)]
     inf = [max(0, m - d) for m, d in zip(a["media"], a["desvio"], strict=True)]
-    ax.fill_between(a["dias"], inf, sup, color=VERDE, alpha=0.2, label="± 1 desvio-padrão")
-    ax.plot(a["dias"], a["media"], color=VERDE, label="média de ordens aleatórias")
+    ax.fill_between(a["dias"], inf, sup, color=LARANJA, alpha=0.2, label="± 1 desvio-padrão")
+    ax.plot(a["dias"], a["media"], color=LARANJA, label="média de ordens aleatórias")
     ax.set_xlabel("dias de amostragem")
     ax.set_ylabel("espécies")
     ax.legend(fontsize=8, loc="lower right")
@@ -83,13 +84,14 @@ def mapa_svg(pontos: list[dict], largura: int = 640, altura: int = 420) -> str |
         r = 6 + 22 * math.sqrt(p["registros"] / maior)
         nome = html.escape(p["ponto"])
         elementos.append(
-            f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{r:.1f}" fill="{VERDE}" fill-opacity="0.45" stroke="{VERDE}">'
-            f'<title>{nome}: {p["registros"]} registros, {p["riqueza"]} espécies</title></circle>'
-            f'<text x="{x:.1f}" y="{y + 4:.1f}" text-anchor="middle" font-size="12" font-weight="700">{p["riqueza"]}</text>'
-            f'<text x="{x + r + 3:.1f}" y="{y + 4:.1f}" font-size="11">{nome}</text>')
+            f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{r:.1f}" fill="#E3A13B" fill-opacity="0.55" stroke="{LARANJA}"'
+            f' stroke-width="2"><title>{nome}: {p["registros"]} registros, {p["riqueza"]} espécies</title></circle>'
+            f'<text x="{x:.1f}" y="{y + 4:.1f}" text-anchor="middle" font-size="12" font-weight="700"'
+            f' fill="{CAFE}">{p["riqueza"]}</text>'
+            f'<text x="{x + r + 3:.1f}" y="{y + 4:.1f}" font-size="11" fill="{CAFE}">{nome}</text>')
     km = 111.32 * (lo1 - lo0) * escala_lon
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {largura} {altura}" width="100%" '
-            f'style="max-width:{largura}px;background:#f3f1ea;border:1px solid #ccc">'
+            f'style="max-width:{largura}px;background:#FBF3E2;border-radius:14px">'
             + "".join(elementos)
-            + f'<text x="8" y="{altura - 6}" font-size="10" fill="#555">largura ≈ {km:.1f} km · círculo ∝ registros · '
+            + f'<text x="8" y="{altura - 6}" font-size="10" fill="#6E5A47">largura ≈ {km:.1f} km · círculo ∝ registros · '
               f'número = riqueza · sem mapa de fundo (funciona sem internet)</text></svg>')

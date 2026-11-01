@@ -4,6 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block titulo %}CamTrap Campo{% endblock %}</title>
+  <link rel="icon" type="image/svg+xml" href="/static/logo.svg">
+  <meta name="theme-color" content="#E3A13B">
   <link rel="stylesheet" href="/static/estilo.css?v={{ css_v }}">
   <script src="/static/htmx.min.js"></script>
 </head>
@@ -11,7 +13,7 @@
 <div class="app">
   <aside class="lateral-app">
     <nav class="menu">
-      <a class="marca" href="/"><span class="logo">{{ icone('camera', 19) }}</span>
+      <a class="marca" href="/"><img class="logo" src="/static/logo.svg" alt="Logo do CamTrap Campo: onça-pintada no visor da câmera">
         <span class="nome">CamTrap Campo<small>Armadilhas fotográficas</small></span></a>
       {% set _atual = request.url.path %}
       {% set _menu_principal = [('/', 'inicio', 'Início'), ('/tarefas', 'tarefas', 'Tarefas'), ('/cameras', 'camera', 'Câmeras'),

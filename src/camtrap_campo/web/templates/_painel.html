@@ -2,7 +2,7 @@
 {% set p = r.proximo %}
 <section class="proximo">
   <span class="icone-grande">{{ icone(p.icone, 26) }}</span>
-  <div><small style="color:rgba(255,255,255,.75)">Próximo passo</small><h2>{{ p.titulo }}</h2><p>{{ p.texto }}</p></div>
+  <div><span class="rotulo">Próximo passo</span><h2>{{ p.titulo }}</h2><p>{{ p.texto }}</p></div>
   <a class="botao" href="{{ p.href }}">{{ p.botao }} {{ icone('seta', 16) }}</a>
 </section>
 
