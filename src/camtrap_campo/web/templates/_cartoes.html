@@ -7,11 +7,12 @@
     {% if c.total_bytes %}<p>{{ '%.1f'|format(c.livre_bytes / 1e9) }} GB livres de {{ '%.1f'|format(c.total_bytes / 1e9) }} GB</p>{% endif %}
     {% if c.ultima_midia %}<p>Última: <code>{{ c.ultima_midia }}</code> ({{ c.ultima_data.replace('T', ' ') }})</p>{% endif %}
     {% if c.appledouble %}<p class="alerta erro">{{ c.appledouble }} arquivo(s) "._" de Mac — confira se as fotos estão no cartão</p>{% endif %}
-    <a class="botao" href="/importar?origem={{ c.raiz|urlencode }}">Importar este cartão</a>
-    <a class="botao secundario" href="/diagnostico?origem={{ c.raiz|urlencode }}">Diagnóstico</a>
+    <p style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.7rem">
+      <a class="botao" href="/importar?origem={{ c.raiz|urlencode }}">Importar este cartão</a>
+      <a class="botao secundario" href="/diagnostico?origem={{ c.raiz|urlencode }}">Diagnóstico</a></p>
   </div>
   {% endfor %}
 </div>
 {% else %}
-<p class="vazio">Nenhum cartão com pasta DCIM encontrado.</p>
+<p class="vazio">Nenhum cartão com pasta DCIM encontrado. Conecte o cartão SD ou a câmera pelo cabo USB.</p>
 {% endif %}

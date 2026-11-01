@@ -3,13 +3,14 @@
 {% block conteudo %}
 <style>
   .guia { max-width: 52rem; line-height: 1.55; }
-  .guia h2 { margin-top: 2.2rem; border-bottom: 2px solid #d8e2d3; padding-bottom: .3rem; }
+  .guia h2 { margin-top: 2.4rem; padding-bottom: .4rem; border-bottom: 1px solid var(--linha); }
   .guia .fluxo { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin: 1rem 0; }
-  .guia .fluxo a { background: #2f6b3a; color: #fff; padding: .35rem .7rem; border-radius: 6px; text-decoration: none; font-size: .95rem; }
-  .guia .fluxo span { color: #888; }
-  .guia .dica { background: #fff8e1; border-left: 4px solid #e0b000; padding: .6rem .9rem; margin: 1rem 0; }
-  .guia .importante { background: #fdecea; border-left: 4px solid #c0392b; padding: .6rem .9rem; margin: 1rem 0; }
-  .guia kbd { border: 1px solid #bbb; border-bottom-width: 2px; border-radius: 4px; padding: 0 .35rem; font-size: .9em; background: #fff; }
+  .guia .fluxo a { background: var(--verde-suave); color: var(--verde-forte); padding: .4rem .8rem; border-radius: 999px; font-weight: 600; font-size: .9rem; }
+  .guia .fluxo span { color: var(--texto-2); }
+  .guia .dica { background: var(--aviso-suave); padding: .7rem 1rem; border-radius: var(--raio-p); margin: 1rem 0; }
+  .guia .importante { background: var(--erro-suave); padding: .7rem 1rem; border-radius: var(--raio-p); margin: 1rem 0; }
+  .guia kbd { border: 1px solid var(--linha); border-bottom-width: 2px; border-radius: 5px; padding: 0 .35rem; font-size: .85em; background: var(--superficie); }
+  .guia nav.indice { background: var(--superficie); border-radius: var(--raio); box-shadow: var(--sombra); padding: .8rem 1rem; }
   .guia ol li, .guia ul li { margin: .25rem 0; }
   .guia nav.indice { columns: 2; font-size: .95rem; }
   .guia nav.indice a { display: block; }

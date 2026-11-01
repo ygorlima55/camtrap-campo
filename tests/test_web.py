@@ -25,6 +25,33 @@ def test_inicio_lista_cartao(cliente):
     assert "/static/htmx.min.js" in r.text and c.get("/static/htmx.min.js").status_code == 200
 
 
+def test_painel_inicial(cliente):
+    c, cartao, _ = cliente
+    r = c.get("/")
+    assert "Próximo passo" in r.text and "Cartão conectado" in r.text and "Mídias no acervo" in r.text
+    assert 'class="item ativo" href="/"' in r.text  # menu marca a página atual
+    c.post("/importar", data={"origem": str(cartao), "camera": "P7", "ponto": "Ponto 1", "campanha": "Seca2026"})
+    r = c.get("/painel")
+    assert r.status_code == 200 and "<html" not in r.text  # fragmento para atualização automática
+    assert re.search(r'class="valor">6<', r.text)  # 5 fotos + 1 vídeo
+    assert "Mídias por dia" in r.text and 'class="barra' in r.text
+
+
+def test_proximo_passo_segue_o_fluxo():
+    from types import SimpleNamespace as N
+
+    from camtrap_campo.web.painel import proximo_passo
+
+    imp = N(id=3, copiados=10, campanha=N(nome="C"), ponto=N(nome="P"), camera=N(etiqueta="P1"))
+    cartao = N(raiz="E:\\", fotos=1, videos=0)
+    assert proximo_passo([cartao], [], [], [], 0)["href"] == "/importar?origem=E%3A%5C"
+    assert proximo_passo([], [N(estado="executando")], [], [], 0)["href"] == "/tarefas"
+    assert proximo_passo([], [], [imp], [(imp, 4)], 0)["href"] == "/revisao/3?pendentes=1"
+    assert proximo_passo([], [], [imp], [], 0)["href"] == "/importacoes/3"
+    assert proximo_passo([], [], [], [], 5)["href"] == "/analises"
+    assert proximo_passo([], [], [], [], 0)["href"] == "/guia"
+
+
 def test_guia_e_seus_links(cliente):
     c, _, _ = cliente
     r = c.get("/guia")

@@ -1,23 +1,11 @@
 {% extends "base.html" %}
+{% block titulo %}Início · CamTrap Campo{% endblock %}
 {% block conteudo %}
-<h1>Cartões e câmeras conectados</h1>
-<p class="ajuda">Conecte o cartão SD (ou a câmera pelo cabo USB). A lista atualiza sozinha a cada 5 segundos.</p>
-<div hx-get="/cartoes" hx-trigger="every 5s" hx-swap="innerHTML">
-  {% include "_cartoes.html" %}
+<div class="cabecalho-pagina">
+  <div><h1>Início</h1><p>Resumo do acervo e o que fazer agora. Atualiza sozinho.</p></div>
+  <a class="botao secundario" href="/guia">Como funciona?</a>
 </div>
-
-<h2>Importações recentes</h2>
-{% if recentes %}
-<table>
-  <tr><th>#</th><th>Data</th><th>Campanha</th><th>Ponto</th><th>Câmera</th><th>Arquivos</th><th>Situação</th></tr>
-  {% for imp in recentes %}
-  <tr>
-    <td><a href="/importacoes/{{ imp.id }}">{{ imp.id }}</a></td>
-    <td>{{ imp.iniciada_em|dh }}</td><td>{{ imp.campanha.nome }}</td><td>{{ imp.ponto.nome }}</td>
-    <td>{{ imp.camera.etiqueta }}</td><td>{{ imp.copiados }} novos · {{ imp.duplicados }} repetidos</td>
-    <td><span class="estado {{ imp.estado }}">{{ imp.estado.replace('_', ' ') }}</span></td>
-  </tr>
-  {% endfor %}
-</table>
-{% else %}<p>Nenhuma importação ainda.</p>{% endif %}
+<div id="painel" hx-get="/painel" hx-trigger="every 6s" hx-swap="innerHTML">
+  {% include "_painel.html" %}
+</div>
 {% endblock %}

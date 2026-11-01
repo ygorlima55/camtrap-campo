@@ -20,7 +20,7 @@ from camtrap_campo.db import Arquivo, Camera, Campanha, Importacao, Ponto, conec
 from camtrap_campo.importacao import horario
 from camtrap_campo.importacao.copiar import importar, obter_ou_criar
 from camtrap_campo.importacao.detectar import detectar_cartoes, resumir
-from camtrap_campo.web import rotas_analises, rotas_gestao, rotas_ia
+from camtrap_campo.web import painel, rotas_analises, rotas_gestao, rotas_ia
 
 AQUI = Path(__file__).parent
 
@@ -41,19 +41,26 @@ def criar_app(fabrica=None, sincrono: bool = False, extras_cartoes: list[str] | 
     app = FastAPI(title="CamTrap Campo", version=__version__)
     app.mount("/static", StaticFiles(directory=AQUI / "static"), name="static")
     tpl = Jinja2Templates(directory=AQUI / "templates")
-    tpl.env.globals.update(versao=__version__, descrever_deslocamento=horario.descrever)
+    tpl.env.globals.update(versao=__version__, descrever_deslocamento=horario.descrever,
+                           css_v=int((AQUI / "static" / "estilo.css").stat().st_mtime))  # evita CSS antigo em cache
     tpl.env.filters["dh"] = lambda d: d.strftime("%d/%m/%Y %H:%M:%S") if d else "—"
 
     def pagina(request: Request, nome: str, **ctx):
         return tpl.TemplateResponse(request, nome, ctx)
 
+    def _painel(request: Request, nome: str):
+        cartoes = detectar_cartoes(extras_cartoes)
+        with fabrica() as s:
+            r = painel.resumo(s, cartoes)
+            return pagina(request, nome, cartoes=cartoes, r=r)
+
     @app.get("/", response_class=HTMLResponse)
     def inicio(request: Request):
-        with fabrica() as s:
-            recentes = s.scalars(select(Importacao).order_by(Importacao.id.desc()).limit(10)).all()
-            for imp in recentes:
-                _ = imp.camera, imp.ponto, imp.campanha
-        return pagina(request, "inicio.html", cartoes=detectar_cartoes(extras_cartoes), recentes=recentes)
+        return _painel(request, "inicio.html")
+
+    @app.get("/painel", response_class=HTMLResponse)
+    def painel_vivo(request: Request):
+        return _painel(request, "_painel.html")
 
     @app.get("/guia", response_class=HTMLResponse)
     def guia(request: Request):
