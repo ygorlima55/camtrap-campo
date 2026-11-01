@@ -55,6 +55,10 @@ def criar_app(fabrica=None, sincrono: bool = False, extras_cartoes: list[str] | 
                 _ = imp.camera, imp.ponto, imp.campanha
         return pagina(request, "inicio.html", cartoes=detectar_cartoes(extras_cartoes), recentes=recentes)
 
+    @app.get("/guia", response_class=HTMLResponse)
+    def guia(request: Request):
+        return pagina(request, "guia.html")
+
     @app.get("/cartoes", response_class=HTMLResponse)
     def cartoes(request: Request):
         return pagina(request, "_cartoes.html", cartoes=detectar_cartoes(extras_cartoes))

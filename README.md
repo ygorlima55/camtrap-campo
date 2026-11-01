@@ -16,6 +16,8 @@ As câmeras continuam com o firmware de fábrica; tudo acontece no computador.
 3. Pronto.
 
 ## Uso
+> Passo a passo completo, do campo à análise: menu **Guia** dentro do programa (`http://127.0.0.1:8765/guia`).
+
 1. Dê dois cliques em **`run.bat`**. O navegador abre com o programa (endereço `http://127.0.0.1:8765`).
    A janela preta precisa ficar aberta enquanto você usa.
 2. Conecte o cartão SD (ou a câmera pelo cabo USB). Ele aparece em **Início** em até 5 segundos.

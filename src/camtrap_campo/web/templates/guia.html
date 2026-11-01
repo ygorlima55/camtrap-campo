@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+{% block titulo %}Guia de uso · CamTrap Campo{% endblock %}
+{% block conteudo %}
+<style>
+  .guia { max-width: 52rem; line-height: 1.55; }
+  .guia h2 { margin-top: 2.2rem; border-bottom: 2px solid #d8e2d3; padding-bottom: .3rem; }
+  .guia .fluxo { display: flex; flex-wrap: wrap; gap: .4rem; align-items: center; margin: 1rem 0; }
+  .guia .fluxo a { background: #2f6b3a; color: #fff; padding: .35rem .7rem; border-radius: 6px; text-decoration: none; font-size: .95rem; }
+  .guia .fluxo span { color: #888; }
+  .guia .dica { background: #fff8e1; border-left: 4px solid #e0b000; padding: .6rem .9rem; margin: 1rem 0; }
+  .guia .importante { background: #fdecea; border-left: 4px solid #c0392b; padding: .6rem .9rem; margin: 1rem 0; }
+  .guia kbd { border: 1px solid #bbb; border-bottom-width: 2px; border-radius: 4px; padding: 0 .35rem; font-size: .9em; background: #fff; }
+  .guia ol li, .guia ul li { margin: .25rem 0; }
+  .guia nav.indice { columns: 2; font-size: .95rem; }
+  .guia nav.indice a { display: block; }
+  @media (max-width: 600px) { .guia nav.indice { columns: 1; } }
+</style>
+<div class="guia">
+<h1>Guia de uso</h1>
+<p>O CamTrap Campo leva os dados das armadilhas fotográficas <strong>do cartão SD até a análise</strong>, tudo neste
+  computador e <strong>sem internet</strong>. Ele <strong>nunca apaga nem altera nada do cartão</strong>: só lê e copia.</p>
+
+<p><strong>O caminho de uma campanha, do começo ao fim:</strong></p>
+<div class="fluxo">
+  <a href="#preparar">1. Preparar</a><span>→</span><a href="#campo">2. Campo</a><span>→</span>
+  <a href="#conectar">3. Conectar o cartão</a><span>→</span><a href="#importar">4. Importar</a><span>→</span>
+  <a href="#conferir">5. Conferir alertas e horário</a><span>→</span><a href="#ia">6. Rodar a IA</a><span>→</span>
+  <a href="#revisar">7. Revisar</a><span>→</span><a href="#analisar">8. Analisar e exportar</a>
+</div>
+
+<nav class="indice">
+  <a href="#abrir">Abrir e fechar o programa</a>
+  <a href="#preparar">1. Antes de ir a campo</a>
+  <a href="#campo">2. No campo</a>
+  <a href="#conectar">3. Conectar o cartão e diagnóstico</a>
+  <a href="#importar">4. Importar</a>
+  <a href="#conferir">5. Alertas e correção de horário</a>
+  <a href="#ia">6. IA: detecção e espécie</a>
+  <a href="#revisar">7. Revisão das identificações</a>
+  <a href="#analisar">8. Análises e exportações</a>
+  <a href="#cameras">Câmeras: histórico, falhas e defeitos</a>
+  <a href="#arquivos">Onde ficam os arquivos</a>
+  <a href="#duvidas">Dúvidas e problemas comuns</a>
+</nav>
+
+<h2 id="abrir">Abrir e fechar o programa</h2>
+<ul>
+  <li><strong>Abrir:</strong> dois cliques no atalho <strong>CamTrap Campo</strong> da Área de Trabalho (ou em
+    <code>run.bat</code> na pasta do programa). Abre uma janela preta e, em seguida, o navegador.</li>
+  <li><strong>Usar:</strong> a janela preta precisa ficar aberta. O endereço é <code>http://127.0.0.1:8765</code>
+    (se essa porta estiver ocupada, ele usa outra e abre o navegador nela).</li>
+  <li><strong>Fechar:</strong> feche a janela preta. Nada se perde: tarefas da IA em andamento continuam de onde
+    pararam na próxima vez.</li>
+  <li>O menu verde no topo leva a todas as telas: <strong>Início</strong>, <strong>Tarefas</strong>,
+    <strong>Câmeras</strong>, <strong>Espécies</strong>, <strong>Análises</strong>, <strong>Roteiros às cegas</strong>,
+    <strong>Cadastros</strong> e este <strong>Guia</strong>.</li>
+</ul>
+
+<h2 id="preparar">1. Antes de ir a campo</h2>
+<ol>
+  <li><a href="/cadastros"><strong>Cadastros</strong></a>: crie a <strong>campanha</strong> (ex.: <em>Seca2026</em>), os
+    <strong>pontos</strong> com <strong>latitude e longitude</strong> (em graus decimais, ex.: −15,7801) e as
+    <strong>câmeras</strong> com etiqueta (P1, P7…), modelo e nº de série.
+    <div class="dica">As coordenadas são importantes: com elas o programa calcula o nascer e o pôr do sol de cada ponto
+      (padrão de atividade) e desenha o mapa. Sem elas, usa a hora do relógio e não mostra o ponto no mapa.</div></li>
+  <li>Na lista de campanhas em Cadastros, abra o <strong>Checklist de campo</strong> e imprima: tem os cuidados
+    (pilhas novas e iguais, cartão formatado na câmera, foto do relógio…) e uma tabela por ponto.</li>
+  <li>Câmera com a <strong>tela quebrada</strong>? Em <a href="/roteiros"><strong>Roteiros às cegas</strong></a>
+    cadastre, para o modelo, a sequência de botões de cada ajuste (partindo do reset de fábrica) e imprima. O
+    programa não inventa sequências: confirme numa câmera igual com a tela funcionando.</li>
+</ol>
+
+<h2 id="campo">2. No campo</h2>
+<ul>
+  <li>Ao instalar cada câmera, <strong>fotografe a tela do celular mostrando a hora</strong> com a própria câmera
+    trap. Essa foto permite corrigir o relógio depois (<a href="#conferir">passo 5</a>).</li>
+  <li>Anote data e hora da <strong>instalação</strong>, da <strong>retirada</strong>, trocas de pilha e qualquer
+    <strong>falha</strong> (câmera encontrada desligada, caída, cheia d'água…), com <strong>quando voltou a
+    funcionar</strong>. Tudo isso vai para a página da câmera (<a href="#cameras">ver Câmeras</a>) e entra no cálculo
+    do esforço.</li>
+  <li><strong>Nunca abra o cartão num Mac</strong>: ele cria arquivos "._" e já causou perda de fotos.</li>
+</ul>
+
+<h2 id="conectar">3. Conectar o cartão e diagnóstico</h2>
+<ol>
+  <li>Abra o programa e conecte o <strong>cartão SD no leitor</strong> (ou a câmera pelo cabo USB).</li>
+  <li>Em <a href="/"><strong>Início</strong></a> o cartão aparece sozinho em até 5 segundos, com quantas fotos e vídeos
+    tem.</li>
+  <li>Opcional: <strong>Diagnóstico</strong> mostra o modelo provável, qual das suas câmeras provavelmente é (pelos
+    arquivos já importados), a última foto e quantas mídias são <strong>novas</strong>.</li>
+  <li>Se a <strong>tela da câmera estiver apagada</strong>, use o <strong>teste sem tela</strong> no Diagnóstico:
+    clique em <em>Começar teste</em>, desconecte, ligue a câmera e passe na frente dela algumas vezes, reconecte e
+    clique em <em>Verificar</em>. Se surgirem fotos novas, o processador e a gravação estão bons e o defeito é só na
+    tela.</li>
+</ol>
+
+<h2 id="importar">4. Importar</h2>
+<ol>
+  <li>Clique em <strong>Importar este cartão</strong>.</li>
+  <li>Informe <strong>câmera</strong>, <strong>ponto</strong> e <strong>campanha</strong> (pode digitar um nome novo, que
+    ele cadastra; na próxima vez ele sugere o último ponto e campanha daquela câmera).</li>
+  <li>Clique em <strong>Copiar e organizar</strong> e acompanhe a barra de progresso.</li>
+</ol>
+<p>O que acontece:</p>
+<ul>
+  <li>Copia <strong>tudo</strong> para <code>Dados\&lt;campanha&gt;\&lt;ponto&gt;\&lt;câmera&gt;\</code> e confere cada
+    cópia byte a byte (SHA-256).</li>
+  <li>Renomeia como <code>campanha_ponto_câmera_AAAAMMDD_HHMMSS_seq.jpg</code>; o nome original fica guardado.</li>
+  <li>Lê a data da foto (EXIF), a faixa do rodapé (data, hora, temperatura) e os dados dos vídeos.</li>
+  <li><strong>Não duplica</strong>: importar o mesmo cartão de novo copia só o que for novo.</li>
+</ul>
+<div class="dica">Depois de importar e conferir, você pode formatar o cartão <strong>na câmera</strong>. O programa
+  nunca formata nem apaga nada.</div>
+
+<h2 id="conferir">5. Alertas e correção de horário</h2>
+<p>Ao terminar, a página da importação mostra os <strong>alertas</strong>:</p>
+<table>
+  <tr><th>Alerta</th><th>O que fazer</th></tr>
+  <tr><td>Relógio resetado / data no futuro</td><td>A câmera perdeu a hora (pilha fraca). Use a correção de horário
+    abaixo.</td></tr>
+  <tr><td>Dias sem registros</td><td>Mais de 48 h sem fotos. Pode ser ausência de bichos ou câmera parada: confira
+    pilhas e o histórico; se foi falha, registre-a na página da câmera.</td></tr>
+  <tr><td>Data do EXIF difere do rodapé</td><td>Abra a foto e veja qual está certa.</td></tr>
+  <tr><td>Arquivo "._" sem a foto</td><td>O cartão passou por um Mac e a foto original sumiu.</td></tr>
+  <tr><td>Cartão vazio</td><td>Nenhuma foto: câmera não disparou ou não gravou. Use o teste sem tela.</td></tr>
+</table>
+<p><strong>Correção de horário:</strong> na mesma página, escolha a foto cuja hora real você sabe (a foto do relógio
+  do celular), informe a hora certa e clique em <strong>Aplicar</strong>. A diferença é aplicada a todas as fotos e
+  vídeos daquele cartão; a hora original fica guardada.</p>
+
+<h2 id="ia">6. IA: detecção e espécie</h2>
+<ol>
+  <li>Na página da importação, clique em <strong>Rodar IA (detecção + espécie)</strong>.</li>
+  <li>A IA (<strong>SpeciesNet</strong>, do Google, com o <strong>MegaDetector</strong>) procura
+    <strong>animal, pessoa e veículo</strong> em cada foto e em 1 quadro por segundo dos vídeos, e sugere a espécie
+    usando só espécies que ocorrem no <strong>Brasil</strong>.</li>
+  <li>Acompanhe em <a href="/tarefas"><strong>Tarefas</strong></a>. Neste computador leva <strong>cerca de 7 segundos por
+    foto</strong> (1.000 fotos ≈ 2 horas). Pode <strong>pausar e retomar</strong>, e fechar o programa não perde o
+    progresso.</li>
+</ol>
+<div class="importante"><strong>Este passo é necessário para as análises.</strong> A revisão mostra só o que a IA
+  já analisou, e as análises usam só o que foi revisado. A IA <strong>sugere</strong>; quem decide a espécie é você.</div>
+<p><strong>Extrair áudio dos vídeos</strong> (mesma página): salva um arquivo WAV por vídeo na pasta
+  <code>_audio</code>, para uso futuro com cantos de aves e anuros.</p>
+
+<h2 id="revisar">7. Revisão das identificações</h2>
+<p>Na página da importação, clique em <strong>Revisar identificações</strong>. As fotos tiradas com menos de
+  1 minuto de diferença formam uma <strong>sequência</strong>; você revisa uma sequência de cada vez, com a caixa
+  da detecção desenhada e a sugestão da IA.</p>
+<table>
+  <tr><th>Tecla</th><th>Ação</th></tr>
+  <tr><td><kbd>Enter</kbd></td><td>confirmar a espécie e ir para a próxima</td></tr>
+  <tr><td><kbd>1</kbd>–<kbd>9</kbd></td><td>escolher uma espécie da lista de atalhos (sugestão da IA + últimas usadas)</td></tr>
+  <tr><td><kbd>/</kbd></td><td>buscar espécie pelo nome</td></tr>
+  <tr><td><kbd>V</kbd> <kbd>P</kbd> <kbd>X</kbd> <kbd>I</kbd></td><td>vazio (falso disparo) · pessoa · veículo · indeterminado</td></tr>
+  <tr><td><kbd>+</kbd> <kbd>−</kbd></td><td>número de indivíduos</td></tr>
+  <tr><td><kbd>C</kbd> / <kbd>D</kbd></td><td>comportamento / marcar como "boa para divulgação"</td></tr>
+  <tr><td><kbd>←</kbd> <kbd>→</kbd> / <kbd>↑</kbd> <kbd>↓</kbd></td><td>sequência anterior/próxima · foto anterior/próxima da sequência</td></tr>
+</table>
+<ul>
+  <li>Espécie que não está na lista? Cadastre em <a href="/especies"><strong>Espécies</strong></a> (nome científico e
+    popular).</li>
+  <li>Sequências em que a IA não viu nada acima do <strong>limiar</strong> (padrão 0,2) são contadas como vazias e
+    não aparecem. Se suspeitar que ela está deixando bichos passarem, <strong>baixe o limiar</strong> em Espécies
+    (mais sequências para revisar, menos perdas).</li>
+</ul>
+
+<h2 id="analisar">8. Análises e exportações</h2>
+<p>Em <a href="/analises"><strong>Análises</strong></a>, escolha a campanha e o <strong>intervalo de independência</strong>
+  (padrão 30 minutos) e clique em <strong>Analisar</strong>. Entram só as identificações <strong>confirmadas</strong>
+  na revisão.</p>
+<table>
+  <tr><th>Resultado</th><th>O que significa</th></tr>
+  <tr><td>Registros independentes</td><td>A mesma espécie no mesmo ponto só conta de novo depois do intervalo
+    (evita contar o mesmo bicho várias vezes).</td></tr>
+  <tr><td>Esforço (câmeras-dia)</td><td>Dias em que cada câmera esteve funcionando, da instalação à retirada, menos
+    os dias de falha. Sem esses registros, usa a primeira e a última foto (e avisa).</td></tr>
+  <tr><td>Taxa de captura</td><td>Registros independentes a cada 100 câmeras-dia. Permite comparar espécies e pontos
+    com esforços diferentes.</td></tr>
+  <tr><td>Padrão de atividade</td><td>Em que horas do dia cada espécie aparece, em <strong>hora solar</strong>
+    (6 h = nascer do sol, 18 h = pôr do sol). Precisa de pelo menos 10 registros da espécie.</td></tr>
+  <tr><td>Sobreposição (Δ)</td><td>Quanto o horário de duas espécies coincide: 0 = nunca ativas juntas, 1 = mesmo
+    horário.</td></tr>
+  <tr><td>Curva de acumulação</td><td>Quantas espécies apareceram conforme os dias passam. Se ainda está subindo,
+    mais esforço provavelmente traria espécies novas.</td></tr>
+  <tr><td>Mapa</td><td>Pontos com o número de registros e de espécies (sem mapa de fundo, para não usar
+    internet).</td></tr>
+</table>
+<ul>
+  <li><strong>Relatório para imprimir/PDF</strong>: abre uma página única; no navegador, <kbd>Ctrl</kbd>+<kbd>P</kbd> →
+    <em>Salvar como PDF</em>.</li>
+  <li><strong>Exportar tudo</strong>: baixa um ZIP (e guarda uma cópia em <code>Dados\_exportacoes\</code>) com:
+    planilha <strong>Excel</strong>, <strong>CSVs</strong>, pacote <strong>Camtrap DP</strong> (para GBIF e Wildlife
+    Insights), tabelas para o pacote <strong>camtrapR</strong> do R e o relatório.</li>
+</ul>
+<div class="dica">Para publicação, confira os valores de sobreposição no pacote <code>overlap</code> do R: o programa
+  ainda não calcula os intervalos de confiança.</div>
+
+<h2 id="cameras">Câmeras: histórico, falhas e defeitos</h2>
+<p>Em <a href="/cameras"><strong>Câmeras</strong></a>, cada câmera tem uma página com os dias em que registrou algo,
+  os períodos sem registros e o <strong>histórico</strong>. Em <strong>Registrar evento</strong> anote:</p>
+<ul>
+  <li><strong>Instalação</strong> e <strong>retirada</strong> (com ponto e campanha): definem o período do esforço.</li>
+  <li><strong>Falha</strong>: data de início e, em <em>Até</em>, quando voltou a funcionar. Esses dias são descontados
+    do esforço.</li>
+  <li>Troca de pilhas (marca e tipo), observações e fotos de campo.</li>
+</ul>
+
+<h2 id="arquivos">Onde ficam os arquivos</h2>
+<ul>
+  <li>Fotos e vídeos importados: <code>Dados\&lt;campanha&gt;\&lt;ponto&gt;\&lt;câmera&gt;\</code> dentro da pasta do
+    programa. Arquivos que não são mídia ficam em <code>_cartao_original\</code>.</li>
+  <li>Áudio: subpasta <code>_audio\</code>. Exportações: <code>Dados\_exportacoes\</code>.</li>
+  <li>Banco de dados (cadastros, revisões, eventos): <code>camtrap.sqlite3</code>, na pasta do programa.</li>
+  <li><strong>Backup:</strong> copie a pasta <code>Dados</code> e o arquivo do banco para um HD externo. Nada disso vai
+    para a internet nem para o GitHub.</li>
+</ul>
+
+<h2 id="duvidas">Dúvidas e problemas comuns</h2>
+<dl>
+  <dt><strong>O cartão não aparece em Início.</strong></dt>
+  <dd>Ele precisa ter a pasta <code>DCIM</code>. Confira se o Windows mostra o cartão no Explorador de Arquivos;
+    tente outro leitor ou conecte a câmera pelo cabo.</dd>
+  <dt><strong>A revisão está vazia.</strong></dt>
+  <dd>A IA ainda não rodou (ou não terminou) para aquela importação: veja em Tarefas.</dd>
+  <dt><strong>As análises não mostram nada.</strong></dt>
+  <dd>Nenhuma sequência foi confirmada como espécie na revisão daquela campanha.</dd>
+  <dt><strong>O esforço parece baixo.</strong></dt>
+  <dd>Registre a instalação e a retirada na página da câmera; sem elas o programa usa só a primeira e a última foto.</dd>
+  <dt><strong>Vídeos sem duração ou sem quadros analisados.</strong></dt>
+  <dd>Precisa do FFmpeg (já instalado neste computador). Vídeo cortado por falha no cartão aparece com aviso.</dd>
+  <dt><strong>A IA está lenta.</strong></dt>
+  <dd>É normal sem placa de vídeo NVIDIA. Deixe rodando (pode pausar e retomar) e revise enquanto isso as
+    importações já processadas.</dd>
+</dl>
+</div>
+{% endblock %}

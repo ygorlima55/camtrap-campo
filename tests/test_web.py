@@ -25,6 +25,17 @@ def test_inicio_lista_cartao(cliente):
     assert "/static/htmx.min.js" in r.text and c.get("/static/htmx.min.js").status_code == 200
 
 
+def test_guia_e_seus_links(cliente):
+    c, _, _ = cliente
+    r = c.get("/guia")
+    assert r.status_code == 200 and "Guia de uso" in r.text and 'href="/guia"' in r.text
+    ancoras = set(re.findall(r'id="([\w-]+)"', r.text))
+    for alvo in re.findall(r'href="#([\w-]+)"', r.text):
+        assert alvo in ancoras, alvo
+    for pagina in set(re.findall(r'href="(/[a-z]*)"', r.text)):
+        assert c.get(pagina).status_code == 200, pagina
+
+
 def test_fluxo_importacao_e_correcao(cliente):
     c, cartao, amb = cliente
     r = c.get("/importar", params={"origem": str(cartao)})
