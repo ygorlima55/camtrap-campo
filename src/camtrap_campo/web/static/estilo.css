@@ -96,6 +96,17 @@ main { display: block; }
 /* ---------- Componentes ---------- */
 .cabecalho-pagina { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1rem; margin-bottom: 1.4rem; }
 .cabecalho-pagina p { margin: 0; color: var(--texto-2); }
+.acoes-topo { display: flex; gap: .6rem; flex-wrap: wrap; }
+.nova-pasta { margin-bottom: 1.2rem; }
+.nova-pasta summary { cursor: pointer; font-weight: 650; }
+.nova-pasta[open] summary { margin-bottom: .6rem; }
+.linha-pasta { display: flex; flex-wrap: wrap; align-items: center; gap: .7rem; margin: .4rem 0; }
+.linha-pasta .ou { color: var(--texto-2); }
+.colar-caminho { display: flex; flex-wrap: wrap; gap: .5rem; flex: 1 1 240px; min-width: 0; }
+.colar-caminho input { flex: 1 1 180px; min-width: 0; }
+.botoes-cartao { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; margin-top: .7rem; }
+.cartao h3 .estado { vertical-align: middle; margin-left: .3rem; }
+.cartao code { word-break: break-all; }
 .painel { padding: 1.1rem 1.2rem; border-radius: var(--raio); }
 .painel > h2:first-child, .painel > h3:first-child { margin-top: 0; }
 .grade { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; }

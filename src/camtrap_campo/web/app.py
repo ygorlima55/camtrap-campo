@@ -7,6 +7,7 @@ import os
 import threading
 from io import BytesIO
 from pathlib import Path
+from urllib.parse import urlencode
 
 from fastapi import FastAPI, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, Response
@@ -17,9 +18,9 @@ from sqlalchemy import select
 
 from camtrap_campo import __version__, config
 from camtrap_campo.db import Arquivo, Camera, Campanha, Importacao, Ponto, conectar
-from camtrap_campo.importacao import horario
+from camtrap_campo.importacao import horario, pastas
 from camtrap_campo.importacao.copiar import importar, obter_ou_criar
-from camtrap_campo.importacao.detectar import detectar_cartoes, resumir
+from camtrap_campo.importacao.detectar import detectar_cartoes, resumir, resumir_pastas
 from camtrap_campo.web import painel, rotas_analises, rotas_gestao, rotas_ia
 
 AQUI = Path(__file__).parent
@@ -48,15 +49,41 @@ def criar_app(fabrica=None, sincrono: bool = False, extras_cartoes: list[str] | 
     def pagina(request: Request, nome: str, **ctx):
         return tpl.TemplateResponse(request, nome, ctx)
 
-    def _painel(request: Request, nome: str):
+    def _painel(request: Request, nome: str, **extra):
         cartoes = detectar_cartoes(extras_cartoes)
         with fabrica() as s:
-            r = painel.resumo(s, cartoes)
-            return pagina(request, nome, cartoes=cartoes, r=r)
+            lista = resumir_pastas(pastas.listar(s))
+            r = painel.resumo(s, cartoes, lista)
+            return pagina(request, nome, cartoes=cartoes, pastas=lista, r=r, em_nuvem=pastas.em_nuvem, **extra)
 
     @app.get("/", response_class=HTMLResponse)
-    def inicio(request: Request):
-        return _painel(request, "inicio.html")
+    def inicio(request: Request, erro: str = "", adicionada: str = ""):
+        return _painel(request, "inicio.html", erro=erro, adicionada=adicionada)
+
+    def _voltar(erro: str = "", adicionada: str = ""):
+        chave, valor = ("erro", erro) if erro else ("adicionada", adicionada)
+        return RedirectResponse(f"/?{urlencode({chave: valor})}" if valor else "/", status_code=303)
+
+    @app.post("/pastas")
+    def adicionar_pasta(caminho: str = Form("")):
+        with fabrica() as s:
+            try:
+                return _voltar(adicionada=pastas.adicionar(s, caminho))
+            except ValueError as exc:
+                return _voltar(erro=str(exc))
+
+    @app.post("/pastas/escolher")
+    def escolher_pasta():
+        escolhida = pastas.escolher_no_windows()  # janela do Windows, neste computador
+        if not escolhida:
+            return _voltar()
+        return adicionar_pasta(escolhida)
+
+    @app.post("/pastas/remover")
+    def remover_pasta(caminho: str = Form(...)):
+        with fabrica() as s:
+            pastas.remover(s, caminho)  # só sai da lista; os arquivos continuam onde estão
+        return _voltar()
 
     @app.get("/painel", response_class=HTMLResponse)
     def painel_vivo(request: Request):
@@ -68,7 +95,10 @@ def criar_app(fabrica=None, sincrono: bool = False, extras_cartoes: list[str] | 
 
     @app.get("/cartoes", response_class=HTMLResponse)
     def cartoes(request: Request):
-        return pagina(request, "_cartoes.html", cartoes=detectar_cartoes(extras_cartoes))
+        with fabrica() as s:
+            lista = resumir_pastas(pastas.listar(s))
+        return pagina(request, "_cartoes.html", cartoes=detectar_cartoes(extras_cartoes), pastas=lista,
+                      em_nuvem=pastas.em_nuvem)
 
     @app.get("/importar", response_class=HTMLResponse)
     def form_importar(request: Request, origem: str):
@@ -91,8 +121,13 @@ def criar_app(fabrica=None, sincrono: bool = False, extras_cartoes: list[str] | 
         camera, ponto, campanha = camera.strip(), ponto.strip(), campanha.strip()
         if not (camera and ponto and campanha):
             raise HTTPException(400, "Informe câmera, ponto e campanha")
-        if not (Path(origem) / "DCIM").is_dir():
-            raise HTTPException(400, "A origem não tem pasta DCIM")
+        try:  # cartão (com DCIM) ou qualquer pasta com fotos/vídeos, desde que não seja a pasta de dados do programa
+            pastas.validar(origem)
+        except ValueError as exc:
+            raise HTTPException(400, str(exc)) from exc
+        resumo = resumir(origem)
+        if not (resumo.fotos or resumo.videos):
+            raise HTTPException(400, "A origem não tem fotos nem vídeos")
         with fabrica() as s:
             cam = obter_ou_criar(s, Camera, camera)
             pto = obter_ou_criar(s, Ponto, ponto)

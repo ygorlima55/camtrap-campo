@@ -1,10 +1,37 @@
 {% extends "base.html" %}
+{% from "_icones.html" import icone %}
 {% block titulo %}Início · CamTrap Campo{% endblock %}
 {% block conteudo %}
 <div class="cabecalho-pagina">
   <div><h1>Início</h1><p>Resumo do acervo e o que fazer agora. Atualiza sozinho.</p></div>
-  <a class="botao secundario" href="/guia">Como funciona?</a>
+  <div class="acoes-topo">
+    <button class="botao secundario" type="button" onclick="const d = document.getElementById('nova-pasta'); d.open = !d.open; if (d.open) d.scrollIntoView({block: 'nearest'})">
+      {{ icone('cadastros', 18) }} Importar de uma pasta</button>
+    <a class="botao secundario" href="/guia">Como funciona?</a>
+  </div>
 </div>
+
+{% if erro %}<p class="alerta erro">{{ erro }}</p>{% endif %}
+{% if adicionada %}<p class="alerta info">Pasta adicionada: <code>{{ adicionada }}</code>. Ela aparece em “Cartões e pastas”, pronta para importar.</p>{% endif %}
+
+<details id="nova-pasta" class="painel nova-pasta"{% if erro %} open{% endif %}>
+  <summary>Importar de uma pasta do computador</summary>
+  <p class="ajuda">Para fotos e vídeos que já estão no computador, como cópias de cartões, registros de teste ou um HD externo.
+    A pasta fica salva na lista ao lado dos cartões. O programa só lê e copia: nada é apagado nem alterado na pasta.</p>
+  <div class="linha-pasta">
+    <form method="post" action="/pastas/escolher">
+      <button class="botao" type="submit">{{ icone('cadastros', 18) }} Escolher pasta…</button>
+    </form>
+    <span class="ou">ou</span>
+    <form method="post" action="/pastas" class="colar-caminho">
+      <input name="caminho" placeholder="cole o caminho, ex.: C:\Users\voce\Pictures\Câmera P7" aria-label="Caminho da pasta">
+      <button type="submit">Adicionar</button>
+    </form>
+  </div>
+  <p class="ajuda"><small>“Escolher pasta…” abre a janela do Windows. Se ela não aparecer, olhe a barra de tarefas;
+    pode ter ficado atrás do navegador. Copiar o caminho: no Explorador, clique com o botão direito na pasta → “Copiar como caminho”.</small></p>
+</details>
+
 <div id="painel" hx-get="/painel" hx-trigger="every 6s" hx-swap="innerHTML">
   {% include "_painel.html" %}
 </div>

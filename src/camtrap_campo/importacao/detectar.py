@@ -1,17 +1,23 @@
-"""Detecção de cartões SD e câmeras montadas como unidade removível (com pasta DCIM). Somente leitura."""
+"""Detecção de cartões SD e câmeras montadas como unidade removível (com pasta DCIM) e resumo de pastas
+comuns escolhidas pelo usuário (cópias de cartões, registros de teste). Somente leitura."""
 
 from __future__ import annotations
 
 import datetime as dt
+import os
 import platform
 import shutil
 import string
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
 from camtrap_campo.config import EXT_FOTO, EXT_VIDEO
 
 DRIVE_REMOVABLE = 2
+PASTAS_DE_SISTEMA = {"system volume information", "$recycle.bin", ".spotlight-v100", ".fseventsd", ".trashes"}
+CACHE_PASTAS_S = 30  # pastas grandes não são relidas a cada atualização do painel
+_cache: dict[str, tuple[float, Cartao]] = {}
 
 
 @dataclass
@@ -27,6 +33,11 @@ class Cartao:
     appledouble: int = 0
     ultima_midia: str | None = None
     ultima_data: str | None = None
+    tipo: str = "cartao"  # cartao | pasta
+
+    @property
+    def nome(self) -> str:
+        return Path(self.raiz).name or self.raiz
 
 
 def _rotulo(raiz: str) -> str | None:
@@ -64,24 +75,27 @@ def resumir(raiz: str | Path) -> Cartao:
         total = livre = None
     dcim = raiz / "DCIM"
     c = Cartao(str(raiz), _rotulo(str(raiz)), total, livre, dcim.is_dir())
-    if not c.tem_dcim:
-        return c
-    c.pastas_dcim = sorted(p.name for p in dcim.iterdir() if p.is_dir())
+    if c.tem_dcim:
+        c.pastas_dcim = sorted(p.name for p in dcim.iterdir() if p.is_dir())
+    else:  # pasta comum: conta tudo o que está dentro, como a importação fará
+        c.tipo = "pasta"
+    base = dcim if c.tem_dcim else raiz
     ultima = None
-    for p in dcim.rglob("*"):
-        if not p.is_file():
-            continue
-        ext = p.suffix.lower()
-        if p.name.startswith("._"):
-            c.appledouble += 1
-        elif ext in EXT_FOTO or ext in EXT_VIDEO:
-            if ext in EXT_FOTO:
-                c.fotos += 1
-            else:
-                c.videos += 1
-            chave = (p.stat().st_mtime, p.name)  # empate de horário: o nome (contador) decide
-            if ultima is None or chave > ultima[:2]:
-                ultima = (*chave, p)
+    for pasta, subpastas, nomes in os.walk(base):
+        subpastas[:] = [d for d in subpastas if d.lower() not in PASTAS_DE_SISTEMA]
+        for nome in nomes:
+            p = Path(pasta) / nome
+            ext = p.suffix.lower()
+            if p.name.startswith("._"):
+                c.appledouble += 1
+            elif ext in EXT_FOTO or ext in EXT_VIDEO:
+                if ext in EXT_FOTO:
+                    c.fotos += 1
+                else:
+                    c.videos += 1
+                chave = (p.stat().st_mtime, p.name)  # empate de horário: o nome (contador) decide
+                if ultima is None or chave > ultima[:2]:
+                    ultima = (*chave, p)
     if ultima:
         c.ultima_midia = str(ultima[2].relative_to(raiz))
         c.ultima_data = dt.datetime.fromtimestamp(ultima[0]).isoformat(timespec="seconds")
@@ -93,9 +107,29 @@ def detectar_cartoes(extras: list[str] | None = None) -> list[Cartao]:
     vistos = []
     for raiz in unidades_removiveis() + list(extras or []):
         try:
-            cartao = resumir(raiz)
+            if (Path(raiz) / "DCIM").is_dir():  # pen drive sem DCIM não é varrido inteiro a cada atualização
+                vistos.append(resumir(raiz))
         except OSError:
             continue
-        if cartao.tem_dcim:
-            vistos.append(cartao)
     return vistos
+
+
+def resumir_pastas(caminhos: list[str]) -> list[Cartao]:
+    """Resumo das pastas escolhidas pelo usuário (com cache curto); pastas que sumiram ficam de fora."""
+    agora = time.monotonic()
+    resumos = []
+    for caminho in caminhos:
+        guardado = _cache.get(caminho)
+        if guardado and agora - guardado[0] < CACHE_PASTAS_S:
+            resumos.append(guardado[1])
+            continue
+        try:
+            if not Path(caminho).is_dir():
+                continue
+            c = resumir(caminho)
+        except OSError:
+            continue
+        c.tipo = "pasta"
+        _cache[caminho] = (agora, c)
+        resumos.append(c)
+    return resumos

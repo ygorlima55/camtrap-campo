@@ -15,6 +15,7 @@ from camtrap_campo import config
 from camtrap_campo.db import Camera, Campanha, EventoCamera, Importacao, PassoRoteiro, Ponto, TesteSemTela
 from camtrap_campo.diagnostico import historico, sem_tela
 from camtrap_campo.diagnostico.identificar import identificar
+from camtrap_campo.importacao import pastas
 from camtrap_campo.importacao.copiar import obter_ou_criar, sanitizar
 from camtrap_campo.importacao.detectar import detectar_cartoes
 
@@ -35,7 +36,9 @@ ITENS_CHECKLIST = [
 
 def registrar(app: FastAPI, fabrica, pagina, extras_cartoes: list[str]) -> None:
     def _raizes_permitidas() -> list[Path]:
-        return [Path(c.raiz).resolve() for c in detectar_cartoes(extras_cartoes)]
+        with fabrica() as s:
+            salvas = pastas.listar(s)
+        return [Path(c.raiz).resolve() for c in detectar_cartoes(extras_cartoes)] + [Path(p).resolve() for p in salvas]
 
     def _dentro_de_cartao(caminho: Path) -> bool:
         caminho = caminho.resolve()

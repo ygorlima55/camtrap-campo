@@ -1,18 +1,36 @@
-{% if cartoes %}
+{% if cartoes or pastas %}
 <div class="cartoes">
   {% for c in cartoes %}
   <div class="cartao">
-    <h3>{{ c.raiz }} {% if c.rotulo %}<small>({{ c.rotulo }})</small>{% endif %}</h3>
+    <h3>{{ c.raiz }} {% if c.rotulo %}<small>({{ c.rotulo }})</small>{% endif %} <span class="estado concluida">cartão</span></h3>
     <p>{{ c.fotos }} fotos · {{ c.videos }} vídeos · pastas {{ c.pastas_dcim|join(', ') or '—' }}</p>
     {% if c.total_bytes %}<p>{{ '%.1f'|format(c.livre_bytes / 1e9) }} GB livres de {{ '%.1f'|format(c.total_bytes / 1e9) }} GB</p>{% endif %}
     {% if c.ultima_midia %}<p>Última: <code>{{ c.ultima_midia }}</code> ({{ c.ultima_data.replace('T', ' ') }})</p>{% endif %}
     {% if c.appledouble %}<p class="alerta erro">{{ c.appledouble }} arquivo(s) "._" de Mac — confira se as fotos estão no cartão</p>{% endif %}
-    <p style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.7rem">
+    <p class="botoes-cartao">
       <a class="botao" href="/importar?origem={{ c.raiz|urlencode }}">Importar este cartão</a>
       <a class="botao secundario" href="/diagnostico?origem={{ c.raiz|urlencode }}">Diagnóstico</a></p>
   </div>
   {% endfor %}
+  {% for p in pastas %}
+  <div class="cartao">
+    <h3>{{ p.nome }} <span class="estado">pasta</span></h3>
+    <p><code title="{{ p.raiz }}">{{ p.raiz }}</code></p>
+    <p>{{ p.fotos }} fotos · {{ p.videos }} vídeos{% if p.pastas_dcim %} · DCIM: {{ p.pastas_dcim|join(', ') }}{% endif %}</p>
+    {% if p.ultima_midia %}<p>Última: <code>{{ p.ultima_midia }}</code> ({{ p.ultima_data.replace('T', ' ') }})</p>{% endif %}
+    {% if not (p.fotos or p.videos) %}<p class="alerta aviso">Nenhuma foto ou vídeo nesta pasta (nem nas subpastas).</p>{% endif %}
+    {% if em_nuvem(p.raiz) %}<p class="alerta info">Pasta do OneDrive: arquivos que estão só na nuvem serão baixados durante a importação.</p>{% endif %}
+    {% if p.appledouble %}<p class="alerta erro">{{ p.appledouble }} arquivo(s) "._" de Mac — confira se as fotos originais estão na pasta</p>{% endif %}
+    <div class="botoes-cartao">
+      {% if p.fotos or p.videos %}<a class="botao" href="/importar?origem={{ p.raiz|urlencode }}">Importar esta pasta</a>{% endif %}
+      <form method="post" action="/pastas/remover">
+        <input type="hidden" name="caminho" value="{{ p.raiz }}">
+        <button type="submit" title="Só tira da lista do programa; os arquivos continuam na pasta">Tirar da lista</button>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
 </div>
 {% else %}
-<p class="vazio">Nenhum cartão com pasta DCIM encontrado. Conecte o cartão SD ou a câmera pelo cabo USB.</p>
+<p class="vazio">Nenhum cartão conectado. Conecte o cartão SD ou a câmera pelo cabo USB, ou use “Importar de uma pasta” no topo.</p>
 {% endif %}

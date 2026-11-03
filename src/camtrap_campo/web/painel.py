@@ -28,7 +28,7 @@ def midias_por_dia(s, dias: int = 30) -> list[tuple[dt.date, int]]:
     return [(d, linhas.get(d.isoformat(), 0)) for d in (fim - dt.timedelta(days=i) for i in range(dias - 1, -1, -1))]
 
 
-def resumo(s, cartoes: list) -> dict:
+def resumo(s, cartoes: list, pastas: list = ()) -> dict:
     midia = (Arquivo.estado == "copiado") & Arquivo.tipo.in_(("foto", "video"))
     fotos = _contar(s, select(func.count()).where(midia, Arquivo.tipo == "foto"))
     videos = _contar(s, select(func.count()).where(midia, Arquivo.tipo == "video"))
@@ -52,6 +52,8 @@ def resumo(s, cartoes: list) -> dict:
         if pend:
             a_revisar.append((imp, pend))
     sem_ia = [i for i in recentes if i.id not in com_ia and i.estado != "em_andamento" and i.copiados]
+    origens = set(s.scalars(select(Importacao.origem)))
+    pastas_novas = [p for p in pastas if (p.fotos or p.videos) and p.raiz not in origens]
 
     total = fotos + videos
     return {
@@ -61,16 +63,22 @@ def resumo(s, cartoes: list) -> dict:
         "cameras": _contar(s, select(func.count(Camera.id))), "pontos": _contar(s, select(func.count(Ponto.id))),
         "campanhas": _contar(s, select(func.count(Campanha.id))),
         "tarefas": tarefas, "recentes": recentes, "a_revisar": a_revisar, "sem_ia": sem_ia,
-        "por_dia": midias_por_dia(s), "proximo": proximo_passo(cartoes, tarefas, sem_ia, a_revisar, confirmadas),
+        "por_dia": midias_por_dia(s),
+        "proximo": proximo_passo(cartoes, tarefas, sem_ia, a_revisar, confirmadas, pastas_novas),
     }
 
 
-def proximo_passo(cartoes, tarefas, sem_ia, a_revisar, confirmadas) -> dict:
-    """A ação mais útil agora, na ordem do fluxo: cartão → IA → revisão → análises."""
+def proximo_passo(cartoes, tarefas, sem_ia, a_revisar, confirmadas, pastas_novas=()) -> dict:
+    """A ação mais útil agora, na ordem do fluxo: cartão (ou pasta nova) → IA → revisão → análises."""
     if cartoes:
         c = cartoes[0]
         return {"icone": "cartao", "titulo": "Cartão conectado", "texto": f"{c.raiz} tem {c.fotos} fotos e {c.videos} vídeos.",
                 "botao": "Importar este cartão", "href": f"/importar?origem={quote(str(c.raiz))}"}
+    if pastas_novas:
+        p = pastas_novas[0]
+        return {"icone": "cadastros", "titulo": f"Pasta “{p.nome}” pronta para importar",
+                "texto": f"{p.fotos} fotos e {p.videos} vídeos ainda não importados.",
+                "botao": "Importar esta pasta", "href": f"/importar?origem={quote(str(p.raiz))}"}
     if any(t.estado == "executando" for t in tarefas):
         return {"icone": "ia", "titulo": "A IA está trabalhando",
                 "texto": "Você pode revisar o que já foi analisado enquanto isso.", "botao": "Ver tarefas", "href": "/tarefas"}
@@ -88,5 +96,6 @@ def proximo_passo(cartoes, tarefas, sem_ia, a_revisar, confirmadas) -> dict:
         return {"icone": "analises", "titulo": "Tudo revisado", "texto": "Veja taxas, atividade e exporte os resultados.",
                 "botao": "Abrir análises", "href": "/analises"}
     return {"icone": "cartao", "titulo": "Comece conectando um cartão SD",
-            "texto": "Ele aparece aqui sozinho em até 5 segundos. Primeira vez? O guia explica cada etapa.",
+            "texto": "Ele aparece aqui sozinho em até 5 segundos, ou use “Importar de uma pasta”. "
+                     "Primeira vez? O guia explica cada etapa.",
             "botao": "Abrir o guia", "href": "/guia"}
