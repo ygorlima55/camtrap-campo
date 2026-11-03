@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block titulo %}Validação por espécie · CamTrap Campo{% endblock %}
+{% block conteudo %}
+{% set filtro = ('?' ~ ({'campanha': campanha or '', 'camera': camera or ''}|urlencode)) %}
+<div class="cabecalho-pagina">
+  <div><h1>Validação por espécie</h1>
+    <p>Confira de uma vez as sequências de cada espécie. Só o que você validar entra nas análises, na planilha e no relatório.</p></div>
+  <div class="acoes-topo">
+    <a class="botao secundario" href="/validacao/planilha{{ filtro }}">Planilha das espécies (Excel)</a>
+    <a class="botao" href="/validacao/relatorio{{ filtro }}" target="_blank">Relatório fotográfico</a>
+  </div>
+</div>
+
+<form class="formulario linha nao-imprimir" method="get" action="/validacao">
+  <label>Campanha <select name="campanha"><option value="">todas</option>
+    {% for c in campanhas %}<option value="{{ c.id }}"{% if c.id == campanha %} selected{% endif %}>{{ c.nome }}</option>{% endfor %}</select></label>
+  <label>Câmera <select name="camera"><option value="">todas</option>
+    {% for c in cameras %}<option value="{{ c.id }}"{% if c.id == camera %} selected{% endif %}>{{ c.etiqueta }}</option>{% endfor %}</select></label>
+  <button class="botao" type="submit">Filtrar</button>
+  <span class="ajuda">{{ dados.especies }} espécie(s) · <strong>{{ dados.validadas }}</strong> sequência(s) validada(s) ·
+    <strong>{{ dados.pendentes }}</strong> aguardando</span>
+</form>
+
+{% if dados.simulado %}<p class="alerta aviso">Parte destes resultados veio da IA <strong>simulada</strong> (modo de teste), não do SpeciesNet.</p>{% endif %}
+
+{% if dados.grupos %}
+<div class="painel atalhos-validacao">
+  <strong>Teclas:</strong> <kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd> mover · <kbd>Espaço</kbd> marcar/desmarcar ·
+  <kbd>Enter</kbd> validar as marcadas do grupo · <kbd>C</kbd> corrigir as marcadas · <kbd>A</kbd> marcar/desmarcar todas do grupo ·
+  <kbd>Z</kbd> ampliar · <kbd>Esc</kbd> fechar.
+  <span class="ajuda">Sugestões com {{ (alta * 100)|round|int }}% de confiança ou mais já vêm marcadas; as outras você marca se concordar.</span>
+</div>
+<nav class="chips-grupos">
+  {% for g in dados.grupos %}<a href="#g-{{ g.chave }}" class="chip{% if not g.pendentes %} feito{% endif %}">{{ g.titulo }}
+    <b>{{ g.itens|length }}</b>{% if g.pendentes %}<i>{{ g.pendentes }} a validar</i>{% endif %}</a>{% endfor %}
+</nav>
+
+{% for g in dados.grupos %}
+<section class="painel grupo" id="g-{{ g.chave }}" data-resultado="{{ g.resultado or '' }}" data-especie="{{ g.especie.id if g.especie else '' }}"
+         data-titulo="{{ g.titulo }}">
+  <div class="titulo-grupo">
+    <div><h2>{{ g.titulo }} {% if g.subtitulo %}<em>{{ g.subtitulo }}</em>{% endif %}</h2>
+      <small>{{ g.itens|length }} sequência(s) · <span class="estado concluida">{{ g.validadas }} validada(s)</span>
+        {% if g.pendentes %}<span class="estado pendente">{{ g.pendentes }} aguardando</span>{% endif %}</small></div>
+    <div class="botoes-grupo">
+      <button type="button" data-acao="todas">Marcar todas (A)</button>
+      {% if g.resultado %}<button type="button" class="botao" data-acao="validar">Validar marcadas como {{ g.titulo }} (Enter)</button>{% endif %}
+      <button type="button" class="botao secundario" data-acao="corrigir">{% if g.resultado %}Corrigir marcadas (C){% else %}Escolher a espécie (C){% endif %}</button>
+    </div>
+  </div>
+  <div class="grade-validacao">
+    {% for i in g.itens %}
+    <div class="v-item {{ i.estado }}{% if i.pre %} marcado{% endif %}" tabindex="0"
+         data-item='{{ {"imp_id": i.imp_id, "chave": i.chave, "arquivos": i.arquivos, "quantidade": i.quantidade}|tojson }}'
+         data-grande="{{ i.capa_grande }}" data-legenda="{{ i.inicio.strftime('%d/%m/%Y %H:%M') if i.inicio else '' }} · câmera {{ i.camera }} · {{ i.ponto }}">
+      {% if i.capa %}<img src="{{ i.capa }}" alt="{{ g.titulo }} · {{ i.camera }}" loading="lazy">{% else %}<div class="sem-imagem">sem imagem</div>{% endif %}
+      <input type="checkbox" class="marca" tabindex="-1" aria-label="marcar"{% if i.pre %} checked{% endif %}>
+      <span class="selo-item">{% if i.estado == 'validada' %}✓ validada{% elif i.conf is not none %}IA {{ (i.conf * 100)|round|int }}%{% else %}IA{% endif %}</span>
+      <button type="button" class="ampliar" title="Ampliar (Z)" aria-label="Ampliar">⤢</button>
+      <div class="legenda">{{ i.inicio.strftime('%d/%m/%Y %H:%M') if i.inicio else 'sem data' }} · {{ i.camera }} · {{ i.ponto }}
+        {% if i.n_fotos > 1 %}· {{ i.n_fotos }} fotos{% endif %}
+        {% if not g.especie %}<br><small>{{ i.sugestao }}</small>{% endif %}</div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endfor %}
+{% else %}
+<p class="vazio">Nada para validar ainda. Rode a IA nas importações (página da importação → “Rodar IA”); as sequências com
+  animal, pessoa ou veículo aparecem aqui agrupadas por espécie.</p>
+{% endif %}
+
+<dialog id="correcao" class="painel">
+  <form method="dialog" id="form-correcao">
+    <h3 id="titulo-correcao">Corrigir</h3>
+    <label>Espécie correta
+      <input id="busca-especie" list="lista-especies" placeholder="digite o nome popular ou científico" autocomplete="off"></label>
+    <datalist id="lista-especies">
+      {% for e in especies %}<option value="{{ e.nome_popular }} — {{ e.nome_cientifico }}" data-id="{{ e.id }}"></option>{% endfor %}
+    </datalist>
+    <p class="botoes-cartao">
+      <button class="botao" type="button" data-resultado="especie">Salvar espécie</button>
+      <button type="button" data-resultado="pessoa">Pessoa</button><button type="button" data-resultado="veiculo">Veículo</button>
+      <button type="button" data-resultado="vazio">Vazio</button><button type="button" data-resultado="indeterminado">Indeterminado</button>
+      <button type="button" value="cancelar" onclick="this.closest('dialog').close()">Cancelar (Esc)</button></p>
+    <p class="ajuda"><small>Espécie fora da lista? Cadastre em <a href="/especies">Espécies</a> e volte aqui.</small></p>
+  </form>
+</dialog>
+<dialog id="zoom" class="painel"><img id="zoom-img" alt=""><p id="zoom-legenda" class="ajuda"></p>
+  <p><button type="button" onclick="this.closest('dialog').close()">Fechar (Esc)</button></p></dialog>
+
+<script>
+(() => {
+  const itens = [...document.querySelectorAll('.v-item')];
+  if (!itens.length) return;
+  const corr = document.getElementById('correcao'), zoom = document.getElementById('zoom');
+  let atual = null, grupoCorrecao = null;
+
+  const grupo = el => el.closest('.grupo');
+  const marcadas = g => [...g.querySelectorAll('.v-item')].filter(i => i.querySelector('.marca').checked);
+  const sincronizar = el => el.classList.toggle('marcado', el.querySelector('.marca').checked);
+  const focar = el => { if (el) { atual = el; el.focus({preventScroll: false}); el.scrollIntoView({block: 'nearest'}); } };
+  const alternar = el => { const c = el.querySelector('.marca'); c.checked = !c.checked; sincronizar(el); };
+
+  async function enviar(g, sel, resultado, especie_id) {
+    const r = await fetch('/validacao', {method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({itens: sel.map(i => JSON.parse(i.dataset.item)), resultado, especie_id})});
+    if (!r.ok) { alert('Não foi possível salvar: ' + (await r.json()).detail); return; }
+    sessionStorage.setItem('validacao-grupo', g.id);
+    location.reload();
+  }
+  function validar(g) {
+    if (!g.dataset.resultado) return abrirCorrecao(g);
+    const sel = marcadas(g);
+    if (!sel.length) return alert('Marque ao menos uma sequência (Espaço) para validar.');
+    enviar(g, sel, g.dataset.resultado, Number(g.dataset.especie) || null);
+  }
+  function abrirCorrecao(g) {
+    if (!marcadas(g).length && atual && grupo(atual) === g) alternar(atual);
+    const n = marcadas(g).length;
+    if (!n) return alert('Marque as sequências que quer corrigir (Espaço).');
+    grupoCorrecao = g;
+    document.getElementById('titulo-correcao').textContent = `Corrigir ${n} sequência(s) de “${g.dataset.titulo}”`;
+    document.getElementById('busca-especie').value = '';
+    corr.showModal();
+    document.getElementById('busca-especie').focus();
+  }
+  function ampliar(el) {
+    document.getElementById('zoom-img').src = el.dataset.grande;
+    document.getElementById('zoom-legenda').textContent = el.dataset.legenda;
+    zoom.showModal();
+  }
+  function idDaEspecie(texto) {
+    const op = [...document.querySelectorAll('#lista-especies option')].find(o => o.value.toLowerCase() === texto.trim().toLowerCase());
+    return op ? Number(op.dataset.id) : null;
+  }
+  corr.querySelectorAll('[data-resultado]').forEach(b => b.addEventListener('click', () => {
+    const res = b.dataset.resultado;
+    let id = null;
+    if (res === 'especie') {
+      id = idDaEspecie(document.getElementById('busca-especie').value);
+      if (!id) return alert('Escolha uma espécie da lista (comece a digitar e selecione).');
+    }
+    enviar(grupoCorrecao, marcadas(grupoCorrecao), res, id);
+  }));
+  document.getElementById('busca-especie').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); corr.querySelector('[data-resultado="especie"]').click(); }
+  });
+
+  document.querySelectorAll('.grupo').forEach(g => g.querySelectorAll('[data-acao]').forEach(b => b.addEventListener('click', () => {
+    if (b.dataset.acao === 'validar') validar(g);
+    else if (b.dataset.acao === 'corrigir') abrirCorrecao(g);
+    else { const todos = [...g.querySelectorAll('.v-item')]; const marcar = todos.some(i => !i.querySelector('.marca').checked);
+           todos.forEach(i => { i.querySelector('.marca').checked = marcar; sincronizar(i); }); }
+  })));
+  itens.forEach(el => {
+    el.addEventListener('focus', () => { atual = el; });
+    el.querySelector('.marca').addEventListener('change', () => sincronizar(el));
+    el.querySelector('.ampliar').addEventListener('click', e => { e.stopPropagation(); ampliar(el); });
+    el.addEventListener('click', e => { if (!e.target.classList.contains('marca')) { focar(el); alternar(el); } });
+    el.addEventListener('dblclick', () => ampliar(el));
+  });
+
+  function vizinho(el, passo) {  // ↑/↓: mesma coluna na linha de cima/baixo, dentro da página toda
+    const r = el.getBoundingClientRect(), cx = r.left + r.width / 2;
+    const linha = itens.filter(i => passo > 0 ? i.getBoundingClientRect().top > r.bottom - 2 : i.getBoundingClientRect().bottom < r.top + 2);
+    if (!linha.length) return null;
+    const alvoTop = passo > 0 ? Math.min(...linha.map(i => i.getBoundingClientRect().top)) : Math.max(...linha.map(i => i.getBoundingClientRect().top));
+    const mesma = linha.filter(i => Math.abs(i.getBoundingClientRect().top - alvoTop) < 4);
+    return mesma.reduce((a, b) => Math.abs(b.getBoundingClientRect().left + b.offsetWidth / 2 - cx) < Math.abs(a.getBoundingClientRect().left + a.offsetWidth / 2 - cx) ? b : a);
+  }
+  document.addEventListener('keydown', e => {
+    if (corr.open || zoom.open) return;
+    if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName) && !e.target.classList.contains('marca')) return;
+    const el = atual || itens[0], k = e.key.toLowerCase(), pos = itens.indexOf(el);
+    if (k === ' ' && e.target.classList.contains('marca')) return;  // o próprio checkbox já alterna
+    if (k === 'arrowright') focar(itens[Math.min(pos + 1, itens.length - 1)]);
+    else if (k === 'arrowleft') focar(itens[Math.max(pos - 1, 0)]);
+    else if (k === 'arrowdown') focar(vizinho(el, 1) || el);
+    else if (k === 'arrowup') focar(vizinho(el, -1) || el);
+    else if (k === ' ') alternar(el);
+    else if (k === 'enter') validar(grupo(el));
+    else if (k === 'c') abrirCorrecao(grupo(el));
+    else if (k === 'a') grupo(el).querySelector('[data-acao="todas"]').click();
+    else if (k === 'z') ampliar(el);
+    else return;
+    e.preventDefault();
+  });
+
+  const voltar = sessionStorage.getItem('validacao-grupo');
+  sessionStorage.removeItem('validacao-grupo');
+  const g = voltar && document.getElementById(voltar);
+  focar((g && (g.querySelector('.v-item.sugerida') || g.querySelector('.v-item'))) || document.querySelector('.v-item.sugerida') || itens[0]);
+})();
+</script>
+{% endblock %}

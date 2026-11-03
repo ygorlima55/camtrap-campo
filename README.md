@@ -86,6 +86,14 @@ fica guardada no banco.
 - **Checklist de campo** (Cadastros → campanha → *Checklist de campo*): versão para imprimir com os cuidados
   (pilhas iguais e novas, cartão formatado na câmera, foto do relógio…) e uma tabela por ponto.
 
+## Validação por espécie, planilha e relatório fotográfico
+Menu **Validação**: as sequências analisadas pela IA ficam agrupadas por espécie (filtro por campanha ou câmera). Sugestões com
+80% de confiança ou mais já vêm marcadas; **Enter** valida as marcadas do grupo, **C** corrige para outra espécie (ou pessoa,
+veículo, vazio, indeterminado), **Espaço** marca/desmarca, **A** marca o grupo, **Z** amplia. Nada é gravado sem a pessoa validar.
+- A página de cada câmera lista as espécies registradas por ela (validadas e aguardando).
+- **Planilha das espécies (Excel)**: resumo por espécie e um registro por linha, com a sugestão da IA e se ela acertou.
+- **Relatório fotográfico**: até 4 fotos por espécie (primeiro as "boas para divulgação"), para imprimir ou salvar em PDF.
+
 ## Análises e exportações
 Menu **Análises** → escolha a campanha e o intervalo de independência (padrão 30 min). Só entram as identificações
 **confirmadas na Revisão** (sugestões da IA não revisadas ficam de fora).

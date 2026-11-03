@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Relatório fotográfico — {{ descricao }}</title>
+  <link rel="icon" type="image/svg+xml" href="/static/logo.svg">
+  <style>{{ css|safe }}
+    body { background: #fff; } main { max-width: 1000px; margin: auto; padding: 28px 24px 56px; }
+    .capa-rf { display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; } .capa-rf img { width: 64px; height: 64px; }</style>
+</head>
+<body class="simples">
+<main>
+  <div class="capa-rf"><img src="/static/logo.svg" alt="">
+    <div><h1>Relatório fotográfico</h1><p class="ajuda">{{ descricao }} · gerado em {{ gerado.strftime('%d/%m/%Y %H:%M') }} pelo CamTrap Campo</p></div></div>
+  <p><strong>{{ resumo|length }}</strong> espécie(s) · <strong>{{ total }}</strong> registro(s) validado(s) por pessoa.
+    {% if pendentes %}<span class="alerta aviso" style="display:inline-block">{{ pendentes }} sequência(s) ainda aguardam validação e não estão aqui.</span>{% endif %}</p>
+  <p class="nao-imprimir"><button class="botao" onclick="window.print()">Imprimir / salvar como PDF</button>
+    <a class="botao secundario" href="/validacao">Voltar para a validação</a></p>
+
+  {% if resumo %}
+  <table>
+    <tr><th>Espécie</th><th>Nome científico</th><th>Registros</th><th>Indivíduos</th><th>Câmeras</th><th>Período</th></tr>
+    {% for g in resumo %}<tr><td>{{ g.especie.nome_popular }}</td><td><em>{{ g.especie.nome_cientifico }}</em></td>
+      <td>{{ g.registros }}</td><td>{{ g.individuos }}</td><td>{{ g.cameras|sort|join(', ') }}</td>
+      <td>{{ g.primeiro.strftime('%d/%m/%Y') if g.primeiro else '' }}{% if g.ultimo and g.ultimo.date() != g.primeiro.date() %} a {{ g.ultimo.strftime('%d/%m/%Y') }}{% endif %}</td></tr>{% endfor %}
+  </table>
+
+  {% for g in resumo %}
+  <section class="rf-especie">
+    <h2>{{ g.especie.nome_popular }} <em>{{ g.especie.nome_cientifico }}</em></h2>
+    <p class="ajuda">{{ g.registros }} registro(s) · câmeras {{ g.cameras|sort|join(', ') }} · pontos {{ g.pontos|sort|join(', ') }}</p>
+    <div class="rf-fotos">
+      {% for r in g.fotos %}
+      <figure><img src="{{ r.capa }}" alt="{{ g.especie.nome_popular }}">
+        <figcaption>{{ r.data.strftime('%d/%m/%Y %H:%M') if r.data else 'sem data' }} · {{ r.campanha }} · ponto {{ r.ponto }} · câmera {{ r.camera }}
+          {% if r.quantidade and r.quantidade > 1 %}· {{ r.quantidade }} indivíduos{% endif %}{% if r.comportamento %} · {{ r.comportamento }}{% endif %}</figcaption></figure>
+      {% endfor %}
+    </div>
+  </section>
+  {% endfor %}
+  {% else %}
+  <p class="vazio">Nenhuma espécie validada ainda. Valide as identificações em <a href="/validacao">Validação</a>.</p>
+  {% endif %}
+</main>
+</body>
+</html>

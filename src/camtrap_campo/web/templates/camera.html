@@ -13,6 +13,22 @@
 <p class="ajuda">Sem registro pode ser ausência de animais ou câmera parada — use o time-lapse e o histórico abaixo para separar.</p>{% endif %}
 {% else %}<p>Sem mídias com data válida importadas.</p>{% endif %}
 
+<h2>Espécies registradas por esta câmera</h2>
+{% if especies_camera %}
+<table>
+  <tr><th>Espécie</th><th>Validadas</th><th>Aguardando validação</th><th></th></tr>
+  {% for e in especies_camera %}
+  <tr><td>{{ e.titulo }} {% if e.subtitulo %}<small><em>{{ e.subtitulo }}</em></small>{% endif %}</td>
+    <td><span class="estado concluida">{{ e.validadas }}</span></td>
+    <td>{% if e.pendentes %}<span class="estado pendente">{{ e.pendentes }}</span>{% else %}—{% endif %}</td>
+    <td><a href="/validacao?camera={{ cam.id }}#g-{{ e.chave }}">{{ 'Validar' if e.pendentes else 'Ver' }}</a></td></tr>
+  {% endfor %}
+</table>
+<p class="botoes-cartao"><a class="botao" href="/validacao?camera={{ cam.id }}">Validar as espécies desta câmera</a>
+  <a class="botao secundario" href="/validacao/relatorio?camera={{ cam.id }}" target="_blank">Relatório fotográfico da câmera</a>
+  <a class="botao secundario" href="/validacao/planilha?camera={{ cam.id }}">Planilha (Excel)</a></p>
+{% else %}<p class="vazio">Nenhuma espécie ainda. Depois de importar, rode a IA na importação; as espécies aparecem aqui para validar.</p>{% endif %}
+
 <h2>Registrar evento</h2>
 <form method="post" action="/cameras/{{ cam.id }}/eventos" enctype="multipart/form-data" class="formulario linha">
   <label>Tipo <select name="tipo">{% for k, v in tipos.items() %}<option value="{{ k }}">{{ v }}</option>{% endfor %}</select></label>

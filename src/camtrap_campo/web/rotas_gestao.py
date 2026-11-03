@@ -15,6 +15,7 @@ from camtrap_campo import config
 from camtrap_campo.db import Camera, Campanha, EventoCamera, Importacao, PassoRoteiro, Ponto, TesteSemTela
 from camtrap_campo.diagnostico import historico, sem_tela
 from camtrap_campo.diagnostico.identificar import identificar
+from camtrap_campo.ia import validacao
 from camtrap_campo.importacao import pastas
 from camtrap_campo.importacao.copiar import obter_ou_criar, sanitizar
 from camtrap_campo.importacao.detectar import detectar_cartoes
@@ -113,6 +114,7 @@ def registrar(app: FastAPI, fabrica, pagina, extras_cartoes: list[str]) -> None:
             for i in imps:
                 _ = i.ponto, i.campanha
             return pagina(request, "camera.html", cam=cam, ativ=historico.atividade(s, cam_id),
+                          especies_camera=validacao.por_camera(s, cam_id),
                           eventos=historico.eventos(s, cam_id), importacoes=imps, tipos=historico.TIPOS_EVENTO,
                           pontos=s.scalars(select(Ponto).order_by(Ponto.nome)).all(),
                           campanhas=s.scalars(select(Campanha).order_by(Campanha.id.desc())).all(),
