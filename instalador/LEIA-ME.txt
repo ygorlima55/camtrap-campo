@@ -1,0 +1,35 @@
+CamTrap Campo — instalação para a equipe de campo
+==================================================
+
+O que é: programa para armadilhas fotográficas. Importa cartões SD e pastas, organiza por campanha/ponto/câmera,
+lê data e hora (EXIF e rodapé), identifica animais com IA (opcional), valida por espécie, registra vestígios
+(pegadas, fezes, sinais) e gera relatórios. Funciona sem internet depois de instalado; os dados ficam só no computador.
+
+REQUISITOS
+- Windows 10 ou 11, 64 bits. Uns 4 GB livres (com a IA).
+- Internet DURANTE a instalação (baixa o Python, as bibliotecas e, se escolher, a IA).
+
+COMO INSTALAR
+1. Extraia o zip inteiro (botão direito > Extrair tudo). Não rode de dentro do zip.
+2. Dê dois cliques em "Instalar CamTrap Campo.cmd".
+   - Se o Windows mostrar "O Windows protegeu o computador", clique em "Mais informações" > "Executar assim mesmo".
+   - Ele pergunta se quer instalar a IA (S recomendado, ~1 GB, 10 a 30 min).
+   - O Tesseract pode pedir permissão de administrador: aceite.
+3. No fim, abra pelo atalho "CamTrap Campo" na Área de Trabalho. A janela preta precisa ficar aberta enquanto usa.
+
+ONDE FICA CADA COISA
+- Programa: %LOCALAPPDATA%\Programs\CamTrap Campo
+- Dados (fotos copiadas e banco): C:\Users\<seu usuário>\CamTrap Campo  (atalho "Pasta de dados" no menu Iniciar)
+- Registro da instalação: %LOCALAPPDATA%\Programs\CamTrap Campo\instalacao.log
+
+ATUALIZAR
+- Extraia o zip da versão nova e rode o instalador de novo. Os dados são mantidos.
+
+DESINSTALAR
+- Menu Iniciar > CamTrap Campo > Desinstalar. Os dados NÃO são apagados.
+
+PROBLEMAS
+- "winget não encontrado": instale o "Instalador de Aplicativo" pela Microsoft Store e rode de novo.
+- Rodapé das fotos sem leitura: o Tesseract não foi instalado; rode o instalador de novo.
+- Vídeos sem duração/áudio: o FFmpeg não foi instalado; rode o instalador de novo.
+- Copiar pasta do OneDrive: deixe os arquivos "sempre disponíveis neste dispositivo" antes de importar.

@@ -1,6 +1,6 @@
 [project]
 name = "camtrap-campo"
-version = "0.1.0"
+version = "0.2.0"
 description = "Dados de armadilhas fotográficas do cartão SD à análise, 100% local (Windows)."
 readme = "README.md"
 authors = [

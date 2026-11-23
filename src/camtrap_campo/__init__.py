@@ -1,6 +1,6 @@
 """CamTrap Campo — dados de armadilhas fotográficas, do cartão à análise, 100% local."""
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 
 def main() -> None:

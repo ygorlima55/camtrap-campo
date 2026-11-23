@@ -6,7 +6,14 @@ As câmeras continuam com o firmware de fábrica; tudo acontece no computador.
 > Estado: **todas as etapas prontas** — 1 (importação), 4 (diagnóstico e gestão), 2 (IA) e 3 (análises e exportações).
 > IA validada com o SpeciesNet real (modelo 4.0.3a) em fotos de uma MINI400: ~7 s por foto num i5 sem placa de vídeo.
 
-## Instalação (uma vez só)
+## Instalação para a equipe de campo (recomendado)
+1. Baixe **`CamTrap-Campo-<versão>-instalador.zip`** na página **Releases** do GitHub e extraia o zip inteiro.
+2. Dois cliques em **`Instalar CamTrap Campo.cmd`**: instala Python, bibliotecas, FFmpeg, Tesseract, ExifTool e
+   (se escolher) a IA, e cria o atalho **CamTrap Campo** na Área de Trabalho. Precisa de internet só nessa hora.
+3. Os dados ficam em `C:\Users\<usuário>\CamTrap Campo` (fora do OneDrive) e são mantidos ao atualizar ou desinstalar.
+   Detalhes e problemas comuns: `LEIA-ME.txt` dentro do zip. Para gerar o zip: `uv run python scripts/montar_instalador.py`.
+
+## Instalação a partir do código (desenvolvimento)
 1. Baixe a pasta do programa (botão verde **Code → Download ZIP** no GitHub) e descompacte, por exemplo, em
    `Documentos\camtrap-campo`. **Não use uma pasta dentro do OneDrive** (ele trava arquivos do programa).
 2. Dê dois cliques em **`install.bat`**.
