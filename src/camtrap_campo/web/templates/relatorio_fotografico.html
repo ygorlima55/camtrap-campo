@@ -4,15 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Relatório fotográfico — {{ descricao }}</title>
-  <link rel="icon" type="image/svg+xml" href="/static/logo.svg">
+  <link rel="icon" type="image/svg+xml" href="/static/marca.svg">
   <style>{{ css|safe }}
-    body { background: #fff; } main { max-width: 1000px; margin: auto; padding: 28px 24px 56px; }
-    .capa-rf { display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; } .capa-rf img { width: 64px; height: 64px; }</style>
+    main { max-width: 1000px; margin: auto; padding: 28px 24px 56px; }</style>
 </head>
-<body class="simples">
+<body class="simples relatorio">
 <main>
-  <div class="capa-rf"><img src="/static/logo.svg" alt="">
-    <div><h1>Relatório fotográfico</h1><p class="ajuda">{{ descricao }} · gerado em {{ gerado.strftime('%d/%m/%Y %H:%M') }} pelo CamTrap Campo</p></div></div>
+  <header class="capa-relatorio">{% include "_marca.html" %}
+    <div><div class="sobre">Camtrap Campo · Relatório fotográfico</div>
+      <h1>Relatório fotográfico</h1><p class="ajuda">{{ descricao }} · gerado em {{ gerado.strftime('%d/%m/%Y %H:%M') }}</p></div></header>
   <p><strong>{{ resumo|length }}</strong> espécie(s) · <strong>{{ total }}</strong> registro(s) validado(s) por pessoa.
     {% if pendentes %}<span class="alerta aviso" style="display:inline-block">{{ pendentes }} sequência(s) ainda aguardam validação e não estão aqui.</span>{% endif %}</p>
   <p class="nao-imprimir"><button class="botao" onclick="window.print()">Imprimir / salvar como PDF</button>

@@ -12,6 +12,7 @@ from sqlalchemy import select
 from camtrap_campo.db import Camera, Campanha, Especie
 from camtrap_campo.exportacao import especies as planilha_especies
 from camtrap_campo.ia import validacao
+from camtrap_campo.web.estilo import css_relatorio
 
 AQUI = Path(__file__).parent
 RESULTADOS = ("especie", "pessoa", "veiculo", "vazio", "indeterminado")
@@ -66,6 +67,6 @@ def registrar(app: FastAPI, fabrica, pagina, tpl) -> None:
             regs = validacao.registros_validados(s, campanha, camera)
             pendentes = validacao.montar(s, campanha, camera)["pendentes"]
             ctx = {"resumo": validacao.resumo_especies(regs), "total": len(regs), "pendentes": pendentes,
-                   "gerado": dt.datetime.now(), "css": (AQUI / "static" / "estilo.css").read_text("utf-8"),
+                   "gerado": dt.datetime.now(), "css": css_relatorio(),
                    **_filtros(s, campanha, camera)}
             return tpl.TemplateResponse(request, "relatorio_fotografico.html", ctx)

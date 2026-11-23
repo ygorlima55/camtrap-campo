@@ -2,14 +2,16 @@
 {% from "_icones.html" import icone %}
 {% block titulo %}Início · CamTrap Campo{% endblock %}
 {% block conteudo %}
-<div class="cabecalho-pagina">
-  <div><h1>Início</h1><p>Resumo do acervo e o que fazer agora. Atualiza sozinho.</p></div>
-  <div class="acoes-topo">
-    <button class="botao secundario" type="button" onclick="const d = document.getElementById('nova-pasta'); d.open = !d.open; if (d.open) d.scrollIntoView({block: 'nearest'})">
-      {{ icone('cadastros', 18) }} Importar de uma pasta</button>
-    <a class="botao secundario" href="/guia">Como funciona?</a>
-  </div>
-</div>
+<section class="heroi">
+  <div><div class="sobre">Cerrado · Onça-pintada · Trabalho de campo</div>
+    <h1>Acervo de campo</h1><p>Resumo do acervo e o que fazer agora. Atualiza sozinho.</p>
+    <div class="acoes-topo">
+      <button class="botao secundario" type="button" onclick="const d = document.getElementById('nova-pasta'); d.open = !d.open; if (d.open) d.scrollIntoView({block: 'nearest'})">
+        {{ icone('cadastros', 18) }} Importar de uma pasta</button>
+      <a class="botao secundario" href="/guia">Como funciona?</a>
+    </div></div>
+  <div class="figura-hl" data-hairline title="Pelagem da onça em traço fino. Passe o mouse."><span class="hl-leitura">pelagem · repouso</span></div>
+</section>
 
 {% if erro %}<p class="alerta erro">{{ erro }}</p>{% endif %}
 {% if adicionada %}<p class="alerta info">Pasta adicionada: <code>{{ adicionada }}</code>. Ela aparece em “Cartões e pastas”, pronta para importar.</p>{% endif %}

@@ -1,20 +1,23 @@
 {% from "_icones.html" import icone %}<!doctype html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-menu="entalhe">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block titulo %}CamTrap Campo{% endblock %}</title>
-  <link rel="icon" type="image/svg+xml" href="/static/logo.svg">
-  <meta name="theme-color" content="#E3A13B">
+  <link rel="icon" type="image/svg+xml" href="/static/marca.svg">
+  <meta name="theme-color" content="#183326">
   <link rel="stylesheet" href="/static/estilo.css?v={{ css_v }}">
+  <link rel="stylesheet" href="/static/identidade.css?v={{ css_v }}">
   <script src="/static/htmx.min.js"></script>
+  <script src="/static/menu-traco.js?v={{ css_v }}" defer></script>
+  <script src="/static/hairline-campo.js?v={{ css_v }}" defer></script>
 </head>
 <body>
 <div class="app">
   <aside class="lateral-app">
     <nav class="menu">
-      <a class="marca" href="/"><img class="logo" src="/static/logo.svg" alt="Logo do CamTrap Campo: onça-pintada no visor da câmera">
-        <span class="nome">CamTrap Campo<small>Armadilhas fotográficas</small></span></a>
+      <a class="marca" href="/"><img class="logo" src="/static/marca.svg" alt="Marca do CamTrap Campo: roseta da onça-pintada">
+        <span class="nome">Camtrap<small>Campo</small></span></a>
       {% set _atual = request.url.path %}
       {% set _menu_principal = [('/', 'inicio', 'Início'), ('/tarefas', 'tarefas', 'Tarefas'), ('/campanhas', 'campanhas', 'Campanhas'),
                       ('/validacao', 'check', 'Validação'), ('/vestigios', 'pegada', 'Vestígios'),

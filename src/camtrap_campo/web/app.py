@@ -58,7 +58,8 @@ def criar_app(fabrica=None, sincrono: bool = False, extras_cartoes: list[str] | 
     app.mount("/static", StaticFiles(directory=AQUI / "static"), name="static")
     tpl = Jinja2Templates(directory=AQUI / "templates")
     tpl.env.globals.update(versao=__version__, descrever_deslocamento=horario.descrever, tempo_restante=tempo_restante,
-                           css_v=int((AQUI / "static" / "estilo.css").stat().st_mtime))  # evita CSS antigo em cache
+                           css_v=int(max((AQUI / "static" / n).stat().st_mtime  # evita CSS/JS antigos em cache
+                                         for n in ("estilo.css", "identidade.css", "menu-traco.js", "hairline-campo.js"))))
     tpl.env.filters["dh"] = lambda d: d.strftime("%d/%m/%Y %H:%M:%S") if d else "—"
 
     def pagina(request: Request, nome: str, **ctx):

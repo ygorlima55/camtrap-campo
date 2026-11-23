@@ -12,6 +12,7 @@ from camtrap_campo.analises.resultado import analisar
 from camtrap_campo.db import Campanha, Especie
 from camtrap_campo.exportacao import graficos
 from camtrap_campo.exportacao.pacote import exportar_tudo
+from camtrap_campo.web.estilo import css_relatorio
 
 AQUI = Path(__file__).parent
 
@@ -40,7 +41,7 @@ def registrar(app: FastAPI, fabrica, pagina, tpl) -> None:
     def relatorio(request: Request, cmp_id: int, intervalo: int = 30):
         with fabrica() as s:
             ctx = _contexto(s, cmp_id, intervalo)
-        css = (AQUI / "static" / "estilo.css").read_text("utf-8")
+        css = css_relatorio()
         return tpl.TemplateResponse(request, "relatorio.html", {**ctx, "css": css})
 
     @app.get("/analises/{cmp_id}/exportar")
@@ -48,6 +49,6 @@ def registrar(app: FastAPI, fabrica, pagina, tpl) -> None:
         with fabrica() as s:
             ctx = _contexto(s, cmp_id, intervalo)
             html = tpl.get_template("relatorio.html").render(
-                {**ctx, "css": (AQUI / "static" / "estilo.css").read_text("utf-8"), "request": request})
+                {**ctx, "css": css_relatorio(), "request": request})
             arquivo = exportar_tudo(s, ctx["an"], html, autor)
         return FileResponse(arquivo, filename=arquivo.name, media_type="application/zip")

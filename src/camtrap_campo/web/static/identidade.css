@@ -1,0 +1,260 @@
+/* CamTrap Campo — identidade visual v2 (Cerrado), carregada depois de estilo.css.
+   Superfícies sólidas, bordas de 1 px, raios 6/8 px, Arial Narrow nos títulos, Segoe UI na leitura, Consolas nos dados. */
+:root {
+  --mata: #183326; --areia: #F6F3EB; --ocre: #BD8A3A; --terra: #955035; --carvao: #202820;
+  --ouro: #BD8A3A; --laranja: #955035; --cafe: #202820; --creme: #F6F3EB; --folha: #3D5742;
+  --fundo: #F6F3EB; --superficie: #FFFDF8; --superficie-2: #EEF0E8;
+  --vidro: #FFFDF8; --vidro-borda: #D3D8CE; --vidro-brilho: transparent;
+  --texto: #202820; --texto-2: #626E61; --linha: #D3D8CE;
+  --acento: #245537; --ouro-suave: #F4E7C7;
+  --botao-fundo: #183326; --botao-texto: #F6F3EB;
+  --verde: #245537; --verde-suave: #E7EEE2; --verde-forte: #245537;
+  --erro: #913B32; --erro-suave: #F6E8E4; --aviso: #725014; --aviso-suave: #F4E7C7;
+  --azul: #315D6A; --azul-suave: #E7EFF0;
+  --raio: 8px; --raio-p: 6px; --sombra: none;
+  --fonte: "Segoe UI", "Segoe UI Variable Text", Arial, system-ui, sans-serif;
+  --titulo: "Arial Narrow", "Arial Nova Cond", "Roboto Condensed", Arial, sans-serif;
+  --mono: Consolas, "Cascadia Mono", monospace;
+  --menu-fundo: #183326; --menu-texto: #C9D3C6; --menu-forte: #F6F3EB; --menu-traco: rgba(246, 243, 235, .32); --menu-acento: #D6A55A;
+  --hairline-plate: #FFFDF8; --hairline-hi: #BD8A3A; --hairline-edge: #183326; --hairline-mid: #7C8879; --hairline-lo: #D3D8CE;
+  --hairline-stroke: .9;
+  --rosetas-opacidade: 0; color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) {
+    --fundo: #121A15; --superficie: #1B2620; --superficie-2: #24312A; --vidro: #1B2620; --vidro-borda: #33433A;
+    --texto: #EEF0E8; --texto-2: #A9B5A6; --linha: #33433A; --acento: #A9C9A0; --ouro-suave: rgba(189, 138, 58, .2);
+    --botao-fundo: #BD8A3A; --botao-texto: #14201A; --verde: #A9C9A0; --verde-suave: rgba(61, 87, 66, .45); --verde-forte: #B7D6AC;
+    --erro: #F0A49A; --erro-suave: rgba(145, 59, 50, .3); --aviso: #E2B66C; --aviso-suave: rgba(189, 138, 58, .2);
+    --azul: #9CC6D2; --azul-suave: rgba(49, 93, 106, .35);
+    --menu-fundo: #0E1A13; --hairline-plate: #1B2620; --hairline-edge: #DCE4D6; --hairline-mid: #7F8E7E; --hairline-lo: #33433A;
+    color-scheme: dark;
+  }
+}
+:root[data-tema="escuro"] {
+  --fundo: #121A15; --superficie: #1B2620; --superficie-2: #24312A; --vidro: #1B2620; --vidro-borda: #33433A;
+  --texto: #EEF0E8; --texto-2: #A9B5A6; --linha: #33433A; --acento: #A9C9A0; --ouro-suave: rgba(189, 138, 58, .2);
+  --botao-fundo: #BD8A3A; --botao-texto: #14201A; --verde: #A9C9A0; --verde-suave: rgba(61, 87, 66, .45); --verde-forte: #B7D6AC;
+  --erro: #F0A49A; --erro-suave: rgba(145, 59, 50, .3); --aviso: #E2B66C; --aviso-suave: rgba(189, 138, 58, .2);
+  --azul: #9CC6D2; --azul-suave: rgba(49, 93, 106, .35);
+  --menu-fundo: #0E1A13; --hairline-plate: #1B2620; --hairline-edge: #DCE4D6; --hairline-mid: #7F8E7E; --hairline-lo: #33433A;
+  color-scheme: dark;
+}
+
+/* sem cenário atrás dos dados: nada de manchas nem rosetas no fundo */
+body { font-family: var(--fonte); background: var(--fundo); }
+body::before, body::after { display: none; }
+a { color: var(--acento); }
+h1 { font-family: var(--titulo); font-weight: 700; text-transform: uppercase; font-size: 30px; letter-spacing: .01em; line-height: 1.1; }
+h2 { font-family: var(--titulo); font-weight: 700; text-transform: uppercase; font-size: 20px; letter-spacing: .02em; }
+h3 { font-weight: 600; }
+code, kbd, .botoes { font-family: var(--mono); }
+code { background: var(--superficie-2); border-radius: 4px; }
+
+/* superfícies sólidas no lugar do vidro */
+.lateral-app .menu, .painel, .cartao, .formulario, table, a.indicador, .revisao .lateral, .guia nav.indice {
+  background: var(--superficie); -webkit-backdrop-filter: none; backdrop-filter: none; border: 1px solid var(--linha); box-shadow: none; }
+
+/* ---------- Menu: coluna de mata, traço fino com marcador ---------- */
+.app { grid-template-columns: 240px minmax(0, 1fr); }
+.lateral-app { padding: 0; }
+.lateral-app .menu { position: relative; border-radius: 0; border: 0; background: var(--menu-fundo); padding: 22px 14px 18px 26px; gap: 2px; }
+.marca { color: var(--menu-forte); padding: 0 4px 22px 0; gap: .7rem; }
+.marca .logo { width: 40px; height: 40px; filter: none; }
+.marca .nome { font-family: var(--titulo); font-size: 21px; font-weight: 700; letter-spacing: .02em; line-height: 1; text-transform: uppercase; }
+.marca small { color: var(--menu-acento); font-family: var(--fonte); font-weight: 600; font-size: 10px; letter-spacing: .55em; margin-top: 4px; text-transform: uppercase; }
+.menu a.item { color: var(--menu-texto); font-weight: 500; border-radius: var(--raio-p); padding: .5rem .7rem; height: 40px; }
+.menu a.item:hover { background: rgba(246, 243, 235, .06); color: var(--menu-forte); }
+.menu a.item.ativo { background: rgba(189, 138, 58, .16); color: var(--menu-forte); box-shadow: none; font-weight: 600; }
+.menu a.item.ativo svg { color: var(--menu-acento); }
+.menu a.item svg { opacity: .9; }
+.menu .rotulo-grupo { color: #8FA08C; font-family: var(--mono); font-size: 10px; letter-spacing: .12em; }
+.menu .rodape-menu { color: #8FA08C; border-top: 1px solid rgba(246, 243, 235, .12); padding-top: .9rem; }
+.menu .selo { background: rgba(246, 243, 235, .08); color: #CFE0C4; }
+.traco-menu { position: absolute; left: 6px; top: 0; overflow: visible; pointer-events: none; }
+.traco-trilho { fill: none; stroke: var(--menu-traco); stroke-width: 1; }
+.traco-no { fill: var(--menu-traco); transition: opacity .2s; }
+.traco-marca { fill: none; stroke: var(--menu-acento); stroke-width: 2.4; stroke-linecap: round; }
+.traco-ponto { fill: var(--menu-acento); }
+@media (max-width: 1100px) {
+  .app { grid-template-columns: 84px minmax(0, 1fr); }
+  .lateral-app .menu { padding-left: 22px; padding-right: 8px; }
+}
+@media (max-width: 700px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .lateral-app .menu { padding: 6px 8px; }
+  .traco-menu { display: none; }
+  .menu a.item.ativo { box-shadow: inset 0 -2px 0 var(--menu-acento); }
+}
+
+/* ---------- Componentes ---------- */
+.botao, button, input[type=submit] { border-radius: var(--raio-p); min-height: 40px; font-weight: 600; padding: .45rem 1rem;
+  background: var(--superficie); border: 1px solid var(--linha); color: var(--texto); }
+.botao { background: var(--botao-fundo); color: var(--botao-texto); border-color: transparent; box-shadow: none; }
+.botao.secundario { background: var(--superficie); color: var(--texto); border: 1px solid var(--linha); }
+.botao:hover, button:hover { filter: none; background-color: color-mix(in srgb, currentColor 6%, var(--superficie)); }
+.botao:not(.secundario):hover { background: color-mix(in srgb, var(--botao-fundo) 88%, #000); }
+.botao:active, button:active { transform: none; }
+button:focus-visible, .botao:focus-visible, a:focus-visible { outline: 2px solid var(--ocre); outline-offset: 2px; }
+input, select, textarea { border-radius: var(--raio-p); min-height: 40px; background: var(--superficie); }
+input:focus, select:focus, textarea:focus { border-color: var(--ocre); box-shadow: 0 0 0 2px var(--ouro-suave); }
+input[type=checkbox] { accent-color: var(--mata); min-height: 0; }
+th { font-family: var(--fonte); color: var(--texto-2); background: var(--superficie-2); letter-spacing: .06em; }
+table tr:hover td { background: color-mix(in srgb, var(--ocre) 6%, transparent); }
+td { font-variant-numeric: tabular-nums; }
+.alerta { border-radius: var(--raio-p); border-left: 3px solid currentColor; color: var(--texto); }
+.alerta.erro { color: var(--texto); border-left-color: var(--erro); }
+.alerta.aviso { color: var(--texto); border-left-color: var(--ocre); }
+.alerta.info { color: var(--texto); border-left-color: var(--azul); }
+.estado { border-radius: 4px; }
+progress::-webkit-progress-value { background: var(--ocre); }
+progress::-moz-progress-bar { background: var(--ocre); }
+.vazio { border-radius: var(--raio); border: 1px dashed var(--linha); }
+
+/* Início */
+.proximo { border-radius: var(--raio); background: var(--ouro-suave); border: 1px solid color-mix(in srgb, var(--ocre) 35%, transparent);
+  box-shadow: none; color: var(--texto); }
+.proximo::after { display: none; }
+.proximo h2 { color: var(--texto); font-family: var(--fonte); text-transform: none; font-size: 1.05rem; letter-spacing: 0; }
+.proximo .icone-grande { border-radius: var(--raio-p); background: var(--superficie); border: 1px solid var(--linha); }
+.proximo .botao { background: var(--mata); color: var(--areia); }
+a.indicador:hover { transform: none; box-shadow: none; border-color: color-mix(in srgb, var(--ocre) 55%, var(--linha)); }
+.indicador .topo svg { color: var(--ocre); }
+.indicador .valor { font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.titulo-painel h2 { font-size: 15px; }
+.barras .barra { background: var(--ocre); border-radius: 2px 2px 0 0; opacity: 1; }
+.barras .barra:hover { filter: brightness(1.08); }
+.ranking .trilho { border-radius: 0; height: 4px; }
+.ranking .trilho i, .ranking li:first-child .trilho i { background: var(--folha); border-radius: 0; }
+.ranking li:first-child .trilho i { background: var(--ocre); }
+.chip { border-radius: var(--raio-p); background: var(--superficie); border: 1px solid var(--linha); }
+.chip.feito { background: var(--verde-suave); border-color: transparent; }
+
+/* Validação, vestígios, campanhas */
+.v-item { border-radius: var(--raio); border: 1px solid var(--linha); }
+.v-item.marcado { border: 2px solid var(--ocre); } .v-item.validada { border: 2px solid var(--verde); }
+.v-item .selo-item { border-radius: 4px; background: rgba(20, 32, 26, .82); }
+.v-item.validada .selo-item { background: #245537; }
+.previa-item, .vg-item { box-shadow: none; border: 1px solid var(--linha); border-radius: var(--raio); }
+.mosaico, .candidata { border-radius: var(--raio-p); }
+.pcts li i, .candidata .barra i { background: var(--ouro-suave); }
+.candidata .barra i { background: var(--ocre); }
+.candidata .pct { color: var(--texto); font-variant-numeric: tabular-nums; }
+img[src^="data:image/png"] { border-radius: var(--raio); box-shadow: none; border: 1px solid var(--linha); }
+
+/* ---------- Abertura editorial do Início com a figura hairline ---------- */
+.heroi { display: grid; grid-template-columns: minmax(0, 1fr) minmax(240px, 340px); align-items: center; gap: 1rem;
+  background: var(--superficie); border: 1px solid var(--linha); border-radius: var(--raio); padding: 22px 24px; margin-bottom: 1.2rem; }
+.heroi .sobre { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; color: var(--texto-2); text-transform: uppercase; }
+.heroi h1 { font-size: 34px; margin: .5rem 0 .3rem; }
+.heroi p { margin: 0; color: var(--texto-2); max-width: 46ch; }
+.heroi .acoes-topo { margin-top: 1rem; }
+.figura-hl { position: relative; aspect-ratio: 5 / 4; background: var(--hairline-plate); cursor: crosshair; }
+.hl-svg { width: 100%; height: 100%; display: block; }
+.hl-svg path { stroke-width: var(--hairline-stroke); vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.hl-plate { fill: var(--hairline-plate); stroke: var(--hairline-mid); }
+.hl-plate.hl-edge { stroke: var(--hairline-edge); }
+.hl-plate.hl-hi { stroke: var(--hairline-hi); }
+.hl-lo { fill: none; stroke: var(--hairline-lo); }
+.hl-leitura { position: absolute; right: 4px; bottom: 2px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; color: var(--texto-2); }
+@media (max-width: 860px) { .heroi { grid-template-columns: 1fr; } }
+:root[data-tema="escuro"] .proximo .botao { background: var(--ocre); color: #14201A; }
+@media (prefers-color-scheme: dark) { :root:not([data-tema="claro"]) .proximo .botao { background: var(--ocre); color: #14201A; } }
+.hl-plate.hl-fatia { stroke: var(--hairline-lo); }
+h2 em, h1 em { text-transform: none; font-family: var(--fonte); font-weight: 400; letter-spacing: 0; }
+
+/* =====================================================================================================
+   Traço fino (hairline) em gráficos e elementos — vale para todas as páginas e relatórios.
+   Linhas de 1 px, ocre como único destaque, marcas de canto do visor da câmera nos cartões.
+   ===================================================================================================== */
+:root { --hl-linha: var(--linha); --hl-forte: color-mix(in srgb, var(--texto) 70%, transparent); }
+
+/* cabeçalhos de página e de painel: régua fina com um traço ocre no início */
+.cabecalho-pagina { padding-bottom: .9rem; border-bottom: 1px solid var(--hl-linha);
+  background: linear-gradient(var(--ocre), var(--ocre)) left bottom / 44px 2px no-repeat; }
+.titulo-painel { padding-bottom: .55rem; border-bottom: 1px solid var(--hl-linha); }
+
+/* cartões de indicador: cantos do visor (traços de 1 px), que se abrem ao passar o mouse */
+a.indicador { position: relative;
+  background-image: linear-gradient(var(--ocre), var(--ocre)), linear-gradient(var(--ocre), var(--ocre)),
+    linear-gradient(var(--hl-forte), var(--hl-forte)), linear-gradient(var(--hl-forte), var(--hl-forte));
+  background-size: 12px 1px, 1px 12px, 12px 1px, 1px 12px;
+  background-position: 7px 7px, 7px 7px, right 7px bottom 7px, right 7px bottom 7px; background-repeat: no-repeat;
+  transition: background-size .7s cubic-bezier(.32, .72, 0, 1), border-color .15s; }
+a.indicador:hover { background-size: 22px 1px, 1px 22px, 22px 1px, 1px 22px; }
+.heroi { background-image: linear-gradient(var(--ocre), var(--ocre)), linear-gradient(var(--ocre), var(--ocre));
+  background-size: 16px 1px, 1px 16px; background-position: 9px 9px, 9px 9px; background-repeat: no-repeat; }
+
+/* gráfico de barras: haste de 1 px com cabeça em anel; grade pontilhada; linha de base */
+.barras { position: relative; gap: 0; border-bottom: 1px solid var(--hl-forte);
+  background-image: repeating-linear-gradient(to top, transparent 0 calc(25% - 1px), var(--hl-linha) calc(25% - 1px) 25%); }
+.barras .barra { position: relative; background: none; border-radius: 0; opacity: 1; min-width: 6px; }
+.barras .barra::before { content: ""; position: absolute; left: 50%; top: 4px; bottom: 0; width: 1px; background: var(--hl-forte);
+  transition: background .15s; }
+.barras .barra::after { content: ""; position: absolute; left: 50%; top: 0; width: 7px; height: 7px; transform: translate(-50%, -50%);
+  border: 1px solid var(--ocre); border-radius: 50%; background: var(--superficie); transition: background .15s, transform .7s cubic-bezier(.32, .72, 0, 1); }
+.barras .barra:hover { filter: none; }
+.barras .barra:hover::before { background: var(--ocre); }
+.barras .barra:hover::after { background: var(--ocre); transform: translate(-50%, -50%) scale(1.35); }
+.barras .barra.zero { background: none; }
+.barras .barra.zero::before { display: none; }
+.barras .barra.zero::after { top: auto; bottom: -4px; width: 3px; height: 3px; border: 0; background: var(--hl-linha); }
+.eixo { font-family: var(--mono); font-size: 11px; }
+
+/* trilhos (ranking e porcentagens): linha de 1 px com um nó no fim */
+.ranking .trilho, .candidata .barra { height: 9px; border-radius: 0; overflow: visible; position: relative;
+  background: linear-gradient(var(--hl-linha), var(--hl-linha)) left center / 100% 1px no-repeat; }
+.ranking .trilho i, .candidata .barra i { position: relative; height: 100%; border-radius: 0;
+  background: linear-gradient(var(--mata), var(--mata)) left center / 100% 1.5px no-repeat; }
+.ranking li:first-child .trilho i, .candidata .barra i { background: linear-gradient(var(--ocre), var(--ocre)) left center / 100% 1.5px no-repeat; }
+.ranking .trilho i::after, .candidata .barra i::after { content: ""; position: absolute; right: -3.5px; top: 50%; width: 7px; height: 7px;
+  transform: translateY(-50%); border-radius: 50%; border: 1px solid var(--mata); background: var(--superficie); }
+.ranking li:first-child .trilho i::after, .candidata .barra i::after { border-color: var(--ocre); }
+:root[data-tema="escuro"] .ranking .trilho i { background-image: linear-gradient(var(--verde), var(--verde)); }
+
+/* barra de progresso: trilho de 1 px e valor de 2 px */
+progress { height: 8px; background: transparent; border-radius: 0; }
+progress::-webkit-progress-bar { background: linear-gradient(var(--hl-linha), var(--hl-linha)) left center / 100% 1px no-repeat; }
+progress::-webkit-progress-value { background: linear-gradient(var(--ocre), var(--ocre)) left center / 100% 2px no-repeat; border-radius: 0; }
+progress::-moz-progress-bar { background: linear-gradient(var(--ocre), var(--ocre)) left center / 100% 2px no-repeat; }
+
+/* porcentagens dos vestígios: fundo vira linha fina sob o nome */
+.pcts li { border-radius: 0; padding: .15rem 0 .3rem; }
+.pcts li i { inset: auto auto 0 0; height: 1.5px; background: var(--ocre); border-radius: 0; }
+
+/* tabelas: só réguas horizontais finas, cabeçalho em versalete */
+table { border-radius: var(--raio); }
+th { background: transparent; border-bottom: 1px solid var(--hl-forte); font-size: 11px; }
+td { border-bottom-color: var(--hl-linha); }
+
+/* estados: rótulo com ponto fino, sem bloco de cor */
+.estado { background: transparent !important; border: 1px solid currentColor; padding: 0 .5rem; line-height: 1.6; }
+
+/* fotos: moldura fina e cantos do visor ao passar o mouse */
+.previa-item, .v-item, .vg-item, .rf-fotos figure { position: relative; }
+.previa-item::after, .vg-item::after { content: ""; position: absolute; inset: 6px; pointer-events: none; opacity: 0;
+  background-image: linear-gradient(var(--areia), var(--areia)), linear-gradient(var(--areia), var(--areia)),
+    linear-gradient(var(--areia), var(--areia)), linear-gradient(var(--areia), var(--areia));
+  background-size: 14px 1px, 1px 14px, 14px 1px, 1px 14px;
+  background-position: left top, left top, right bottom, right bottom; background-repeat: no-repeat; transition: opacity .2s; }
+.previa-item:hover::after, .vg-item:hover::after { opacity: .95; }
+
+/* ---------- Relatórios (fotográfico e consolidação da campanha) ---------- */
+body.relatorio { background: var(--superficie); }
+.capa-relatorio { display: flex; gap: 1rem; align-items: center; padding-bottom: 1rem; margin-bottom: 1.2rem;
+  border-bottom: 1px solid var(--hl-linha); background: linear-gradient(var(--ocre), var(--ocre)) left bottom / 60px 2px no-repeat; }
+.capa-relatorio .marca-rel { width: 56px; height: 56px; flex: none; border: 1px solid var(--hl-linha); border-radius: 8px; }
+.capa-relatorio .sobre { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--texto-2); }
+.capa-relatorio h1 { margin: .25rem 0; }
+.capa-relatorio p { margin: 0; }
+.relatorio .rf-especie h2 { border-bottom: 1px solid var(--hl-linha); padding-bottom: .4rem; }
+.relatorio .rf-fotos img { border-radius: 4px; border: 1px solid var(--hl-linha); }
+.relatorio .rf-fotos figcaption { font-family: var(--mono); font-size: 11px; }
+@media print {
+  body.relatorio { background: #fff; }
+  .capa-relatorio, .cabecalho-pagina { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+/* pelagem: fundo quase sumido, rosetas em traço forte */
+.hl-plate.hl-mid.hl-fundo { stroke: color-mix(in srgb, var(--hairline-lo) 75%, var(--hairline-mid)); }
+.hl-plate.hl-fatia { stroke: color-mix(in srgb, var(--hairline-lo) 70%, transparent); }
+.heroi { grid-template-columns: minmax(0, 1fr) minmax(260px, 430px); }

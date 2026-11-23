@@ -10,6 +10,8 @@
     <a class="botao secundario" href="/validacao?campanha={{ c.id }}">Validação</a>
     <a class="botao secundario" href="/analises?campanha={{ c.id }}">Análises</a>
     <a class="botao secundario" href="/campanhas/{{ c.id }}/checklist">Checklist de campo</a>
+    <a class="botao" href="/analises/{{ c.id }}/relatorio" target="_blank">Consolidação da campanha</a>
+    <a class="botao secundario" href="/validacao/relatorio?campanha={{ c.id }}" target="_blank">Relatório fotográfico</a>
   </div>
 </div>
 {% if aberta %}<p class="alerta info">A pasta foi aberta no Explorador de Arquivos (veja a barra de tarefas).</p>{% endif %}

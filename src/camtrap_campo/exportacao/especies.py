@@ -7,7 +7,7 @@ from io import BytesIO
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 
-CABECALHO = PatternFill("solid", fgColor="E3A13B")
+CABECALHO = PatternFill("solid", fgColor="F4E7C7")  # ocre suave da identidade v2, texto escuro
 
 
 def _aba(wb, titulo: str, colunas: list[tuple[str, int]], linhas: list[list]):

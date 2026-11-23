@@ -5,11 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Relatório — {{ campanha.nome }}</title>
   <style>{{ css|safe }}
-    body { background: #fff; } main { max-width: 1000px; }</style>
+    main { max-width: 1000px; margin: auto; padding: 28px 24px 56px; }</style>
 </head>
-<body class="simples">
+<body class="simples relatorio">
 <main>
-  <h1>Relatório da campanha {{ campanha.nome }}</h1>
+  <header class="capa-relatorio">{% include "_marca.html" %}
+    <div><div class="sobre">Camtrap Campo · Consolidação da campanha</div>
+      <h1>{{ campanha.nome }}</h1></div></header>
   <p>{% if campanha.inicio %}Período planejado: {{ campanha.inicio.strftime('%d/%m/%Y') }}{% if campanha.fim %} a {{ campanha.fim.strftime('%d/%m/%Y') }}{% endif %} · {% endif %}
     Gerado pelo CamTrap Campo · intervalo de independência {{ an.intervalo_min }} min · só identificações confirmadas por pessoa.</p>
   <p class="nao-imprimir"><button class="botao" onclick="window.print()">Imprimir / salvar como PDF</button></p>

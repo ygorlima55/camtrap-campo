@@ -12,3 +12,9 @@ __pycache__/
 /ferramentas/
 /modelos/
 .claude/launch.json
+
+# Prévias e capturas geradas com dados reais (caminhos e fotos do computador) — não versionar
+/previa-v2/
+identidade-visual/home/inicio.png
+identidade-visual/identidade-visual.html
+identidade-visual/identidade-visual.pdf
