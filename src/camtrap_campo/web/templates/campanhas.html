@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block titulo %}Campanhas · CamTrap Campo{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <div><h1>Campanhas</h1>
+    <p>Quantas fotos e vídeos cada campanha tem, em que pasta estão e uma prévia. Tudo fica em <code>{{ pasta_dados }}</code>.</p></div>
+  <div class="acoes-topo"><a class="botao secundario" href="/cadastros">Cadastrar campanha</a></div>
+</div>
+{% if itens %}
+<div class="cartoes">
+  {% for i in itens %}
+  <a class="cartao campanha-cartao painel" href="/campanhas/{{ i.c.id }}">
+    <div class="mosaico">{% for a in i.capas %}<img src="/arquivos/{{ a }}/miniatura?tamanho=240" alt="" loading="lazy">{% else %}<div class="sem-imagem">sem fotos</div>{% endfor %}</div>
+    <h3>{{ i.c.nome }}</h3>
+    <p><strong>{{ i.r.fotos }}</strong> fotos · <strong>{{ i.r.videos }}</strong> vídeos · {{ i.r.vestigios }} vestígio(s)</p>
+    <p class="ajuda">{{ i.r.cameras }} câmera(s) em {{ i.r.pontos }} ponto(s){% if i.c.inicio %} · {{ i.c.inicio.strftime('%d/%m/%Y') }}{% if i.c.fim %} a {{ i.c.fim.strftime('%d/%m/%Y') }}{% endif %}{% endif %}</p>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<p class="vazio">Nenhuma campanha ainda. Elas são criadas na importação de um cartão ou pasta.</p>
+{% endif %}
+{% endblock %}

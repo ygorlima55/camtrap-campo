@@ -94,6 +94,18 @@ veículo, vazio, indeterminado), **Espaço** marca/desmarca, **A** marca o grupo
 - **Planilha das espécies (Excel)**: resumo por espécie e um registro por linha, com a sugestão da IA e se ela acertou.
 - **Relatório fotográfico**: até 4 fotos por espécie (primeiro as "boas para divulgação"), para imprimir ou salvar em PDF.
 
+## Vestígios (pegadas, fezes e outros sinais)
+Menu **Vestígios** (ou **Importar como vestígios** numa pasta salva em Início): importa fotos de pegadas, fezes, arranhados,
+tocas etc. (cópia conferida por SHA-256, nunca apaga a origem; guarda o GPS do celular). Em cada foto, preencha a ficha
+(medidas com escala na foto, dedos, garras, forma, conteúdo, local) e o programa compara com o **guia de referência**
+(78 referências de 37 espécies de mamíferos, valores aproximados e editáveis), mostrando as espécies mais compatíveis com
+porcentagem e motivos. A porcentagem é relativa entre as espécies do guia — **não é IA de imagem nem probabilidade de
+acerto**. Só a validação da pessoa (teclas 1–6, C, I) conta. Quadro com todas as fotos e planilha Excel.
+
+## Campanhas
+Menu **Campanhas**: total de fotos, vídeos e vestígios por campanha; por ponto e câmera, o período e a pasta onde estão
+(botão **Abrir pasta**) e uma pré-visualização das fotos.
+
 ## Análises e exportações
 Menu **Análises** → escolha a campanha e o intervalo de independência (padrão 30 min). Só entram as identificações
 **confirmadas na Revisão** (sugestões da IA não revisadas ficam de fora).

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block titulo %}Vestígios · CamTrap Campo{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <div><h1>Vestígios</h1>
+    <p>Fotos de pegadas, fezes, arranhados, tocas e outros sinais. Você descreve o vestígio e o programa compara com o
+      guia de referência, mostrando as espécies mais compatíveis.</p></div>
+  <div class="acoes-topo">
+    <a class="botao secundario" href="/vestigios/guia">Guia de referência</a>
+    <a class="botao secundario" href="/vestigios/planilha{% if campanha %}?campanha={{ campanha }}{% endif %}">Planilha (Excel)</a>
+    <a class="botao" href="/vestigios/importar">Importar fotos de vestígios</a>
+  </div>
+</div>
+
+{% if novos is not none %}<p class="alerta info">{{ novos }} foto(s) importada(s){% if duplicados %} · {{ duplicados }} já estavam no
+  programa (não copiadas de novo){% endif %}{% if erros %} · <strong>{{ erros }} com erro</strong>{% endif %}. Os originais
+  continuam na pasta de origem.</p>{% endif %}
+
+<form class="formulario linha" method="get" action="/vestigios">
+  <label>Campanha <select name="campanha"><option value="">todas</option>
+    {% for c in campanhas %}<option value="{{ c.id }}"{% if c.id == campanha %} selected{% endif %}>{{ c.nome }}</option>{% endfor %}</select></label>
+  <label>Tipo <select name="tipo"><option value="">todos</option>
+    {% for k, n in opcoes.tipos.items() %}<option value="{{ k }}"{% if k == tipo %} selected{% endif %}>{{ n }}</option>{% endfor %}</select></label>
+  <label>Situação <select name="estado"><option value="">todas</option>
+    {% for k, n in [('sem_ficha', 'sem ficha'), ('a_validar', 'a validar'), ('validados', 'validados')] %}
+    <option value="{{ k }}"{% if k == estado %} selected{% endif %}>{{ n }}</option>{% endfor %}</select></label>
+  <button class="botao" type="submit">Filtrar</button>
+</form>
+
+<div class="indicadores">
+  <div class="indicador painel"><div class="topo">Fotos de vestígios</div><div class="valor">{{ dados.total }}</div></div>
+  <div class="indicador painel"><div class="topo">Sem ficha</div><div class="valor">{{ dados.sem_ficha }}</div>
+    <div class="detalhe">falta descrever medidas e características</div></div>
+  <div class="indicador painel"><div class="topo">A validar</div><div class="valor">{{ dados.a_validar }}</div>
+    <div class="detalhe">já têm sugestões do guia</div></div>
+  <div class="indicador painel"><div class="topo">Validados</div><div class="valor">{{ dados.validados }}</div>
+    {% if dados.com_sugestao %}<div class="detalhe">1ª sugestão do guia confirmada em {{ dados.acertos }} de {{ dados.com_sugestao }}</div>{% endif %}</div>
+</div>
+
+{% if dados.itens %}
+<h2>Quadro de identificação</h2>
+<p class="ajuda">As porcentagens comparam as espécies do guia entre si a partir do que foi descrito na ficha. Não são
+  probabilidade de acerto nem leitura automática da foto; quem confirma é você.</p>
+<div class="grade-vestigios">
+  {% for v in dados.itens %}
+  <a class="vg-item painel{% if v.resultado %} validado{% endif %}" href="/vestigios/{{ v.id }}">
+    <img src="/vestigios/{{ v.id }}/foto?tamanho=420" alt="Foto do vestígio {{ v.id }}" loading="lazy">
+    <div class="vg-corpo">
+      <div class="vg-topo"><strong>{{ opcoes.tipos.get(v.tipo, 'Tipo a definir') if v.tipo else 'Tipo a definir' }}</strong>
+        {% if v.resultado == 'especie' %}<span class="estado concluida">✓ {{ v.especie.nome_popular }}</span>
+        {% elif v.resultado %}<span class="estado concluida">✓ indeterminado</span>
+        {% elif v.caracteristicas %}<span class="estado pendente">a validar</span>
+        {% else %}<span class="estado">sem ficha</span>{% endif %}</div>
+      <small>{{ v.data.strftime('%d/%m/%Y %H:%M') if v.data else 'sem data' }} · {{ v.ponto.nome if v.ponto else 'sem ponto' }} · {{ v.campanha.nome }}</small>
+      {% if v.sugestoes %}
+      <ul class="pcts">
+        {% for c in v.sugestoes[:3] %}<li><span>{{ c.nome_popular }}</span><b>{{ c.porcentagem }}%</b>
+          <i style="width: {{ c.porcentagem }}%"></i></li>{% endfor %}
+      </ul>
+      {% elif not v.resultado %}<p class="ajuda">Abra para preencher a ficha.</p>{% endif %}
+    </div>
+  </a>
+  {% endfor %}
+</div>
+{% else %}
+<p class="vazio">Nenhuma foto de vestígio{% if campanha or tipo or estado %} com esses filtros{% endif %}. Use
+  <a href="/vestigios/importar">Importar fotos de vestígios</a> e escolha a pasta onde estão as fotos de pegadas, fezes e sinais.</p>
+{% endif %}
+
+{% if dados.especies %}
+<h2>Espécies confirmadas por vestígios</h2>
+<table>
+  <tr><th>Espécie</th><th>Pegadas</th><th>Fezes</th><th>Outros sinais</th><th>Total</th><th>Pontos</th></tr>
+  {% for e in dados.especies %}
+  <tr><td>{{ e.especie.nome_popular }} <em>{{ e.especie.nome_cientifico }}</em></td><td>{{ e.pegada }}</td><td>{{ e.fezes }}</td>
+    <td>{{ e.sinal }}</td><td><strong>{{ e.total }}</strong></td><td>{{ e.pontos|sort|join(', ') }}</td></tr>
+  {% endfor %}
+</table>
+{% endif %}
+{% endblock %}

@@ -21,7 +21,7 @@ from camtrap_campo.db import Arquivo, Camera, Campanha, Importacao, Ponto, conec
 from camtrap_campo.importacao import horario, pastas
 from camtrap_campo.importacao.copiar import importar, obter_ou_criar
 from camtrap_campo.importacao.detectar import detectar_cartoes, resumir, resumir_pastas
-from camtrap_campo.web import painel, rotas_analises, rotas_gestao, rotas_ia, rotas_validacao
+from camtrap_campo.web import painel, rotas_analises, rotas_campanhas, rotas_gestao, rotas_ia, rotas_validacao, rotas_vestigios
 
 AQUI = Path(__file__).parent
 
@@ -224,4 +224,6 @@ def criar_app(fabrica=None, sincrono: bool = False, extras_cartoes: list[str] | 
     rotas_ia.registrar(app, fabrica, pagina, sincrono)
     rotas_analises.registrar(app, fabrica, pagina, tpl)
     rotas_validacao.registrar(app, fabrica, pagina, tpl)
+    rotas_vestigios.registrar(app, fabrica, pagina)
+    rotas_campanhas.registrar(app, fabrica, pagina)
     return app

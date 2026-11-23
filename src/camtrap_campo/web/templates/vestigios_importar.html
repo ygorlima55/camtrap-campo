@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block titulo %}Importar vestígios · CamTrap Campo{% endblock %}
+{% block conteudo %}
+<h1>Importar fotos de vestígios</h1>
+<p class="ajuda">Fotos de pegadas, fezes, arranhados, tocas etc. (JPG ou PNG, de celular ou câmera comum). O programa copia
+  as fotos para a pasta de dados, conferindo cada cópia, e <strong>não apaga nada</strong> da pasta de origem.
+  Dica de campo: fotografe de cima, com uma régua ou objeto de tamanho conhecido ao lado.</p>
+{% if erro %}<p class="alerta erro">{{ erro }}</p>{% endif %}
+
+{% if not origem %}
+<div class="painel">
+  <h2>1. Onde estão as fotos?</h2>
+  <form method="post" action="/vestigios/escolher" class="linha"><button class="botao" type="submit">Escolher pasta…</button>
+    <span class="ajuda">abre a janela do Windows neste computador</span></form>
+  <form method="get" action="/vestigios/importar" class="formulario linha colar-caminho">
+    <label>ou cole o caminho <input name="origem" placeholder="C:\Users\...\Fotos\Vestigios" required></label>
+    <button type="submit">Continuar</button></form>
+  {% if salvas %}<p class="rotulo">Pastas já usadas nas importações:</p>
+  <ul>{% for p in salvas %}<li><a href="/vestigios/importar?origem={{ p|urlencode }}">{{ p }}</a></li>{% endfor %}</ul>{% endif %}
+</div>
+{% else %}
+<form class="painel formulario" method="post" action="/vestigios/importar">
+  <h2>2. Dados da coleta</h2>
+  <p><code>{{ origem }}</code> · <strong>{{ fotos }}</strong> foto(s){% if exemplos %}: {{ exemplos|join(', ') }}{% if fotos > 5 %}…{% endif %}{% endif %}
+    · <a href="/vestigios/importar">trocar pasta</a></p>
+  <input type="hidden" name="origem" value="{{ origem }}">
+  <div class="linha">
+    <label>Campanha <input name="campanha" list="campanhas" required value="{{ campanhas[0].nome if campanhas else '' }}"></label>
+    <datalist id="campanhas">{% for c in campanhas %}<option value="{{ c.nome }}">{% endfor %}</datalist>
+    <label>Ponto / trilha <small>(opcional)</small> <input name="ponto" list="pontos"></label>
+    <datalist id="pontos">{% for p in pontos %}<option value="{{ p.nome }}">{% endfor %}</datalist>
+    <label>Tipo de todas <small>(opcional)</small> <select name="tipo"><option value="">misturado / definir depois</option>
+      {% for k, n in opcoes.tipos.items() %}<option value="{{ k }}">{{ n }}</option>{% endfor %}</select></label>
+  </div>
+  <p class="ajuda">Se as fotos tiverem GPS (a maioria dos celulares grava), a localização é guardada em cada vestígio.</p>
+  <button class="botao" type="submit"{% if not fotos %} disabled{% endif %}>Copiar fotos</button>
+</form>
+{% endif %}
+{% endblock %}

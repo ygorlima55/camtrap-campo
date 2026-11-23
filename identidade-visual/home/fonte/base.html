@@ -1,0 +1,38 @@
+{% from "_icones.html" import icone %}<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}CamTrap Campo{% endblock %}</title>
+  <link rel="icon" type="image/svg+xml" href="/static/logo.svg">
+  <meta name="theme-color" content="#E3A13B">
+  <link rel="stylesheet" href="/static/estilo.css?v={{ css_v }}">
+  <script src="/static/htmx.min.js"></script>
+</head>
+<body>
+<div class="app">
+  <aside class="lateral-app">
+    <nav class="menu">
+      <a class="marca" href="/"><img class="logo" src="/static/logo.svg" alt="Logo do CamTrap Campo: onça-pintada no visor da câmera">
+        <span class="nome">CamTrap Campo<small>Armadilhas fotográficas</small></span></a>
+      {% set _atual = request.url.path %}
+      {% set _menu_principal = [('/', 'inicio', 'Início'), ('/tarefas', 'tarefas', 'Tarefas'), ('/campanhas', 'campanhas', 'Campanhas'),
+                      ('/validacao', 'check', 'Validação'), ('/vestigios', 'pegada', 'Vestígios'),
+                      ('/cameras', 'camera', 'Câmeras'),
+                      ('/especies', 'especies', 'Espécies'), ('/analises', 'analises', 'Análises')] %}
+      {% set _menu_extras = [('/roteiros', 'roteiros', 'Roteiros às cegas'), ('/cadastros', 'cadastros', 'Cadastros'),
+                       ('/guia', 'guia', 'Guia')] %}
+      {% for href, ic, nome in _menu_principal %}
+      <a class="item{% if (href == '/' and _atual == '/') or (href != '/' and _atual.startswith(href)) %} ativo{% endif %}" href="{{ href }}" title="{{ nome }}">{{ icone(ic) }}<span>{{ nome }}</span></a>
+      {% endfor %}
+      <div class="rotulo-grupo">Campo e ajuda</div>
+      {% for href, ic, nome in _menu_extras %}
+      <a class="item{% if _atual.startswith(href) %} ativo{% endif %}" href="{{ href }}" title="{{ nome }}">{{ icone(ic) }}<span>{{ nome }}</span></a>
+      {% endfor %}
+      <div class="rodape-menu"><span class="selo">Sem internet</span><br><small>versão {{ versao }} · dados só neste computador</small></div>
+    </nav>
+  </aside>
+  <main class="conteudo">{% block conteudo %}{% endblock %}</main>
+</div>
+</body>
+</html>

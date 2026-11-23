@@ -16,7 +16,8 @@
       <a class="marca" href="/"><img class="logo" src="/static/logo.svg" alt="Logo do CamTrap Campo: onça-pintada no visor da câmera">
         <span class="nome">CamTrap Campo<small>Armadilhas fotográficas</small></span></a>
       {% set _atual = request.url.path %}
-      {% set _menu_principal = [('/', 'inicio', 'Início'), ('/tarefas', 'tarefas', 'Tarefas'), ('/validacao', 'check', 'Validação'),
+      {% set _menu_principal = [('/', 'inicio', 'Início'), ('/tarefas', 'tarefas', 'Tarefas'), ('/campanhas', 'campanhas', 'Campanhas'),
+                      ('/validacao', 'check', 'Validação'), ('/vestigios', 'pegada', 'Vestígios'),
                       ('/cameras', 'camera', 'Câmeras'),
                       ('/especies', 'especies', 'Espécies'), ('/analises', 'analises', 'Análises')] %}
       {% set _menu_extras = [('/roteiros', 'roteiros', 'Roteiros às cegas'), ('/cadastros', 'cadastros', 'Cadastros'),

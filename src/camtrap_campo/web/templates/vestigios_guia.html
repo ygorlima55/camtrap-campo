@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block titulo %}Guia de vestígios · CamTrap Campo{% endblock %}
+{% block conteudo %}
+<div class="cabecalho-pagina">
+  <div><h1>Guia de referência de vestígios</h1>
+    <p>É com estes dados que o programa compara cada ficha. Valores <strong>aproximados</strong> de adultos, compilados da
+      literatura de rastreamento; confira no seu guia de campo e ajuste para a sua região.</p></div>
+  <div class="acoes-topo"><a class="botao secundario" href="/vestigios">Voltar ao quadro</a></div>
+</div>
+<p class="ajuda">Referências para conferir: Becker &amp; Dalponte, <em>Rastros de mamíferos silvestres brasileiros</em>;
+  Borges &amp; Tomás, <em>Guia de rastros e outros vestígios de mamíferos do Pantanal</em> (Embrapa); Oliveira &amp; Cassaro,
+  <em>Guia de campo dos felinos do Brasil</em>. Desmarque “usar” para tirar uma espécie da comparação (ex.: fora da sua região).</p>
+
+<nav class="chips-grupos">{% for k, n in opcoes.tipos.items() %}
+  <a class="chip{% if k == tipo %} feito{% endif %}" href="/vestigios/guia?tipo={{ k }}">{{ n }}</a>{% endfor %}</nav>
+
+{% for g in refs %}
+{% set d = g.dados or {} %}
+<details class="painel guia-item" id="g{{ g.id }}">
+  <summary><strong>{{ g.nome_popular }}</strong> <em>{{ g.nome_cientifico }}</em>
+    {% if not g.ativa %}<span class="estado">fora da comparação</span>{% endif %}
+    {% if g.editada %}<span class="estado pendente">editado</span>{% endif %}
+    <small>
+      {% if d.comprimento %}{{ d.comprimento|join('–') }} × {{ (d.largura or ['?','?'])|join('–') }} cm{% endif %}
+      {% if d.diametro %}Ø {{ d.diametro|join('–') }} cm{% endif %}
+      {% if d.dedos %}· {{ d.dedos|join('/') }} dedos{% endif %}
+      {% if d.garras %}· {{ {'sim': 'garras', 'nao': 'sem garras', 'as_vezes': 'garras às vezes'}[d.garras] }}{% endif %}
+      {% if d.sinal %}{% for s in d.sinal %}{{ opcoes.sinais[s] }}{% if not loop.last %}, {% endif %}{% endfor %}{% endif %}
+    </small></summary>
+  <form method="post" action="/vestigios/guia/{{ g.id }}" class="formulario">
+    <div class="linha">
+      {% for campo, rot in {'pegada': [('comprimento', 'Comprimento'), ('largura', 'Largura')], 'fezes': [('diametro', 'Diâmetro')],
+                           'sinal': [('altura', 'Altura do arranhado'), ('diametro', 'Diâmetro da toca')]}[g.tipo] %}
+      <label>{{ rot }} mín. (cm) <input name="{{ campo }}_min" inputmode="decimal" value="{{ d[campo][0] if d[campo] else '' }}"></label>
+      <label>máx. <input name="{{ campo }}_max" inputmode="decimal" value="{{ d[campo][1] if d[campo] else '' }}"></label>
+      {% endfor %}
+      {% if g.tipo == 'pegada' %}
+      <label>Dedos (mão/pé) <input name="dedos" value="{{ (d.dedos or [])|join('/') }}" placeholder="4 ou 3/4"></label>
+      <label>Garras <select name="garras">{% for k, n in [('sim', 'marca garras'), ('nao', 'sem garras'), ('as_vezes', 'às vezes')] %}
+        <option value="{{ k }}"{% if d.garras == k %} selected{% endif %}>{{ n }}</option>{% endfor %}</select></label>
+      {% endif %}
+    </div>
+    {% if g.tipo == 'pegada' %}
+    <input type="hidden" name="_forma" value="1">
+    <p class="rotulo">Forma</p><div class="opcoes">{% for k, n in opcoes.formas_pegada.items() %}
+      <label class="opcao"><input type="radio" name="forma" value="{{ k }}"{% if d.forma == k %} checked{% endif %}> {{ n }}</label>{% endfor %}</div>
+    {% elif g.tipo == 'fezes' %}
+    {% for campo, nomes, rotulo in [('forma', opcoes.formas_fezes, 'Formas'), ('conteudo', opcoes.conteudos, 'Conteúdo esperado'), ('local', opcoes.locais, 'Locais')] %}
+    <input type="hidden" name="_{{ campo }}" value="1">
+    <p class="rotulo">{{ rotulo }}</p><div class="opcoes">{% for k, n in nomes.items() %}
+      <label class="opcao"><input type="checkbox" name="{{ campo }}" value="{{ k }}"{% if k in (d[campo] or []) %} checked{% endif %}> {{ n }}</label>{% endfor %}</div>
+    {% endfor %}
+    {% else %}
+    <input type="hidden" name="_sinal" value="1">
+    <p class="rotulo">Sinais deixados</p><div class="opcoes">{% for k, n in opcoes.sinais.items() %}
+      <label class="opcao"><input type="checkbox" name="sinal" value="{{ k }}"{% if k in (d.sinal or []) %} checked{% endif %}> {{ n }}</label>{% endfor %}</div>
+    {% endif %}
+    <label>Descrição <textarea name="descricao" rows="2">{{ g.descricao or '' }}</textarea></label>
+    <label class="opcao"><input type="checkbox" name="ativa"{% if g.ativa %} checked{% endif %}> usar na comparação</label>
+    <button class="botao" type="submit">Salvar</button>
+  </form>
+</details>
+{% endfor %}
+{% endblock %}

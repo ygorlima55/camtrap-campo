@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Início · CamTrap Campo</title>
+  <link rel="icon" type="image/svg+xml" href="static/logo.svg">
+  <meta name="theme-color" content="#E3A13B">
+  <link rel="stylesheet" href="static/estilo.css">
+  <script src="static/htmx.min.js"></script>
+</head>
+<body>
+<div class="app">
+  <aside class="lateral-app">
+    <nav class="menu">
+      <a class="marca" href="/"><img class="logo" src="static/logo.svg" alt="Logo do CamTrap Campo: onça-pintada no visor da câmera">
+        <span class="nome">CamTrap Campo<small>Armadilhas fotográficas</small></span></a>
+      
+      
+      
+      
+      <a class="item ativo" href="/" title="Início"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7.5" height="9" rx="2"/><rect x="13.5" y="3" width="7.5" height="5.5" rx="2"/><rect x="3" y="15" width="7.5" height="6" rx="2"/><rect x="13.5" y="11.5" width="7.5" height="9.5" rx="2"/></svg><span>Início</span></a>
+      
+      <a class="item" href="/tarefas" title="Tarefas"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 7v5l3 2"/><path d="M17 3h4v4"/></svg><span>Tarefas</span></a>
+      
+      <a class="item" href="/campanhas" title="Campanhas"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="10" cy="12.5" r="1.4"/><path d="m21 17-4.5-4-6.5 6"/></svg><span>Campanhas</span></a>
+      
+      <a class="item" href="/validacao" title="Validação"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span>Validação</span></a>
+      
+      <a class="item" href="/vestigios" title="Vestígios"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21c-3.2 0-5.5-1.6-5.5-3.8 0-2.6 2.6-5.2 5.5-5.2s5.5 2.6 5.5 5.2c0 2.2-2.3 3.8-5.5 3.8z"/><ellipse cx="5" cy="10" rx="1.7" ry="2.2"/><ellipse cx="9" cy="5.8" rx="1.8" ry="2.4"/><ellipse cx="15" cy="5.8" rx="1.8" ry="2.4"/><ellipse cx="19" cy="10" rx="1.7" ry="2.2"/></svg><span>Vestígios</span></a>
+      
+      <a class="item" href="/cameras" title="Câmeras"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="3"/><circle cx="12" cy="11" r="3.5"/><circle cx="12" cy="11" r=".6" fill="currentColor"/><path d="M8 17.5h8"/><circle cx="16.5" cy="6.5" r=".7" fill="currentColor"/></svg><span>Câmeras</span></a>
+      
+      <a class="item" href="/especies" title="Espécies"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19c0-8 5-14 15-15-1 10-7 15-15 15z"/><path d="M5 19l7-7"/></svg><span>Espécies</span></a>
+      
+      <a class="item" href="/analises" title="Análises"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></svg><span>Análises</span></a>
+      
+      <div class="rotulo-grupo">Campo e ajuda</div>
+      
+      <a class="item" href="/roteiros" title="Roteiros às cegas"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14"/><path d="M15 6v14"/></svg><span>Roteiros às cegas</span></a>
+      
+      <a class="item" href="/cadastros" title="Cadastros"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>Cadastros</span></a>
+      
+      <a class="item" href="/guia" title="Guia"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/><path d="M9 8h6"/><path d="M9 12h4"/></svg><span>Guia</span></a>
+      
+      <div class="rodape-menu"><span class="selo">Sem internet</span><br><small>versão 0.1.0 · dados só neste computador</small></div>
+    </nav>
+  </aside>
+  <main class="conteudo">
+<div class="cabecalho-pagina">
+  <div><h1>Início</h1><p>Resumo do acervo e o que fazer agora. Atualiza sozinho.</p></div>
+  <div class="acoes-topo">
+    <button class="botao secundario" type="button" onclick="const d = document.getElementById('nova-pasta'); d.open = !d.open; if (d.open) d.scrollIntoView({block: 'nearest'})">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg> Importar de uma pasta</button>
+    <a class="botao secundario" href="/guia">Como funciona?</a>
+  </div>
+</div>
+
+
+
+
+<details id="nova-pasta" class="painel nova-pasta">
+  <summary>Importar de uma pasta do computador</summary>
+  <p class="ajuda">Para fotos e vídeos que já estão no computador, como cópias de cartões, registros de teste ou um HD externo.
+    A pasta fica salva na lista ao lado dos cartões. O programa só lê e copia: nada é apagado nem alterado na pasta.</p>
+  <div class="linha-pasta">
+    <form method="post" action="/pastas/escolher">
+      <button class="botao" type="submit"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg> Escolher pasta…</button>
+    </form>
+    <span class="ou">ou</span>
+    <form method="post" action="/pastas" class="colar-caminho">
+      <input name="caminho" placeholder="cole o caminho, ex.: C:\Users\voce\Pictures\Câmera P7" aria-label="Caminho da pasta">
+      <button type="submit">Adicionar</button>
+    </form>
+  </div>
+  <p class="ajuda"><small>“Escolher pasta…” abre a janela do Windows. Se ela não aparecer, olhe a barra de tarefas;
+    pode ter ficado atrás do navegador. Copiar o caminho: no Explorador, clique com o botão direito na pasta → “Copiar como caminho”.</small></p>
+</details>
+
+<div id="painel" hx-get="/painel"  hx-swap="innerHTML">
+  
+
+<section class="proximo">
+  <span class="icone-grande"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12S6 5 12 5s9.5 7 9.5 7S18 19 12 19 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></svg></span>
+  <div><span class="rotulo">Próximo passo</span><h2>39 sequência(s) esperando revisão</h2><p>Campanha teste 4 · Ponto teste 4 · câmera Teste 4</p></div>
+  <a class="botao" href="/revisao/5?pendentes=1">Revisar agora <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg></a>
+</section>
+
+<div class="indicadores">
+  <a class="indicador" href="/cameras">
+    <div class="topo">Mídias no acervo <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg></div>
+    <div class="valor">465</div>
+    <div class="detalhe">418 fotos · 47 vídeos</div>
+  </a>
+  <a class="indicador" href="/tarefas">
+    <div class="topo">Analisadas pela IA <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.6L18.5 9l-4.7 1.6L12 15l-1.8-4.4L5.5 9l4.7-1.4z"/><path d="M18.5 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg></div>
+    <div class="valor">90%</div>
+    <div class="detalhe">419 de 465</div>
+    <progress max="100" value="90"></progress>
+  </a>
+  <a class="indicador" href="/revisao/5?pendentes=1">
+    <div class="topo">Registros confirmados <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></div>
+    <div class="valor">47</div>
+    <div class="detalhe">47 sequência(s) a revisar</div>
+  </a>
+  <a class="indicador" href="/analises">
+    <div class="topo">Espécies registradas <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19c0-8 5-14 15-15-1 10-7 15-15 15z"/><path d="M5 19l7-7"/></svg></div>
+    <div class="valor">3</div>
+    <div class="detalhe">5 câmeras · 5 pontos · 5 campanhas</div>
+  </a>
+</div>
+
+<div class="duas-colunas">
+  <section class="painel">
+    <div class="titulo-painel"><h2>Mídias por dia</h2><small>últimos 30 dias com registro</small></div>
+    
+    
+    <div class="barras" role="img" aria-label="Mídias por dia">
+      <div class="barra zero" style="height:3%"
+        title="21/02/2025: 0 mídia(s)"></div><div class="barra zero" style="height:3%"
+        title="22/02/2025: 0 mídia(s)"></div><div class="barra zero" style="height:3%"
+        title="23/02/2025: 0 mídia(s)"></div><div class="barra zero" style="height:3%"
+        title="24/02/2025: 0 mídia(s)"></div><div class="barra zero" style="height:3%"
+        title="25/02/2025: 0 mídia(s)"></div><div class="barra zero" style="height:3%"
+        title="26/02/2025: 0 mídia(s)"></div><div class="barra zero" style="height:3%"
+        title="27/02/2025: 0 mídia(s)"></div><div class="barra zero" style="height:3%"
+        title="28/02/2025: 0 mídia(s)"></div><div class="barra zero" style="height:3%"
+        title="01/03/2025: 0 mídia(s)"></div><div class="barra zero" style="height:3%"
+        title="02/03/2025: 0 mídia(s)"></div><div class="barra zero" style="height:3%"
+        title="03/03/2025: 0 mídia(s)"></div><div class="barra zero" style="height:3%"
+        title="04/03/2025: 0 mídia(s)"></div><div class="barra zero" style="height:3%"
+        title="05/03/2025: 0 mídia(s)"></div><div class="barra zero" style="height:3%"
+        title="06/03/2025: 0 mídia(s)"></div><div class="barra zero" style="height:3%"
+        title="07/03/2025: 0 mídia(s)"></div><div class="barra zero" style="height:3%"
+        title="08/03/2025: 0 mídia(s)"></div><div class="barra zero" style="height:3%"
+        title="09/03/2025: 0 mídia(s)"></div><div class="barra zero" style="height:3%"
+        title="10/03/2025: 0 mídia(s)"></div><div class="barra zero" style="height:3%"
+        title="11/03/2025: 0 mídia(s)"></div><div class="barra zero" style="height:3%"
+        title="12/03/2025: 0 mídia(s)"></div><div class="barra zero" style="height:3%"
+        title="13/03/2025: 0 mídia(s)"></div><div class="barra zero" style="height:3%"
+        title="14/03/2025: 0 mídia(s)"></div><div class="barra zero" style="height:3%"
+        title="15/03/2025: 0 mídia(s)"></div><div class="barra zero" style="height:3%"
+        title="16/03/2025: 0 mídia(s)"></div><div class="barra zero" style="height:3%"
+        title="17/03/2025: 0 mídia(s)"></div><div class="barra" style="height:100.0%"
+        title="18/03/2025: 14 mídia(s)"></div><div class="barra" style="height:57.142857142857146%"
+        title="19/03/2025: 8 mídia(s)"></div><div class="barra" style="height:50.0%"
+        title="20/03/2025: 7 mídia(s)"></div><div class="barra" style="height:71.42857142857143%"
+        title="21/03/2025: 10 mídia(s)"></div><div class="barra" style="height:28.571428571428573%"
+        title="22/03/2025: 4 mídia(s)"></div>
+    </div>
+    <div class="eixo"><span>21/02</span><span>22/03/2025</span></div>
+    
+  </section>
+  <section class="painel">
+    <div class="titulo-painel"><h2>Espécies mais registradas</h2><a href="/analises">Análises</a></div>
+    
+    
+    <ul class="ranking">
+      
+      <li><div class="linha-rank"><span>queixada <small><em>Tayassu pecari</em></small></span><strong>42</strong></div>
+        <div class="trilho"><i style="width:100.0%"></i></div></li>
+      
+      <li><div class="linha-rank"><span>mutum-de-penacho <small><em>Crax fasciolata</em></small></span><strong>3</strong></div>
+        <div class="trilho"><i style="width:7.142857142857143%"></i></div></li>
+      
+      <li><div class="linha-rank"><span>cutia <small><em>Dasyprocta azarae</em></small></span><strong>2</strong></div>
+        <div class="trilho"><i style="width:4.761904761904762%"></i></div></li>
+      
+    </ul>
+    
+  </section>
+</div>
+
+<div class="duas-colunas">
+  <section class="painel">
+    <div class="titulo-painel"><h2>Cartões e pastas</h2><small>verificado a cada 6 s</small></div>
+    
+<div class="cartoes">
+  
+  
+  <div class="cartao">
+    <h3>100MEDIA <span class="estado">pasta</span></h3>
+    <p><code title="C:\Fotos\Campo\100MEDIA">C:\Fotos\Campo\100MEDIA</code></p>
+    <p>326 fotos · 49 vídeos</p>
+    <p>Última: <code>DSCF0003_resultado.jpg</code> (2025-03-23 11:24:14)</p>
+    
+    <p class="alerta info">Pasta do OneDrive: arquivos que estão só na nuvem serão baixados durante a importação.</p>
+    
+    <div class="botoes-cartao">
+      <a class="botao" href="/importar?origem=C%3A%5CFotos%5CCampo%5C100MEDIA">Importar como câmera trap</a>
+      <a class="botao secundario" href="/vestigios/importar?origem=C%3A%5CFotos%5CCampo%5C100MEDIA"
+         title="Fotos de pegadas, fezes, arranhados e outros sinais">Importar como vestígios</a>
+      <form method="post" action="/pastas/remover">
+        <input type="hidden" name="caminho" value="C:\Fotos\Campo\100MEDIA">
+        <button type="submit" title="Só tira da lista do programa; os arquivos continuam na pasta">Tirar da lista</button>
+      </form>
+    </div>
+  </div>
+  
+  <div class="cartao">
+    <h3>2024 porco <span class="estado">pasta</span></h3>
+    <p><code title="C:\Fotos\Campo\2024 porco">C:\Fotos\Campo\2024 porco</code></p>
+    <p>295 fotos · 0 vídeos</p>
+    <p>Última: <code>MFDC0594.JPG</code> (2024-05-21 17:08:18)</p>
+    
+    <p class="alerta info">Pasta do OneDrive: arquivos que estão só na nuvem serão baixados durante a importação.</p>
+    
+    <div class="botoes-cartao">
+      <a class="botao" href="/importar?origem=C%3A%5CFotos%5CCampo%5C2024%20porco">Importar como câmera trap</a>
+      <a class="botao secundario" href="/vestigios/importar?origem=C%3A%5CFotos%5CCampo%5C2024%20porco"
+         title="Fotos de pegadas, fezes, arranhados e outros sinais">Importar como vestígios</a>
+      <form method="post" action="/pastas/remover">
+        <input type="hidden" name="caminho" value="C:\Fotos\Campo\2024 porco">
+        <button type="submit" title="Só tira da lista do programa; os arquivos continuam na pasta">Tirar da lista</button>
+      </form>
+    </div>
+  </div>
+  
+  <div class="cartao">
+    <h3>Bicho 2024 <span class="estado">pasta</span></h3>
+    <p><code title="C:\Fotos\Campo\Bicho 2024">C:\Fotos\Campo\Bicho 2024</code></p>
+    <p>109 fotos · 0 vídeos</p>
+    <p>Última: <code>MFDC0448.JPG</code> (2024-05-21 16:27:28)</p>
+    
+    <p class="alerta info">Pasta do OneDrive: arquivos que estão só na nuvem serão baixados durante a importação.</p>
+    
+    <div class="botoes-cartao">
+      <a class="botao" href="/importar?origem=C%3A%5CFotos%5CCampo%5CBicho%202024">Importar como câmera trap</a>
+      <a class="botao secundario" href="/vestigios/importar?origem=C%3A%5CFotos%5CCampo%5CBicho%202024"
+         title="Fotos de pegadas, fezes, arranhados e outros sinais">Importar como vestígios</a>
+      <form method="post" action="/pastas/remover">
+        <input type="hidden" name="caminho" value="C:\Fotos\Campo\Bicho 2024">
+        <button type="submit" title="Só tira da lista do programa; os arquivos continuam na pasta">Tirar da lista</button>
+      </form>
+    </div>
+  </div>
+  
+</div>
+
+  </section>
+  <section class="painel">
+    <div class="titulo-painel"><h2>Fila da IA</h2><a href="/tarefas">Tarefas</a></div>
+    <p class="vazio">Nenhuma tarefa em andamento.</p>
+  </section>
+</div>
+
+<section>
+  <div class="titulo-painel"><h2>Importações recentes</h2></div>
+  
+  <table>
+    <tr><th>#</th><th>Data</th><th>Campanha</th><th>Ponto</th><th>Câmera</th><th>Arquivos</th><th>Situação</th></tr>
+    
+    <tr>
+      <td><a href="/importacoes/5">5</a></td>
+      <td>05/11/2026 08:21:00</td><td>Campanha teste 4</td><td>Ponto teste 4</td>
+      <td>Teste 4</td><td>109 novos · 0 repetidos</td>
+      <td><span class="estado concluida">concluida</span></td>
+    </tr>
+    
+    <tr>
+      <td><a href="/importacoes/4">4</a></td>
+      <td>03/11/2026 19:51:03</td><td>Campanha teste 3</td><td>Ponto teste 3</td>
+      <td>Teste 3</td><td>295 novos · 0 repetidos</td>
+      <td><span class="estado concluida">concluida</span></td>
+    </tr>
+    
+    <tr>
+      <td><a href="/importacoes/3">3</a></td>
+      <td>03/11/2026 19:30:43</td><td>Campanha teste 2</td><td>Ponto teste 2</td>
+      <td>Teste 2</td><td>0 novos · 63 repetidos</td>
+      <td><span class="estado com_erros">com erros</span></td>
+    </tr>
+    
+    <tr>
+      <td><a href="/importacoes/2">2</a></td>
+      <td>03/11/2026 16:06:38</td><td>Campanha teste</td><td>Ponto teste</td>
+      <td>Teste</td><td>61 novos · 2 repetidos</td>
+      <td><span class="estado com_erros">com erros</span></td>
+    </tr>
+    
+    <tr>
+      <td><a href="/importacoes/1">1</a></td>
+      <td>30/10/2026 16:24:46</td><td>1</td><td>ponto</td>
+      <td>Trap campo</td><td>62 novos · 0 repetidos</td>
+      <td><span class="estado concluida">concluida</span></td>
+    </tr>
+    
+  </table>
+  
+</section>
+</div>
+</main>
+</div>
+</body>
+</html>

@@ -22,7 +22,9 @@
     {% if em_nuvem(p.raiz) %}<p class="alerta info">Pasta do OneDrive: arquivos que estão só na nuvem serão baixados durante a importação.</p>{% endif %}
     {% if p.appledouble %}<p class="alerta erro">{{ p.appledouble }} arquivo(s) "._" de Mac — confira se as fotos originais estão na pasta</p>{% endif %}
     <div class="botoes-cartao">
-      {% if p.fotos or p.videos %}<a class="botao" href="/importar?origem={{ p.raiz|urlencode }}">Importar esta pasta</a>{% endif %}
+      {% if p.fotos or p.videos %}<a class="botao" href="/importar?origem={{ p.raiz|urlencode }}">Importar como câmera trap</a>{% endif %}
+      {% if p.fotos %}<a class="botao secundario" href="/vestigios/importar?origem={{ p.raiz|urlencode }}"
+         title="Fotos de pegadas, fezes, arranhados e outros sinais">Importar como vestígios</a>{% endif %}
       <form method="post" action="/pastas/remover">
         <input type="hidden" name="caminho" value="{{ p.raiz }}">
         <button type="submit" title="Só tira da lista do programa; os arquivos continuam na pasta">Tirar da lista</button>

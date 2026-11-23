@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% block titulo %}Vestígio {{ v.id }} · CamTrap Campo{% endblock %}
+{% block conteudo %}
+{% set c = v.caracteristicas or {} %}
+<div class="cabecalho-pagina">
+  <div><h1>Vestígio {{ posicao }} de {{ total }} <small>· {{ v.campanha.nome }}</small></h1>
+    <p>{{ v.data.strftime('%d/%m/%Y %H:%M') if v.data else 'sem data' }}{% if v.fonte_data == 'arquivo' %} (data do arquivo){% endif %} ·
+      {{ v.ponto.nome if v.ponto else 'sem ponto' }}{% if v.latitude is not none %} · GPS {{ '%.5f'|format(v.latitude) }}, {{ '%.5f'|format(v.longitude) }}{% endif %} ·
+      <code title="{{ v.origem }}">{{ v.nome_original }}</code></p></div>
+  <div class="acoes-topo">
+    {% if anterior %}<a class="botao secundario" href="/vestigios/{{ anterior }}" id="ir-anterior">← Anterior</a>{% endif %}
+    <a class="botao secundario" href="/vestigios?campanha={{ v.campanha_id }}">Quadro</a>
+    {% if proximo %}<a class="botao secundario" href="/vestigios/{{ proximo }}" id="ir-proximo">Próximo →</a>{% endif %}
+  </div>
+</div>
+
+{% if salvo == 'validado' %}<p class="alerta info">Validação salva.</p>{% endif %}
+
+<div class="ficha-vestigio">
+  <figure class="painel foto-vestigio">
+    <a href="/vestigios/{{ v.id }}/foto?tamanho=2400" target="_blank" id="ampliar" title="Ampliar (Z)">
+      <img src="/vestigios/{{ v.id }}/foto?tamanho=1100" alt="Foto do vestígio"></a>
+    <figcaption class="ajuda">Meça usando a régua, a caneta ou outro objeto de tamanho conhecido na foto. Clique para ampliar (Z).</figcaption>
+  </figure>
+
+  <form class="painel formulario" method="post" action="/vestigios/{{ v.id }}/ficha" id="form-ficha">
+    <h2>Ficha do vestígio</h2>
+    <fieldset class="escolha-tipo"><legend>Tipo</legend>
+      {% for k, n in opcoes.tipos.items() %}
+      <label class="opcao"><input type="radio" name="tipo" value="{{ k }}" required{% if v.tipo == k %} checked{% endif %}> {{ n }}</label>
+      {% endfor %}
+    </fieldset>
+
+    <fieldset data-tipo="pegada"><legend>Pegada <small>(medida de uma pegada bem marcada, sem contar as garras)</small></legend>
+      <div class="linha">
+        <label>Comprimento (cm) <input name="comprimento" inputmode="decimal" value="{{ c.comprimento|default('', true) }}" placeholder="ex.: 8,5"></label>
+        <label>Largura (cm) <input name="largura" inputmode="decimal" value="{{ c.largura|default('', true) }}" placeholder="ex.: 9"></label>
+        <label>Dedos visíveis <select name="dedos"><option value="">não sei</option>
+          {% for n in range(1, 6) %}<option{% if c.dedos == n %} selected{% endif %}>{{ n }}</option>{% endfor %}</select></label>
+        <label>Garras <select name="garras"><option value="">não sei</option>
+          {% for k, n in opcoes.garras.items() %}<option value="{{ k }}"{% if c.garras == k %} selected{% endif %}>{{ n }}</option>{% endfor %}</select></label>
+      </div>
+      <p class="rotulo">Forma</p>
+      <div class="opcoes">{% for k, n in opcoes.formas_pegada.items() %}
+        <label class="opcao"><input type="radio" name="forma" value="{{ k }}"{% if v.tipo == 'pegada' and c.forma == k %} checked{% endif %}> {{ n }}</label>{% endfor %}</div>
+    </fieldset>
+
+    <fieldset data-tipo="fezes"><legend>Fezes</legend>
+      <label>Diâmetro (cm) <input name="diametro" inputmode="decimal" value="{{ c.diametro|default('', true) if v.tipo == 'fezes' else '' }}" placeholder="ex.: 2,5"></label>
+      <p class="rotulo">Forma</p>
+      <div class="opcoes">{% for k, n in opcoes.formas_fezes.items() %}
+        <label class="opcao"><input type="radio" name="forma" value="{{ k }}"{% if v.tipo == 'fezes' and c.forma == k %} checked{% endif %}> {{ n }}</label>{% endfor %}</div>
+      <p class="rotulo">O que dá para ver dentro</p>
+      <div class="opcoes">{% for k, n in opcoes.conteudos.items() %}
+        <label class="opcao"><input type="checkbox" name="conteudo" value="{{ k }}"{% if k in (c.conteudo or []) %} checked{% endif %}> {{ n }}</label>{% endfor %}</div>
+      <p class="rotulo">Onde estava</p>
+      <div class="opcoes">{% for k, n in opcoes.locais.items() %}
+        <label class="opcao"><input type="checkbox" name="local" value="{{ k }}"{% if k in (c.local or []) %} checked{% endif %}> {{ n }}</label>{% endfor %}</div>
+    </fieldset>
+
+    <fieldset data-tipo="sinal"><legend>Outro sinal</legend>
+      <div class="opcoes">{% for k, n in opcoes.sinais.items() %}
+        <label class="opcao"><input type="radio" name="sinal" value="{{ k }}"{% if c.sinal == k %} checked{% endif %}> {{ n }}</label>{% endfor %}</div>
+      <div class="linha">
+        <label>Altura do arranhado (cm) <input name="altura" inputmode="decimal" value="{{ c.altura|default('', true) }}" placeholder="do chão até o meio"></label>
+        <label>Diâmetro da toca (cm) <input name="diametro" inputmode="decimal" value="{{ c.diametro|default('', true) if v.tipo == 'sinal' else '' }}"></label>
+      </div>
+    </fieldset>
+
+    <label>Observação <textarea name="observacao" rows="2" placeholder="substrato, idade aparente, rastro em sequência...">{{ v.observacao or '' }}</textarea></label>
+    <button class="botao" type="submit">Comparar com o guia</button>
+  </form>
+</div>
+
+<section class="painel" id="sugestoes">
+  <div class="titulo-grupo">
+    <div><h2>Espécies compatíveis</h2>
+      {% if v.resultado == 'especie' %}<span class="estado concluida">✓ validado: {{ v.especie.nome_popular }} ({{ v.especie.nome_cientifico }})</span>
+      {% elif v.resultado %}<span class="estado concluida">✓ validado: indeterminado</span>{% endif %}</div>
+    <div class="botoes-grupo">
+      <label class="ajuda"><input type="checkbox" id="seguir" checked> depois de validar, ir para o próximo sem validação</label>
+    </div>
+  </div>
+  {% if v.sugestoes %}
+  {% if fraco %}<p class="alerta aviso">Nenhuma espécie do guia combina bem com esta ficha (melhor nota {{ (v.sugestoes[0].nota * 100)|round|int }}/100).
+    Confira as medidas, ou a espécie pode não estar no guia.</p>{% endif %}
+  <p class="ajuda">Ficha: {{ texto_ficha }}. <br>A % compara as espécies do guia entre si (soma 100% entre as listadas e as
+    muito pouco compatíveis); a nota /100 diz o quanto cada uma se encaixa sozinha.</p>
+  <ol class="candidatas">
+    {% for cand in v.sugestoes %}
+    <li class="candidata{% if v.especie_id and v.especie_id == cand.especie_id %} escolhida{% endif %}">
+      <div class="cab"><span class="tecla">{{ loop.index }}</span>
+        <strong>{{ cand.nome_popular }}</strong> <em>{{ cand.nome_cientifico }}</em>
+        <b class="pct">{{ cand.porcentagem }}%</b><small>nota {{ (cand.nota * 100)|round|int }}/100</small></div>
+      <div class="barra"><i style="width: {{ cand.porcentagem }}%"></i></div>
+      <ul class="motivos">{% for m in cand.motivos %}<li class="{{ 'ok' if m.ok else 'nao' }}">{{ '✓' if m.ok else '✗' }} {{ m.campo }}: {{ m.texto }}</li>{% endfor %}</ul>
+      {% if cand.descricao %}<p class="ajuda">{{ cand.descricao }}</p>{% endif %}
+      <form method="post" action="/vestigios/{{ v.id }}/validar" class="form-validar" data-n="{{ loop.index }}">
+        <input type="hidden" name="resultado" value="especie">
+        <input type="hidden" name="especie_id" value="{{ cand.especie_id or '' }}">
+        <input type="hidden" name="guia_nome" value="{{ cand.nome_cientifico }}">
+        <input type="hidden" name="guia_popular" value="{{ cand.nome_popular }}">
+        <input type="hidden" name="seguir" value="1">
+        <button type="submit" class="botao{% if not loop.first %} secundario{% endif %}">É {{ cand.nome_popular }} ({{ loop.index }})</button>
+      </form>
+    </li>
+    {% endfor %}
+  </ol>
+  {% elif v.caracteristicas %}
+  <p class="alerta aviso">Nenhuma espécie do guia tem informação para as características preenchidas. Preencha mais campos ou valide pela outra espécie.</p>
+  {% else %}
+  <p class="vazio">Preencha a ficha acima e clique em “Comparar com o guia”.</p>
+  {% endif %}
+
+  <div class="botoes-cartao">
+    <button type="button" class="botao secundario" id="abrir-correcao">Outra espécie (C)</button>
+    <form method="post" action="/vestigios/{{ v.id }}/validar"><input type="hidden" name="resultado" value="indeterminado">
+      <input type="hidden" name="seguir" value="1"><button type="submit" class="secundario">Não dá para saber (I)</button></form>
+    {% if v.resultado %}<form method="post" action="/vestigios/{{ v.id }}/validar"><input type="hidden" name="resultado" value="limpar">
+      <button type="submit">Desfazer validação</button></form>{% endif %}
+  </div>
+  <p class="ajuda"><strong>Teclas</strong> (fora dos campos): <kbd>1</kbd>–<kbd>6</kbd> valida a espécie da lista · <kbd>C</kbd> outra espécie ·
+    <kbd>I</kbd> não dá para saber · <kbd>Z</kbd> ampliar · <kbd>←</kbd><kbd>→</kbd> anterior/próximo.</p>
+</section>
+
+<dialog id="correcao" class="painel">
+  <form method="post" action="/vestigios/{{ v.id }}/validar" id="form-correcao">
+    <h3>Outra espécie</h3>
+    <input type="hidden" name="resultado" value="especie"><input type="hidden" name="especie_id" id="correcao-id">
+    <input type="hidden" name="seguir" value="1">
+    <label>Espécie <input id="busca-especie" list="lista-especies" placeholder="nome popular ou científico" autocomplete="off" required></label>
+    <datalist id="lista-especies">{% for e in especies %}<option value="{{ e.nome_popular }} — {{ e.nome_cientifico }}" data-id="{{ e.id }}"></option>{% endfor %}</datalist>
+    <p class="ajuda" id="aviso-correcao"></p>
+    <div class="botoes-cartao"><button type="submit" class="botao">Validar</button>
+      <button type="button" onclick="this.closest('dialog').close()">Cancelar</button></div>
+  </form>
+</dialog>
+
+<script>
+(() => {
+  const form = document.getElementById('form-ficha');
+  const mostrar = () => {
+    const tipo = (form.querySelector('input[name=tipo]:checked') || {}).value;
+    form.querySelectorAll('fieldset[data-tipo]').forEach(f => {
+      const ativo = f.dataset.tipo === tipo;
+      f.hidden = !ativo;
+      f.querySelectorAll('input, select').forEach(i => { i.disabled = !ativo; });  // só envia os campos do tipo escolhido
+    });
+  };
+  form.addEventListener('change', e => { if (e.target.name === 'tipo') mostrar(); });
+  mostrar();
+
+  const seguir = document.getElementById('seguir');
+  try { seguir.checked = localStorage.getItem('vestigio-seguir') !== '0'; } catch (e) {}
+  seguir.addEventListener('change', () => { try { localStorage.setItem('vestigio-seguir', seguir.checked ? '1' : '0'); } catch (e) {} });
+  document.querySelectorAll('form input[name=seguir]').forEach(i => {
+    i.form.addEventListener('submit', () => { i.value = seguir.checked ? '1' : ''; });
+  });
+
+  const dlg = document.getElementById('correcao');
+  const busca = document.getElementById('busca-especie');
+  document.getElementById('abrir-correcao').onclick = () => { dlg.showModal(); busca.focus(); };
+  document.getElementById('form-correcao').addEventListener('submit', e => {
+    const op = [...document.querySelectorAll('#lista-especies option')].find(o => o.value === busca.value);
+    if (!op) { e.preventDefault(); document.getElementById('aviso-correcao').textContent = 'Escolha uma espécie da lista (cadastre novas no menu Espécies).'; return; }
+    document.getElementById('correcao-id').value = op.dataset.id;
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.target.closest('input, textarea, select') || dlg.open || e.ctrlKey || e.altKey || e.metaKey) return;
+    const k = e.key.toLowerCase();
+    const enviar = f => { if (f) { f.requestSubmit(); e.preventDefault(); } };
+    if (/^[1-6]$/.test(k)) enviar(document.querySelector(`.form-validar[data-n="${k}"]`));
+    else if (k === 'c') { e.preventDefault(); dlg.showModal(); busca.focus(); }
+    else if (k === 'i') enviar(document.querySelector('form input[name=resultado][value=indeterminado]').form);
+    else if (k === 'z') window.open(document.getElementById('ampliar').href, '_blank');
+    else if (k === 'arrowleft' && document.getElementById('ir-anterior')) location = document.getElementById('ir-anterior').href;
+    else if (k === 'arrowright' && document.getElementById('ir-proximo')) location = document.getElementById('ir-proximo').href;
+  });
+})();
+</script>
+{% endblock %}

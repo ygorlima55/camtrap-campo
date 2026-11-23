@@ -251,6 +251,51 @@ class Revisao(Base):
     especie: Mapped[Especie | None] = relationship()
 
 
+class GuiaVestigio(Base):
+    """Referência de um guia de campo: como é a pegada, a fezes ou outro sinal de uma espécie (editável)."""
+
+    __tablename__ = "guia_vestigio"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    tipo: Mapped[str] = mapped_column(String(10), index=True)  # pegada | fezes | sinal
+    nome_cientifico: Mapped[str] = mapped_column(String(120))
+    nome_popular: Mapped[str] = mapped_column(String(120))
+    dados: Mapped[dict] = mapped_column(JSON)  # faixas de medidas e características (ver vestigios/guia_base.py)
+    descricao: Mapped[str | None] = mapped_column(Text)
+    ativa: Mapped[bool] = mapped_column(Boolean, default=True)
+    editada: Mapped[bool] = mapped_column(Boolean, default=False)
+
+
+class Vestigio(Base):
+    """Foto de vestígio (pegada, fezes, arranhado, toca...) tirada em campo, com a caracterização e a identificação."""
+
+    __tablename__ = "vestigio"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    campanha_id: Mapped[int] = mapped_column(ForeignKey("campanha.id"), index=True)
+    ponto_id: Mapped[int | None] = mapped_column(ForeignKey("ponto.id"))
+    origem: Mapped[str] = mapped_column(String(400))  # caminho do arquivo de origem (nunca é apagado)
+    nome_original: Mapped[str] = mapped_column(String(260))
+    sha256: Mapped[str] = mapped_column(String(64), index=True)
+    tamanho: Mapped[int] = mapped_column(Integer)
+    caminho_final: Mapped[str] = mapped_column(String(400))  # relativo à pasta Dados
+    data: Mapped[dt.datetime | None] = mapped_column(DateTime)
+    fonte_data: Mapped[str | None] = mapped_column(String(12))  # exif | arquivo
+    latitude: Mapped[float | None] = mapped_column(Float)  # GPS do celular, quando houver
+    longitude: Mapped[float | None] = mapped_column(Float)
+    tipo: Mapped[str | None] = mapped_column(String(10))  # pegada | fezes | sinal
+    caracteristicas: Mapped[dict | None] = mapped_column(JSON)
+    sugestoes: Mapped[list | None] = mapped_column(JSON)  # comparação com o guia (calculada, nunca inventada)
+    resultado: Mapped[str | None] = mapped_column(String(14))  # especie | indeterminado (None = não validado)
+    especie_id: Mapped[int | None] = mapped_column(ForeignKey("especie.id"))
+    sugestao_aceita: Mapped[bool | None] = mapped_column(Boolean)  # a 1ª sugestão do guia era a espécie validada?
+    observacao: Mapped[str | None] = mapped_column(Text)
+    importado_em: Mapped[dt.datetime] = mapped_column(DateTime, default=agora)
+    validado_em: Mapped[dt.datetime | None] = mapped_column(DateTime)
+
+    campanha: Mapped[Campanha] = relationship()
+    ponto: Mapped[Ponto | None] = relationship()
+    especie: Mapped[Especie | None] = relationship()
+
+
 def conectar(caminho: Path):
     """Cria o banco (se preciso) e devolve uma fábrica de sessões."""
     caminho = Path(caminho)

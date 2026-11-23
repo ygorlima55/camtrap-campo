@@ -1,0 +1,95 @@
+{% from "_icones.html" import icone %}
+{% set p = r.proximo %}
+<section class="proximo">
+  <span class="icone-grande">{{ icone(p.icone, 26) }}</span>
+  <div><span class="rotulo">Próximo passo</span><h2>{{ p.titulo }}</h2><p>{{ p.texto }}</p></div>
+  <a class="botao" href="{{ p.href }}">{{ p.botao }} {{ icone('seta', 16) }}</a>
+</section>
+
+<div class="indicadores">
+  <a class="indicador" href="/cameras">
+    <div class="topo">Mídias no acervo {{ icone('foto') }}</div>
+    <div class="valor">{{ '{:,}'.format(r.midias).replace(',', '.') }}</div>
+    <div class="detalhe">{{ r.fotos }} fotos · {{ r.videos }} vídeos</div>
+  </a>
+  <a class="indicador" href="/tarefas">
+    <div class="topo">Analisadas pela IA {{ icone('ia') }}</div>
+    <div class="valor">{{ r.pct_analisadas }}%</div>
+    <div class="detalhe">{{ r.analisadas }} de {{ r.midias }}</div>
+    <progress max="100" value="{{ r.pct_analisadas }}"></progress>
+  </a>
+  <a class="indicador" href="{{ ('/revisao/' ~ r.a_revisar[0][0].id ~ '?pendentes=1') if r.a_revisar else '/analises' }}">
+    <div class="topo">Registros confirmados {{ icone('check') }}</div>
+    <div class="valor">{{ r.confirmadas }}</div>
+    <div class="detalhe">{% set pend = r.a_revisar|sum(attribute=1) %}{% if pend %}{{ pend }} sequência(s) a revisar{% else %}nada pendente de revisão{% endif %}</div>
+  </a>
+  <a class="indicador" href="/analises">
+    <div class="topo">Espécies registradas {{ icone('especies') }}</div>
+    <div class="valor">{{ r.n_especies }}</div>
+    <div class="detalhe">{{ r.cameras }} câmeras · {{ r.pontos }} pontos · {{ r.campanhas }} campanhas</div>
+  </a>
+</div>
+
+<div class="duas-colunas">
+  <section class="painel">
+    <div class="titulo-painel"><h2>Mídias por dia</h2><small>últimos 30 dias com registro</small></div>
+    {% if r.por_dia %}
+    {% set maior = (r.por_dia|map(attribute=1)|max) or 1 %}
+    <div class="barras" role="img" aria-label="Mídias por dia">
+      {% for d, n in r.por_dia %}<div class="barra{% if not n %} zero{% endif %}" style="height:{{ [100 * n / maior, 3]|max }}%"
+        title="{{ d.strftime('%d/%m/%Y') }}: {{ n }} mídia(s)"></div>{% endfor %}
+    </div>
+    <div class="eixo"><span>{{ r.por_dia[0][0].strftime('%d/%m') }}</span><span>{{ r.por_dia[-1][0].strftime('%d/%m/%Y') }}</span></div>
+    {% else %}<p class="vazio">O gráfico aparece depois da primeira importação.</p>{% endif %}
+  </section>
+  <section class="painel">
+    <div class="titulo-painel"><h2>Espécies mais registradas</h2><a href="/analises">Análises</a></div>
+    {% if r.ranking %}
+    {% set topo = r.ranking[0].n %}
+    <ul class="ranking">
+      {% for nome, cientifico, n in r.ranking %}
+      <li><div class="linha-rank"><span>{{ nome }} <small><em>{{ cientifico }}</em></small></span><strong>{{ n }}</strong></div>
+        <div class="trilho"><i style="width:{{ 100 * n / topo }}%"></i></div></li>
+      {% endfor %}
+    </ul>
+    {% else %}<p class="vazio">Aparece quando você confirmar identificações na revisão.</p>{% endif %}
+  </section>
+</div>
+
+<div class="duas-colunas">
+  <section class="painel">
+    <div class="titulo-painel"><h2>Cartões e pastas</h2><small>verificado a cada 6 s</small></div>
+    {% include "_cartoes.html" %}
+  </section>
+  <section class="painel">
+    <div class="titulo-painel"><h2>Fila da IA</h2><a href="/tarefas">Tarefas</a></div>
+    {% if r.tarefas %}
+    <div class="lista-tarefas">
+      {% for t in r.tarefas %}{% set pct = (100 * t.feitos / t.total) if t.total else 0 %}
+      <div class="tarefa">
+        <div><span>{{ 'IA' if t.tipo == 'ia' else 'Áudio' }} · importação #{{ t.importacao_id }}</span><span class="estado {{ t.estado }}">{{ t.estado }}</span></div>
+        <progress max="100" value="{{ pct|round }}"></progress>
+        <div><small>{{ t.feitos }}/{{ t.total }} arquivos{% if t.falhas %} · {{ t.falhas }} falha(s){% endif %}</small></div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}<p class="vazio">Nenhuma tarefa em andamento.</p>{% endif %}
+  </section>
+</div>
+
+<section>
+  <div class="titulo-painel"><h2>Importações recentes</h2></div>
+  {% if r.recentes %}
+  <table>
+    <tr><th>#</th><th>Data</th><th>Campanha</th><th>Ponto</th><th>Câmera</th><th>Arquivos</th><th>Situação</th></tr>
+    {% for imp in r.recentes %}
+    <tr>
+      <td><a href="/importacoes/{{ imp.id }}">{{ imp.id }}</a></td>
+      <td>{{ imp.iniciada_em|dh }}</td><td>{{ imp.campanha.nome }}</td><td>{{ imp.ponto.nome }}</td>
+      <td>{{ imp.camera.etiqueta }}</td><td>{{ imp.copiados }} novos · {{ imp.duplicados }} repetidos</td>
+      <td><span class="estado {{ imp.estado }}">{{ imp.estado.replace('_', ' ') }}</span></td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}<p class="vazio">Nenhuma importação ainda.</p>{% endif %}
+</section>

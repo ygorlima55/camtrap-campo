@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block titulo %}{{ c.nome }} · Campanhas · CamTrap Campo{% endblock %}
+{% block conteudo %}
+{% macro caminho(rel) %}{{ pasta_dados }}\{{ rel|replace('/', '\\') }}{% endmacro %}
+<div class="cabecalho-pagina">
+  <div><h1>{{ c.nome }}</h1>
+    <p><strong>{{ r.fotos }}</strong> fotos · <strong>{{ r.videos }}</strong> vídeos · {{ r.cameras }} câmera(s) ·
+      {{ r.pontos }} ponto(s) · <a href="/vestigios?campanha={{ c.id }}">{{ r.vestigios }} foto(s) de vestígios</a></p></div>
+  <div class="acoes-topo">
+    <a class="botao secundario" href="/validacao?campanha={{ c.id }}">Validação</a>
+    <a class="botao secundario" href="/analises?campanha={{ c.id }}">Análises</a>
+    <a class="botao secundario" href="/campanhas/{{ c.id }}/checklist">Checklist de campo</a>
+  </div>
+</div>
+{% if aberta %}<p class="alerta info">A pasta foi aberta no Explorador de Arquivos (veja a barra de tarefas).</p>{% endif %}
+
+<h2>Onde estão os arquivos</h2>
+{% if r.blocos %}
+<table>
+  <tr><th>Ponto</th><th>Câmera</th><th>Fotos</th><th>Vídeos</th><th>Período</th><th>Pasta</th><th></th></tr>
+  {% for b in r.blocos %}
+  <tr>
+    <td>{{ b.ponto }}</td><td><a href="/cameras/{{ b.camera_id }}">{{ b.camera }}</a></td>
+    <td><a href="/campanhas/{{ c.id }}?camera={{ b.camera_id }}&ponto={{ b.ponto_id }}&tipo=foto#previa">{{ b.fotos }}</a></td>
+    <td>{% if b.videos %}<a href="/campanhas/{{ c.id }}?camera={{ b.camera_id }}&ponto={{ b.ponto_id }}&tipo=video#previa">{{ b.videos }}</a>{% else %}0{% endif %}</td>
+    <td>{% if b.primeira %}{{ b.primeira.strftime('%d/%m/%Y') }} a {{ b.ultima.strftime('%d/%m/%Y') }}{% else %}—{% endif %}</td>
+    <td>{% if b.pasta %}<code class="caminho">{{ caminho(b.pasta) }}</code>{% if b.outras_pastas %} <small>(+{{ b.outras_pastas }} pasta(s))</small>{% endif %}{% endif %}</td>
+    <td>{% if b.pasta %}<form method="post" action="/campanhas/{{ c.id }}/abrir"><input type="hidden" name="pasta" value="{{ b.pasta }}">
+      <button type="submit" title="Abre a pasta no Explorador de Arquivos">Abrir pasta</button></form>{% endif %}</td>
+  </tr>
+  {% endfor %}
+  {% if r.pasta_vestigios %}
+  <tr><td colspan="2">Vestígios</td><td colspan="3">{{ r.vestigios }} foto(s)</td>
+    <td><code class="caminho">{{ caminho(r.pasta_vestigios) }}</code></td>
+    <td><form method="post" action="/campanhas/{{ c.id }}/abrir"><input type="hidden" name="pasta" value="{{ r.pasta_vestigios }}">
+      <button type="submit">Abrir pasta</button></form></td></tr>
+  {% endif %}
+</table>
+{% else %}
+<p class="vazio">Nenhuma foto ou vídeo importado nesta campanha.</p>
+{% endif %}
+
+<h2 id="previa">Pré-visualização</h2>
+<form class="formulario linha" method="get" action="/campanhas/{{ c.id }}#previa">
+  <label>Câmera / ponto <select name="camera" onchange="this.form.ponto.value = this.selectedOptions[0].dataset.ponto || ''">
+    <option value="">todas</option>
+    {% for b in r.blocos %}<option value="{{ b.camera_id }}" data-ponto="{{ b.ponto_id }}"{% if b.camera_id == camera and b.ponto_id == ponto %} selected{% endif %}>{{ b.camera }} · {{ b.ponto }}</option>{% endfor %}
+  </select></label>
+  <input type="hidden" name="ponto" value="{{ ponto or '' }}">
+  <label>Mostrar <select name="tipo">
+    {% for k, n in [('foto', 'fotos'), ('video', 'vídeos'), ('todos', 'fotos e vídeos')] %}<option value="{{ k }}"{% if k == tipo %} selected{% endif %}>{{ n }}</option>{% endfor %}</select></label>
+  <button class="botao" type="submit">Filtrar</button>
+  <span class="ajuda">{{ total }} arquivo(s){% if paginas > 1 %} · página {{ pagina_n }} de {{ paginas }}{% endif %}</span>
+</form>
+
+{% if midias %}
+<div class="grade-previa">
+  {% for m in midias %}
+  <figure class="previa-item">
+    {% if m.a.tipo == 'foto' %}<a href="/arquivos/{{ m.a.id }}/miniatura?tamanho=1600" target="_blank">
+      <img src="/arquivos/{{ m.a.id }}/miniatura?tamanho=300" alt="{{ m.a.nome_original }}" loading="lazy"></a>
+    {% else %}<div class="sem-imagem video">▶ vídeo{% if m.a.video and m.a.video.duracao_s %} · {{ m.a.video.duracao_s|round(1) }} s{% endif %}</div>{% endif %}
+    <figcaption>{{ m.a.data.strftime('%d/%m/%Y %H:%M') if m.a.data else 'sem data' }} · {{ m.camera }} · {{ m.ponto }}
+      <br><code title="{{ caminho(m.a.caminho_final) }}">{{ m.a.caminho_final.rsplit('/', 1)[-1] }}</code></figcaption>
+  </figure>
+  {% endfor %}
+</div>
+{% if paginas > 1 %}
+{% set base = '/campanhas/' ~ c.id ~ '?' ~ ({'camera': camera or '', 'ponto': ponto or '', 'tipo': tipo}|urlencode) %}
+<nav class="paginacao">
+  {% if pagina_n > 1 %}<a class="botao secundario" href="{{ base }}&pagina_n={{ pagina_n - 1 }}#previa">← Anteriores</a>{% endif %}
+  <span>página {{ pagina_n }} de {{ paginas }}</span>
+  {% if pagina_n < paginas %}<a class="botao secundario" href="{{ base }}&pagina_n={{ pagina_n + 1 }}#previa">Próximas →</a>{% endif %}
+</nav>
+{% endif %}
+{% else %}
+<p class="vazio">Nada para mostrar com esse filtro.</p>
+{% endif %}
+
+{% if vestigios %}
+<h2>Vestígios desta campanha</h2>
+<div class="grade-previa">
+  {% for v in vestigios %}
+  <a class="previa-item" href="/vestigios/{{ v.id }}"><img src="/vestigios/{{ v.id }}/foto?tamanho=300" alt="Vestígio {{ v.id }}" loading="lazy">
+    <figcaption>{{ v.data.strftime('%d/%m/%Y') if v.data else 'sem data' }} · {{ v.ponto.nome if v.ponto else 'sem ponto' }}
+      {% if v.especie %}<br>✓ {{ v.especie.nome_popular }}{% endif %}</figcaption></a>
+  {% endfor %}
+</div>
+{% if r.vestigios > vestigios|length %}<p><a href="/vestigios?campanha={{ c.id }}">Ver todos os {{ r.vestigios }} vestígios →</a></p>{% endif %}
+{% endif %}
+{% endblock %}
