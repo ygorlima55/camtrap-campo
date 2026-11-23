@@ -29,7 +29,8 @@ def exportar_tudo(sessao, an: Analise, relatorio_html: str, autor: str = "") -> 
         "csv/                  as mesmas tabelas em CSV\n"
         "camtrap-dp/           pacote Camtrap DP 1.0 (datapackage.json + 3 tabelas)\n"
         "camtrapR/             CTtable.csv e recordTable.csv no formato do pacote R camtrapR\n\n"
-        f"Intervalo de independência: {an.intervalo_min} min. Só identificações confirmadas na revisão.\n",
+        f"Intervalo de independência: {an.intervalo_min} min. Só identificações confirmadas na revisão.\n"
+        + ("\nAVISOS\n" + "".join(f"- {a}\n" for a in an.avisos) if an.avisos else ""),
         encoding="utf-8")
     zip_base = shutil.make_archive(str(base), "zip", root_dir=base)
     return Path(zip_base)

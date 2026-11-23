@@ -31,6 +31,21 @@ class MotorIndisponivel(RuntimeError):
     pass
 
 
+def descrever(sug: dict | None) -> str | None:
+    """Nome legível de uma sugestão: espécie/gênero, ou o grupo mais fino (ex.: "rodent (ordem Rodentia)")."""
+    if not sug:
+        return None
+    if sug.get("nome_cientifico"):
+        return sug["nome_cientifico"]
+    for nivel in ("familia", "ordem", "classe"):
+        if sug.get(nivel):
+            rotulo = {"familia": "família", "ordem": "ordem", "classe": "classe"}[nivel]
+            comum = sug.get("nome_popular_en")
+            return f"{comum} ({rotulo} {sug[nivel].capitalize()})" if comum else f"{rotulo} {sug[nivel].capitalize()}"
+    rotulo = sug.get("nome_popular_en") or sug.get("rotulo")
+    return rotulo.split(";")[-1] if rotulo else None
+
+
 def interpretar_rotulo(rotulo: str | None) -> dict:
     """Rótulo SpeciesNet 'uuid;classe;ordem;família;gênero;espécie;nome comum' → partes legíveis."""
     if not rotulo:

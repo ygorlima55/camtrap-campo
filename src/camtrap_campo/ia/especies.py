@@ -67,6 +67,34 @@ INICIAIS: list[tuple[str, str, str, str]] = [
     ("Lepus europaeus", "lebre-europeia (exótica)", "exótico", ""),
 ]
 
+# Nomes usados pelo SpeciesNet (ou nomes antigos) → nome adotado na lista acima. Sem isto, a sugestão da IA não
+# encontra a espécie e a sequência cai em "espécie a definir".
+SINONIMOS = {
+    "pecari tajacu": "Dicotyles tajacu", "tayassu tajacu": "Dicotyles tajacu",
+    "mazama gouazoubira": "Subulo gouazoubira",
+    "puma yagouaroundi": "Herpailurus yagouaroundi", "felis yagouaroundi": "Herpailurus yagouaroundi",
+    "leopardus tigrinus": "Leopardus guttulus",  # no sul/sudeste do Brasil, o "tigrinus" das listas antigas é o guttulus
+    "cebus nigritus": "Sapajus nigritus", "cebus libidinosus": "Sapajus libidinosus",
+    "sciurus aestuans": "Guerlinguetus brasiliensis", "guerlinguetus aestuans": "Guerlinguetus brasiliensis",
+    "agouti paca": "Cuniculus paca", "canis lupus familiaris": "Canis familiaris", "canis lupus": "Canis familiaris",
+    "dasyprocta azarai": "Dasyprocta azarae", "coendou prehensilis": "Coendou spinosus",
+    "equus ferus caballus": "Equus caballus", "tupinambis merianae": "Salvator merianae",
+}
+
+
+def nome_aceito(nome_cientifico: str | None) -> str | None:
+    """Nome da lista do programa para um nome científico (resolve sinônimos); None se vazio."""
+    if not nome_cientifico:
+        return None
+    return SINONIMOS.get(nome_cientifico.strip().lower(), nome_cientifico.strip())
+
+
+def procurar(por_nome: dict, nome_cientifico: str | None):
+    """``por_nome``: {nome científico em minúsculas: Especie}. Aceita sinônimos."""
+    aceito = nome_aceito(nome_cientifico)
+    return por_nome.get(aceito.lower()) if aceito else None
+
+
 COMPORTAMENTOS = ["deslocamento", "forrageio", "vigilância", "descanso", "interação social", "marcação de território",
                   "com filhote", "outro"]
 

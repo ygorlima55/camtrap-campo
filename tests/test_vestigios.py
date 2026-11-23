@@ -8,7 +8,7 @@ from fastapi.testclient import TestClient
 from openpyxl import load_workbook
 from PIL import Image
 from PIL.TiffImagePlugin import IFDRational
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from camtrap_campo import amostras
 from camtrap_campo.db import Campanha, GuiaVestigio, Vestigio
@@ -167,3 +167,44 @@ def test_campanhas(ambiente, tmp_path, pasta_vestigios, monkeypatch):
     assert c.post(f"/campanhas/{cid}/abrir", data={"pasta": "Seca2026/Ponto-1/P7"}).status_code == 200
     assert abertas and abertas[0].name == "P7"
     assert c.post(f"/campanhas/{cid}/abrir", data={"pasta": "../.."}, follow_redirects=False).status_code == 400
+
+
+def test_arquivos_danificados_na_importacao(ambiente, tmp_path):
+    """Cartão recuperado: foto/vídeo só com zeros ou embaralhados são guardados à parte, sem lixo em .parcial."""
+    from camtrap_campo.db import Alerta, Arquivo, Importacao
+    from camtrap_campo.importacao.copiar import importar
+
+    cartao = amostras.cartao_bushnell(tmp_path / "cartao")
+    pasta = cartao / "DCIM" / "100EK113"
+    (pasta / "ZERADA01.JPG").write_bytes(bytes(5000))
+    (pasta / "EMBARALHADA.JPG").write_bytes(b"\x12\x34" * 4000)
+    (pasta / "ZERADO.AVI").write_bytes(bytes(9000))
+    imp_id = importar(ambiente["fabrica"], cartao, "P7", "Ponto 1", "Seca2026")
+    with ambiente["fabrica"]() as s:
+        imp = s.get(Importacao, imp_id)
+        danificados = s.scalars(select(Arquivo).where(Arquivo.tipo == "danificado")).all()
+        assert imp.estado == "concluida" and imp.erros == 0
+        assert sorted(a.nome_original for a in danificados) == ["EMBARALHADA.JPG", "ZERADA01.JPG", "ZERADO.AVI"]
+        assert all("/_danificados/" in a.caminho_final and (ambiente["dados"] / a.caminho_final).is_file() for a in danificados)
+        assert "zerado" in next(a.detalhe for a in danificados if a.nome_original == "ZERADO.AVI")
+        alerta = s.scalar(select(Alerta).where(Alerta.tipo == "danificados"))
+        assert alerta and alerta.mensagem.startswith("3 foto(s)/vídeo(s) danificado(s)")
+        assert s.scalar(select(func.count()).select_from(Arquivo).where(Arquivo.tipo == "foto")) == 5
+    assert not list((ambiente["dados"]).rglob(".parcial/*"))
+
+
+def test_tempo_restante_e_porcentagem(ambiente, monkeypatch):
+    from camtrap_campo.web.app import tempo_restante
+
+    agora = dt.datetime.now()
+    assert tempo_restante(agora - dt.timedelta(minutes=10), 10, 30) == "≈ 20 min restantes"
+    assert tempo_restante(agora - dt.timedelta(hours=1), 10, 40) == "≈ 3,0 h restantes"
+    assert tempo_restante(agora - dt.timedelta(seconds=30), 29, 30) == "≈ menos de 1 min restante"
+    assert tempo_restante(None, 5, 10) == "" and tempo_restante(agora, 0, 10) == "" and tempo_restante(agora, 10, 10) == ""
+    from camtrap_campo.db import Tarefa
+    with ambiente["fabrica"]() as s:
+        s.add(Tarefa(tipo="ia", estado="executando", total=40, feitos=10, iniciada_em=agora - dt.timedelta(minutes=5)))
+        s.commit()
+    c = TestClient(criar_app(ambiente["fabrica"], sincrono=True, extras_cartoes=[]))
+    lista = c.get("/tarefas/lista").text
+    assert "<b>25%</b>" in lista and "≈ 15 min restantes" in lista

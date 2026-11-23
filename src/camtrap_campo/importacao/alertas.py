@@ -29,6 +29,14 @@ def gerar(imp, campanha=None, hoje: dt.datetime | None = None) -> list[dict]:
                 f"{a.nome_original}: data do EXIF ({a.data_original}) difere da faixa do rodapé "
                 f"({a.rodape.get('data')})")))
 
+    danificados = [a for a in todos if a.tipo == "danificado"]
+    if danificados:
+        zerados = sum(1 for a in danificados if "zerado" in (a.detalhe or ""))
+        out.append(dict(arquivo_id=danificados[0].id, tipo="danificados", nivel="erro", mensagem=(
+            f"{len(danificados)} foto(s)/vídeo(s) danificado(s) na origem ({zerados} só com zeros), ex.: "
+            f"{danificados[0].caminho_cartao} — {danificados[0].detalhe}. Foram copiados para a pasta _danificados "
+            "e ficam fora da IA e das análises. Comum em cartões recuperados ou com defeito; se a origem é do OneDrive, "
+            "confira se os arquivos abrem no computador.")))
     midias = [a for a in todos if a.tipo in ("foto", "video") and a.estado != "erro"]
     if not midias:
         orfaos = sum(1 for a in todos if a.tipo == "appledouble")

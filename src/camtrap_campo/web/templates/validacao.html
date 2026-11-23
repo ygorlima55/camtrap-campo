@@ -59,7 +59,7 @@
       <button type="button" class="ampliar" title="Ampliar (Z)" aria-label="Ampliar">⤢</button>
       <div class="legenda">{{ i.inicio.strftime('%d/%m/%Y %H:%M') if i.inicio else 'sem data' }} · {{ i.camera }} · {{ i.ponto }}
         {% if i.n_fotos > 1 %}· {{ i.n_fotos }} fotos{% endif %}
-        {% if not g.especie %}<br><small>{{ i.sugestao }}</small>{% endif %}</div>
+        {% if g.chave == 'sem-especie' %}<br><small>{{ i.sugestao }}</small>{% endif %}</div>
     </div>
     {% endfor %}
   </div>
@@ -190,7 +190,8 @@
   const voltar = sessionStorage.getItem('validacao-grupo');
   sessionStorage.removeItem('validacao-grupo');
   const g = voltar && document.getElementById(voltar);
-  focar((g && (g.querySelector('.v-item.sugerida') || g.querySelector('.v-item'))) || document.querySelector('.v-item.sugerida') || itens[0]);
+  // volta ao grupo; se ele já foi todo validado, segue para o próximo que ainda tem pendências
+  focar((g && g.querySelector('.v-item.sugerida')) || document.querySelector('.v-item.sugerida') || (g && g.querySelector('.v-item')) || itens[0]);
 })();
 </script>
 {% endblock %}

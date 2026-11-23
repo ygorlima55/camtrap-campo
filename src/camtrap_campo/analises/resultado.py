@@ -59,7 +59,8 @@ def analisar(sessao, campanha_id: int, intervalo_min: int = 30) -> Analise:
         avisos.append(f"{c.ignorados_relogio} identificação(ões) ignorada(s): relógio resetado sem correção de horário.")
     sem_coord = sorted(p["ponto"] for p in pontos if p["latitude"] is None or p["longitude"] is None)
     if sem_coord:
-        avisos.append("Pontos sem coordenadas (atividade em hora do relógio e fora do mapa): " + ", ".join(sem_coord))
+        avisos.append("Pontos sem coordenadas (atividade em hora do relógio, fora do mapa, e o pacote Camtrap DP não passa na "
+                      "validação do GBIF; cadastre em Cadastros → Pontos): " + ", ".join(sem_coord))
     sem_periodo = [f"{e.ponto}/{e.camera}" for e in esf if not e.camaras_dia]
     if sem_periodo:
         avisos.append("Estações sem período de operação conhecido (sem esforço): " + ", ".join(sem_periodo))

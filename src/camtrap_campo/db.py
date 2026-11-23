@@ -80,7 +80,7 @@ class Arquivo(Base):
     importacao_id: Mapped[int] = mapped_column(ForeignKey("importacao.id"), index=True)
     caminho_cartao: Mapped[str] = mapped_column(String(400))  # relativo à raiz do cartão
     nome_original: Mapped[str] = mapped_column(String(260))
-    tipo: Mapped[str] = mapped_column(String(12))  # foto | video | appledouble | outro
+    tipo: Mapped[str] = mapped_column(String(12))  # foto | video | appledouble | danificado | outro
     oculto: Mapped[bool] = mapped_column(Boolean, default=False)
     tamanho: Mapped[int] = mapped_column(Integer)
     sha256: Mapped[str | None] = mapped_column(String(64), index=True)
@@ -300,13 +300,14 @@ def conectar(caminho: Path):
     """Cria o banco (se preciso) e devolve uma fábrica de sessões."""
     caminho = Path(caminho)
     caminho.parent.mkdir(parents=True, exist_ok=True)
-    motor = create_engine(f"sqlite:///{caminho}", connect_args={"check_same_thread": False})
+    motor = create_engine(f"sqlite:///{caminho}", connect_args={"check_same_thread": False, "timeout": 60})
 
     @event.listens_for(motor, "connect")
     def _pragmas(con, _):
         cur = con.cursor()
         cur.execute("PRAGMA foreign_keys=ON")
         cur.execute("PRAGMA journal_mode=WAL")  # leitura da interface enquanto a importação grava
+        cur.execute("PRAGMA busy_timeout=60000")  # várias importações/IA ao mesmo tempo: espera a vez em vez de falhar
         cur.close()
 
     Base.metadata.create_all(motor)

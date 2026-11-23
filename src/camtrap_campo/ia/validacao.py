@@ -11,7 +11,8 @@ from collections import defaultdict
 from sqlalchemy import select
 
 from camtrap_campo.db import Arquivo, Deteccao, Especie, Importacao, Inferencia, Revisao
-from camtrap_campo.ia import revisao
+from camtrap_campo.ia import especies as lista_especies
+from camtrap_campo.ia import motor, revisao
 
 CONFIANCA_ALTA = 0.80  # a partir daqui a sugestão já vem marcada para validar com Enter
 ROTULOS = {"pessoa": "Pessoa", "veiculo": "Veículo", "vazio": "Vazio (falso disparo)", "indeterminado": "Indeterminado",
@@ -46,7 +47,7 @@ def capa(arquivos: list[Arquivo], deteccoes: dict[int, list[Deteccao]], tamanho:
 
 
 def _texto_sugestao(sug: dict) -> str:
-    nome = sug.get("nome_cientifico") or sug.get("rotulo") or sug.get("nome_popular_en")
+    nome = motor.descrever(sug)
     return f"IA: {nome} {round(100 * sug.get('confianca', 0))}%" if nome else "IA sem sugestão de espécie"
 
 
@@ -148,7 +149,8 @@ def registros_validados(sessao, campanha_id: int | None = None, camera_id: int |
             "longitude": imp.ponto.longitude, "quantidade": r.quantidade, "comportamento": r.comportamento,
             "divulgacao": r.divulgacao, "observacao": r.observacao, "revisado_em": r.revisado_em,
             "sugestao_ia": nome_ia, "confianca_ia": sug.get("confianca"),
-            "ia_concordou": None if not nome_ia else nome_ia.lower() == r.especie.nome_cientifico.lower(),
+            "ia_concordou": (None if not nome_ia
+                             else lista_especies.nome_aceito(nome_ia).lower() == r.especie.nome_cientifico.lower()),
             "arquivos": [a.caminho_final for a in arquivos], "capa": capa(arquivos, dets, 900),
             "capa_conf": max((d.confianca for a in arquivos for d in dets.get(a.id, [])), default=0)})
     saida.sort(key=lambda x: (x["especie"].nome_popular, x["data"] or dt.datetime.min))

@@ -34,6 +34,21 @@ def _numero(texto: str | None) -> float | None:
     return float(texto.replace(",", ".")) if texto and texto.strip() else None
 
 
+def tempo_restante(inicio: dt.datetime | None, feitos: int, total: int) -> str:
+    """Estimativa simples pelo ritmo até agora ("≈ 12 min restantes"); vazio enquanto não há base para estimar."""
+    if not inicio or not feitos or feitos >= total:
+        return ""
+    gasto = (dt.datetime.now() - inicio).total_seconds()
+    if gasto < 5:
+        return ""
+    falta = gasto / feitos * (total - feitos)
+    if falta < 60:
+        return "≈ menos de 1 min restante"
+    if falta < 3600:
+        return f"≈ {round(falta / 60)} min restantes"
+    return f"≈ {falta / 3600:.1f} h restantes".replace(".", ",")
+
+
 def criar_app(fabrica=None, sincrono: bool = False, extras_cartoes: list[str] | None = None) -> FastAPI:
     """``sincrono`` roda a importação na própria requisição (testes); ``extras_cartoes`` simula cartões."""
     fabrica = fabrica or conectar(config.caminho_banco())
@@ -42,7 +57,7 @@ def criar_app(fabrica=None, sincrono: bool = False, extras_cartoes: list[str] | 
     app = FastAPI(title="CamTrap Campo", version=__version__)
     app.mount("/static", StaticFiles(directory=AQUI / "static"), name="static")
     tpl = Jinja2Templates(directory=AQUI / "templates")
-    tpl.env.globals.update(versao=__version__, descrever_deslocamento=horario.descrever,
+    tpl.env.globals.update(versao=__version__, descrever_deslocamento=horario.descrever, tempo_restante=tempo_restante,
                            css_v=int((AQUI / "static" / "estilo.css").stat().st_mtime))  # evita CSS antigo em cache
     tpl.env.filters["dh"] = lambda d: d.strftime("%d/%m/%Y %H:%M:%S") if d else "—"
 

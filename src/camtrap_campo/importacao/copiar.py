@@ -19,6 +19,7 @@ import unicodedata
 from collections.abc import Callable
 from pathlib import Path
 
+from PIL import Image
 from sqlalchemy import select
 
 from camtrap_campo import config
@@ -83,6 +84,30 @@ def _copiar_com_hash(origem: Path, destino: Path) -> str:
         os.fsync(fd.fileno())
     shutil.copystat(origem, destino)
     return h.hexdigest()
+
+
+ASSINATURAS_VIDEO = {b"ftyp", b"moov", b"mdat", b"wide", b"free", b"skip"}  # MP4/MOV/3GP (bytes 4–8)
+
+
+def diagnosticar_midia(caminho: Path, tipo: str) -> str | None:
+    """Motivo, se a foto/vídeo está danificado (só zeros ou corrompido); None se parece íntegro.
+
+    Acontece com cartões recuperados por programas de recuperação e com cópias de cartões com defeito."""
+    with caminho.open("rb") as f:
+        inicio = f.read(65536)
+    if not inicio.strip(b"\x00"):
+        return "conteúdo zerado (só zeros)"
+    if tipo == "foto":
+        if inicio[:2] != b"\xff\xd8":
+            return "não é um JPEG válido (início do arquivo corrompido)"
+        try:
+            with Image.open(caminho) as im:
+                im.verify()
+        except Exception as exc:  # noqa: BLE001 — qualquer falha de leitura = imagem ilegível
+            return f"imagem ilegível ({type(exc).__name__})"
+    elif tipo == "video" and inicio[:4] != b"RIFF" and inicio[4:8] not in ASSINATURAS_VIDEO:
+        return "não é um vídeo válido (início do arquivo corrompido)"
+    return None
 
 
 def _livre(caminho: Path) -> Path:
@@ -165,7 +190,9 @@ def importar(fabrica_sessao, origem: Path, camera: str, ponto: str, campanha: st
             rel = caminho.relative_to(origem).as_posix()
             arq = Arquivo(importacao_id=imp_id, caminho_cartao=rel, nome_original=caminho.name, tipo=tipo_de(caminho),
                           oculto=_oculto(caminho), tamanho=caminho.stat().st_size, estado="erro")
-            s.add(arq)
+            # o registro só entra na sessão no fim: enquanto copia e lê EXIF/rodapé (lento), o banco fica livre
+            # para as outras importações e para a interface
+            temp = None
             try:
                 temp = _livre(parcial / f"{imp_id}_{i}{caminho.suffix}")
                 hash_origem = _copiar_com_hash(caminho, temp)
@@ -185,8 +212,13 @@ def importar(fabrica_sessao, origem: Path, camera: str, ponto: str, campanha: st
                     if sha256(temp) != hash_origem:
                         raise OSError("hash da cópia difere do cartão")
                     _, arq.contador_original, _ = classificar(caminho.stem)
-                    _metadados(arq, temp)
-                    if arq.tipo in ("foto", "video"):
+                    motivo = diagnosticar_midia(temp, arq.tipo) if arq.tipo in ("foto", "video") else None
+                    if motivo:  # guarda a cópia (nada do cartão se perde), mas fora das fotos/vídeos e da IA
+                        arq.detalhe = f"{'foto danificada' if arq.tipo == 'foto' else 'vídeo danificado'}: {motivo}"
+                        arq.tipo = "danificado"
+                        final = _livre(destino / "_danificados" / rel)
+                    elif arq.tipo in ("foto", "video"):
+                        _metadados(arq, temp)
                         nome = nome_final(campanha, ponto, camera, arq.data_original, arq.contador_original or i, caminho.suffix)
                         final = _livre(destino / nome)
                     else:
@@ -199,7 +231,10 @@ def importar(fabrica_sessao, origem: Path, camera: str, ponto: str, campanha: st
             except OSError as exc:
                 arq.detalhe = f"{type(exc).__name__}: {exc}"
                 imp.erros += 1
+                if temp is not None:
+                    temp.unlink(missing_ok=True)  # não deixa cópia pela metade em .parcial
             imp.processados = i
+            s.add(arq)
             s.commit()
             if progresso:
                 progresso(i, len(arquivos))

@@ -342,3 +342,8 @@ p.rotulo { margin: .6rem 0 .3rem; font-size: .84rem; font-weight: 600; color: va
 code.caminho { font-size: .76rem; overflow-wrap: anywhere; }
 .paginacao { display: flex; gap: 1rem; align-items: center; justify-content: center; margin: .5rem 0 1.5rem; }
 .ficha-vestigio .formulario, .guia-item .formulario { max-width: none; } .guia-item .formulario { padding: 0; background: none; box-shadow: none; border: 0; backdrop-filter: none; }
+
+/* barra de progresso com a porcentagem ao lado */
+.barra-pct { display: flex; align-items: center; gap: .6rem; }
+.barra-pct progress { flex: 1; min-width: 0; }
+.barra-pct b { min-width: 3.2ch; text-align: right; font-variant-numeric: tabular-nums; color: var(--acento); }

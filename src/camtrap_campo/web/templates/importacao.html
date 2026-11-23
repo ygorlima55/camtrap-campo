@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block titulo %}Importação #{{ imp.id }} · CamTrap Campo{% endblock %}
 {% block conteudo %}
 <h1>Importação #{{ imp.id }} — {{ imp.campanha.nome }} / {{ imp.ponto.nome }} / {{ imp.camera.etiqueta }}</h1>
 <p>Origem <code>{{ imp.origem }}</code> · iniciada {{ imp.iniciada_em|dh }}
@@ -45,7 +46,8 @@
     <td>{{ a.tipo }}</td><td>{{ a.estado }}</td>
     <td>{{ a.data_original|dh }}</td><td>{{ a.data_corrigida|dh }}</td><td>{{ a.fonte_data or '—' }}</td>
     <td><code>{{ (a.caminho_final or '').split('/')[-1] }}</code>{% if a.detalhe %}<br><small>{{ a.detalhe }}</small>{% endif %}</td>
-    <td>{% if a.rodape and a.rodape.disponivel %}{{ a.rodape.get('temperatura_c', '?') }} °C {{ a.rodape.get('nome_camera', '') }}
+    <td>{% if a.rodape and a.rodape.disponivel %}{% if a.rodape.temperatura_c is defined %}{{ a.rodape.temperatura_c }} °C{% elif not a.rodape.texto %}<small>não lido</small>{% endif %}
+        {{ a.rodape.get('nome_camera', '') }}
         {% if a.rodape_diverge %}<span class="alerta aviso">difere do EXIF</span>{% endif %}
         {% elif a.rodape %}<small>{{ a.rodape.get('motivo', '') }}</small>{% endif %}</td>
   </tr>

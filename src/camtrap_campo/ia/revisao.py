@@ -7,6 +7,7 @@ from collections import Counter
 from sqlalchemy import select
 
 from camtrap_campo.db import Arquivo, Configuracao, Deteccao, Especie, Inferencia, Revisao, agora
+from camtrap_campo.ia import especies as lista_especies
 from camtrap_campo.ia.sequencias import agrupar
 
 LIMIAR_PADRAO = 0.2  # recomendação usual para MegaDetector v5
@@ -53,7 +54,7 @@ def montar(sessao, importacao_id: int, somente_pendentes: bool = False) -> dict:
         sugestao = max(sugestoes, key=lambda c: c.get("confianca", 0)) if sugestoes else None
         especie_sugerida = None
         if sugestao and sugestao.get("nome_cientifico"):
-            especie_sugerida = especies.get(sugestao["nome_cientifico"].lower())
+            especie_sugerida = lista_especies.procurar(especies, sugestao["nome_cientifico"])
         categorias = Counter(d.categoria for a in com_det for d in dets[a.id])
         simulado = simulado or any(infs[a.id].simulado for a in grupo)
         chave = grupo[0].id

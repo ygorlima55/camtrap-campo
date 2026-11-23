@@ -7,6 +7,7 @@ interrompida por fechar o programa) recomeça de onde parou, sem repetir arquivo
 from __future__ import annotations
 
 import shutil
+import subprocess
 import threading
 import traceback
 from pathlib import Path
@@ -65,7 +66,15 @@ def _processar_ia(sessao, motor, arq: Arquivo, dados: Path) -> None:
         _salvar_ia(sessao, arq, [(None, None, motor.analisar([origem])[0])])
         return
     pasta = dados / "_quadros" / str(arq.id)
-    quadros = midia.extrair_quadros(origem, pasta)
+    try:
+        quadros = midia.extrair_quadros(origem, pasta)
+    except subprocess.CalledProcessError as exc:
+        shutil.rmtree(pasta, ignore_errors=True)
+        motivo = (exc.stderr or b"").decode("utf-8", "replace").strip().splitlines()
+        ultima = motivo[-1] if motivo else exc.returncode
+        raise RuntimeError(f"vídeo ilegível pelo FFmpeg (arquivo danificado?): {ultima}") from exc
+    if not quadros:
+        raise RuntimeError("o FFmpeg não conseguiu tirar nenhum quadro do vídeo (arquivo danificado?)")
     resultados = []
     for (segundo, q), r in zip(quadros, motor.analisar([q for _, q in quadros]), strict=True):
         resultados.append((segundo, q.relative_to(dados).as_posix(), r))

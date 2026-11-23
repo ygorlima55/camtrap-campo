@@ -68,8 +68,9 @@
       {% for t in r.tarefas %}{% set pct = (100 * t.feitos / t.total) if t.total else 0 %}
       <div class="tarefa">
         <div><span>{{ 'IA' if t.tipo == 'ia' else 'Áudio' }} · importação #{{ t.importacao_id }}</span><span class="estado {{ t.estado }}">{{ t.estado }}</span></div>
-        <progress max="100" value="{{ pct|round }}"></progress>
-        <div><small>{{ t.feitos }}/{{ t.total }} arquivos{% if t.falhas %} · {{ t.falhas }} falha(s){% endif %}</small></div>
+        <div class="barra-pct"><progress max="100" value="{{ pct|round }}"></progress><b>{{ pct|round|int }}%</b></div>
+        <div><small>{{ t.feitos }}/{{ t.total }} arquivos{% if t.falhas %} · {{ t.falhas }} falha(s){% endif %}
+          {% if t.estado == 'executando' %}{% set eta = tempo_restante(t.iniciada_em, t.feitos, t.total) %}{% if eta %} · {{ eta }}{% endif %}{% endif %}</small></div>
       </div>
       {% endfor %}
     </div>
